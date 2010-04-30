@@ -18,7 +18,7 @@ setup(name='velruse',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          # -*- Extra requirements: -*-
+          "WebOb>=0.9.8", "python-openid>=2.2.4", "nose>=0.11",
       ],
       entry_points="""
       # -*- Entry points: -*-
