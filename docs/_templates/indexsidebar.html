@@ -1,0 +1,19 @@
+{% if version.endswith('(git)') %}
+<h3>Download Velruse</h3>
+<p>This documentation is for version <b>{{ version }}</b>, which is
+  not released yet.</p>
+<p>You can use it from the
+  <a href="http://github.com/bbangert/velruse">Git repo</a> or look for
+  released versions in the <a href="http://pypi.python.org/pypi/velruse">Python
+    Package Index</a>.</p>
+{% else %}
+<h3>Download Velruse {{ version }}</h3>
+<p>Get Velruse from the <a href="http://pypi.python.org/pypi/velruse">Python Package
+Index</a>, or install it with:</p>
+<pre>easy_install -U velruse</pre>
+{% endif %}
+
+<h3>Bugs? Suggestions?</h3>
+
+<p>Report them at the Github 
+  <a href="http://github.com/bbangert/velruse/issues">tracker</a>.</p>
