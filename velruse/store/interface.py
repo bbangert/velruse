@@ -9,8 +9,8 @@ class UserStore(object):
     def retrieve(self, key):
         """This method retrieves the data for a key from the storage.
         
-        The stored data is a JSON serialized dict and should be deserialized
-        using :func:`simplejson.loads` before being returned.
+        The stored data is a pickled object, and should be unpickled before
+        returning it.
         
         :param key: The key to retrieve. Keys are always ascii-safe strings.
         :returns: User information
@@ -22,8 +22,8 @@ class UserStore(object):
     def store(self, key, value, expires=None):
         """This method stores a users data dict in the storage.
         
-        The supplied value will be a dict and should be JSON serialized with the
-        :func:`simplejson.dumps` function before being stored. 
+        The supplied value will be a dict and should be pickled with the
+        before being stored. 
         
         :param key: The key to store the value under.
         :param value: The userdata to store

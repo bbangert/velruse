@@ -1,10 +1,14 @@
 """Redis UserStore implementation"""
+try:
+    import cPickle as pickle
+except ImportError:
+    import pickle
+
 import redis
 from redis.exceptions import RedisError
 
 from velruse.store.interface import UserStore
 from velruse.utils import cached_property
-from velruse.utils import json
 
 class RedisStorage(UserStore):
     """Redis Storage for Auth Provider"""
@@ -19,11 +23,15 @@ class RedisStorage(UserStore):
         return redis.Redis(host=self.host, port=self.port, db=self.db)
     
     def retrieve(self, key):
-        return self._conn.get(key)
+        data = self._conn.get(key)
+        if data:
+            return pickle.loads(data)
+        else:
+            return None
     
     def store(self, key, value, expires=None):
         try:
-            self._conn.set(key, json.dumps(value))
+            self._conn.set(key, pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL))
             if expires:
                 self._conn.expire(key, expires)
         except RedisError:

@@ -1,7 +1,8 @@
 import logging
 
-from openid import sreg
 from openid.consumer import consumer
+from openid.extensions import ax
+from openid.extensions import sreg
 from openid.server import server
 from routes import Mapper, URLGenerator
 from webob import exc, Response
@@ -10,6 +11,28 @@ from ofcode.controllers.auth.utils import error_string
 from ofcode.controllers.auth.utils import RouteResponder
 
 log = logging.getLogger(__name__)
+
+# Setup our attribute objects that we'll be requesting
+# First the simple registration attributes
+simplereg_attributes = dict(
+    username = ax.AttrInfo('http://axschema.org/namePerson/friendly', alias='username'),
+    email = ax.AttrInfo('http://axschema.org/contact/email', alias='email'),
+    full_name = ax.AttrInfo('http://axschema.org/namePerson', alias='full_name'),
+    birth_date = ax.AttrInfo('http://axschema.org/birthDate', alias='birth_date'),
+    gender = ax.AttrInfo('http://axschema.org/person/gender', alias='gender'),
+    postal_code = ax.AttrInfo('http://axschema.org/contact/postalCode/home', alias='postal_code'),
+    country = ax.AttrInfo('http://axschema.org/contact/country/home', alias='country'),
+    timezone = ax.AttrInfo('http://axschema.org/pref/language', alias='timezone'),
+)
+
+# Some common additional attributes
+extended_attributes = dict(
+    name_prefix = ax.AttrInfo('http://axschema.org/namePerson/prefix', alias='name_prefix'),
+    firstname = ax.AttrInfo('http://axschema.org/namePerson/first', alias='firstname'),
+    lastname = ax.AttrInfo('http://axschema.org/namePerson/last', alias='lastname'),
+    middle_name = ax.AttrInfo('http://axschema.org/namePerson/middle', alias='middle_name'),
+    name_suffix = ax.AttrInfo('http://axschema.org/namePerson/suffix', alias='name_suffix'),
+)
 
 
 class OpenIDConsumer(RouteResponder):
@@ -21,61 +44,74 @@ class OpenIDConsumer(RouteResponder):
     """
     map = Mapper()
     map.connect('login', '/login', method='login', requirements=dict(method='POST'))
+    map.connect('process', '/process', method='process')
     
-    
-    def __init__(self, storage, openid_store, end_point):
+    def __init__(self, storage, openid_store, end_point, realm):
         """Create the OpenID Consumer"""
         self.storage = storage
         self.openid_store = openid_store
+        self.realm = realm
         self.end_point = end_point
     
     def login(self, req):
-        openid_url = req.POST.get('openid_identifier')
+        # Load default parameters that all Auth Responders take
+        use_popup = req.POST.get('use_popup', '').lower() == 'true'
         end_point = req.POST.get('end_point', self.end_point)
+
+        openid_url = req.POST.get('openid_identifier')
         if not openid_url:
             return self._error_redirect(0, end_point)
-
-        oidconsumer = consumer.Consumer({}, self.openid_store)
+        
+        openid_session = {}
+        oidconsumer = consumer.Consumer(openid_session, self.openid_store)
+        
         try:
+            if openid_url == 'google.com':
+                openid_url = 'https://www.google.com/accounts/o8/id'
             authrequest = oidconsumer.begin(openid_url)
         except consumer.DiscoveryFailure, exc:
-            err_msg = str(exc[0])
-            if 'No usable OpenID' in err_msg:
-                failure_flash('Invalid OpenID URL')
-            else:
-                failure_flash('Timeout for OpenID URL')
-            proper_abort(end_action)
+            return self._error_redirect(1, end_point)
         
         if authrequest is None:
-            failure_flash('No OpenID services found for <code>%s</code>' % openid_url)
-            proper_abort(end_action)
+            return self._error_redirect(1, end_point)
         
-        if end_action == 'register':
-            sreg_request = sreg.SRegRequest(
-                required=['fullname', 'email', 'timezone'],
-                optional=['language']
-            )
-            authrequest.addExtension(sreg_request)
-            session['openid_action'] = 'register'
-        elif 'openid_action' in session:
-            del session['openid_action']
+        # Form the Simple Reg request
+        sreg_request = sreg.SRegRequest(
+            required=['fullname', 'email', 'timezone'],
+            optional=['language']
+        )
+        authrequest.addExtension(sreg_request)
         
-        trust_root = url('home', qualified=True)
-        return_to = url('openid_process', qualified=True)
+        # Add on the Attribute Exchange for those that support that
+        ax_request = ax.FetchRequest()
+        for attrib in simplereg_attributes.values() + extended_attributes.values():
+            ax_request.add(attrib)
+        
+        if openid_url.lower() == 'google.com':
+            for attr in ax_request.requested_attributes.values():
+                if attr.alias in ['country', 'email', 'firstname', 'lastname', 'language']:
+                    attr.required = True
+        authrequest.addExtension(ax_request)
+            
+        
+        return_to = req.link('process', qualified=True)
+        
+        # Ensure our session is saved for the id to persist
+        req.session.save()
         
         # OpenID 2.0 lets Providers request POST instead of redirect, this
         # checks for such a request.
         if authrequest.shouldSendRedirect():
-            redirect_url = authrequest.redirectURL(realm=trust_root, 
+            redirect_url = authrequest.redirectURL(realm=self.realm, 
                                                    return_to=return_to, 
                                                    immediate=False)
-            self.my_cache.set_value(key=session.id, value=self.openid_session, expiretime=300)
-            redirect(url(redirect_url))
+            self.storage.store(req.session.id, openid_session, expires=300)
+            return exc.HTTPFound(location=redirect_url)
         else:
             form_html = authrequest.formMarkup(
-                realm=trust_root, return_to=return_to, immediate=False,
+                realm=self.realm, return_to=return_to, immediate=False,
                 form_tag_attrs={'id':'openid_message'})
-            self.my_cache.set_value(key=session.id, value=self.openid_session, expiretime=300)
+            self.storage.store(req.session.id, openid_session, expires=300)
             return form_html
     
     def process(self):
