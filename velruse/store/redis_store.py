@@ -10,12 +10,13 @@ from redis.exceptions import RedisError
 from velruse.store.interface import UserStore
 from velruse.utils import cached_property
 
-class RedisStorage(UserStore):
+class RedisStore(UserStore):
     """Redis Storage for Auth Provider"""
-    def __init__(self, host='localhost', port=6379, db=0):
+    def __init__(self, host='localhost', port=6379, db=0, key_prefix='velruse_ustore'):
         self.host = host
         self.port = port
         self.db = db
+        self.key_prefix = key_prefix
     
     @cached_property
     def _conn(self):
@@ -23,17 +24,26 @@ class RedisStorage(UserStore):
         return redis.Redis(host=self.host, port=self.port, db=self.db)
     
     def retrieve(self, key):
-        data = self._conn.get(key)
+        data = self._conn.get('%s_%s' % (self.key_prefix, key))
         if data:
             return pickle.loads(data)
         else:
             return None
     
     def store(self, key, value, expires=None):
+        key = '%s_%s' % (self.key_prefix, key)
         try:
             self._conn.set(key, pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL))
             if expires:
                 self._conn.expire(key, expires)
+        except RedisError:
+            return False
+        else:
+            return True
+    
+    def delete(self, key):
+        try:
+            self._conn.delete('%s_%s' % (self.key_prefix, key))
         except RedisError:
             return False
         else:

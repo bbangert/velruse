@@ -3,7 +3,8 @@ from velruse.utils import json
 
 ERROR_CODES = {
     0: 'Missing parameter',
-    1: 'Error processing authentication credentials'
+    1: 'Error processing authentication credentials',
+    2: 'Verification of credentials failed',
 }
 
 def error_string(error_code):

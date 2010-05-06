@@ -6,12 +6,21 @@ try:
 except ImportError:
     import json
 
-import simplejson
 import webob.exc as exc
 from routes import URLGenerator
+from openid.oidutil import autoSubmitHTML
+from webob import Response
 
 from velruse.baseconvert import base_encode
+from velruse.errors import error_string
 
+
+def redirect_form(end_point, token):
+    return """
+<form action="%s" method="post" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded">
+<input type="hidden" name="token" value="%s" />
+<input type="submit" value="Continue"/></form>
+""" % (end_point, token)
 
 def generate_token():
     """Generate a random token"""
@@ -26,17 +35,19 @@ class RouteResponder(object):
         match = results[0]
         kwargs = match.copy()
         link = URLGenerator(self.map, req.environ)
-        req.urlvars = ((), match)
+        req.environ['wsgiorg.routing_args'] = ((), match)
         req.link = link
-        method = kwargs.pop('method')
-        return getattr(self, method)(req, **kwargs)
+        self.map.environ = req.environ
+        action = kwargs.pop('action')
+        return getattr(self, action)(req, **kwargs)
     
-    def _error_redirect(self, error_code, end_point):
+    def _error_redirect(self, error_code):
         """Redirect the user to the endpoint, save the error
         status to the storage under the token"""
         token = generate_token()
-        self.storage.put(token, error_string(error_code))
-        return exc.HTTPFound(location=end_point)
+        self.storage.store(token, error_string(error_code))
+        form_html = redirect_form(self.end_point, token)
+        return Response(body=autoSubmitHTML(form_html))
 
 
 class _Missing(object):

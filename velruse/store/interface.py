@@ -35,3 +35,15 @@ class UserStore(object):
         
         """
         raise NotImplementedError
+    
+    def delete(self, key):
+        """This method deletes a users data dict from the storage
+        
+        :param key: The key of the data to be removed.
+        
+        :returns: True if the delete proceeded ok, regardless of if the key
+                  actually existed or not.
+        :rtype: boolean
+        
+        """
+        raise NotImplementedError
