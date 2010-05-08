@@ -24,14 +24,14 @@ class RedisStore(UserStore):
         return redis.Redis(host=self.host, port=self.port, db=self.db)
     
     def retrieve(self, key):
-        data = self._conn.get('%s_%s' % (self.key_prefix, key))
+        data = self._conn.get('%s:%s' % (self.key_prefix, key))
         if data:
             return pickle.loads(data)
         else:
             return None
     
     def store(self, key, value, expires=None):
-        key = '%s_%s' % (self.key_prefix, key)
+        key = '%s:%s' % (self.key_prefix, key)
         try:
             self._conn.set(key, pickle.dumps(value, protocol=pickle.HIGHEST_PROTOCOL))
             if expires:
@@ -43,7 +43,7 @@ class RedisStore(UserStore):
     
     def delete(self, key):
         try:
-            self._conn.delete('%s_%s' % (self.key_prefix, key))
+            self._conn.delete('%s:%s' % (self.key_prefix, key))
         except RedisError:
             return False
         else:

@@ -14,6 +14,9 @@ import velruse.utils as utils
 
 log = logging.getLogger(__name__)
 
+__all__ = ['OpenIDResponder']
+
+
 # Setup our attribute objects that we'll be requesting
 ax_attributes = dict(
     nickname = ax.AttrInfo('http://axschema.org/namePerson/friendly', alias='nickname'),
@@ -30,8 +33,10 @@ ax_attributes = dict(
     last_name = ax.AttrInfo('http://axschema.org/namePerson/last', alias='last_name'),
     middle_name = ax.AttrInfo('http://axschema.org/namePerson/middle', alias='middle_name'),
     name_suffix = ax.AttrInfo('http://axschema.org/namePerson/suffix', alias='name_suffix'),
+    web_page = ax.AttrInfo('http://axschema.org/contact/web/default', alias='web'),
 )
 
+# Translation dict for AX attrib names to sreg equiv
 trans_dict = dict(
     full_name = 'fullname',
     birthday = 'dob',
@@ -120,6 +125,10 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     display_name = full_name or ud.get('preferredUsername')
     if display_name:
         ud['displayName'] = display_name
+    
+    web_page = attribs.get('web_page')
+    if web_page:
+        ud['urls'] = [web_page]
     
     for k in ['gender', 'birthday']:
         val = attribs.get(k)
@@ -259,9 +268,9 @@ class OpenIDResponder(utils.RouteResponder):
             # Delete the temporary token data used for the OpenID auth
             self.storage.delete(req.session.id)
             
-            # Generate the token, store the extracted user-data, and send back
+            # Generate the token, store the extracted user-data for 5 mins, and send back
             token = utils.generate_token()
-            self.storage.store(token, result_data)
+            self.storage.store(token, result_data, expires=300)
             form_html = utils.redirect_form(self.end_point, token)
             return Response(body=autoSubmitHTML(form_html))
         else:
