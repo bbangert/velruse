@@ -41,12 +41,12 @@ class RouteResponder(object):
         action = kwargs.pop('action')
         return getattr(self, action)(req, **kwargs)
     
-    def _error_redirect(self, error_code):
+    def _error_redirect(self, error_code, end_point):
         """Redirect the user to the endpoint, save the error
         status to the storage under the token"""
         token = generate_token()
         self.storage.store(token, error_string(error_code))
-        form_html = redirect_form(self.end_point, token)
+        form_html = redirect_form(end_point, token)
         return Response(body=autoSubmitHTML(form_html))
 
 
