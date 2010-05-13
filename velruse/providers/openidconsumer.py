@@ -94,6 +94,8 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     # We trust that Google and Yahoo both verify their email addresses
     if ud['providerName'] in ['Google', 'Yahoo']:
         ud['verifiedEmail'] = attribs.get('email', ax_only=True)
+    else:
+        ud['emails'] = [attribs.get('email')]
     
     # Parse through the name parts, assign the properly if present
     name = {}
@@ -124,7 +126,7 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     
     # Now strip out empty values
     for k, v in ud.items():
-        if not v:
+        if not v or (isinstance(v, list) and not v[0]):
             del ud[k]
     
     return ud

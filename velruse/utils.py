@@ -22,6 +22,7 @@ def redirect_form(end_point, token):
 <input type="submit" value="Continue"/></form>
 """ % (end_point, token)
 
+
 def generate_token():
     """Generate a random token"""
     return base_encode(uuid.uuid4().int)

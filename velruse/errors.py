@@ -6,6 +6,7 @@ ERROR_CODES = {
     1: 'Error processing authentication credentials',
     2: 'Verification of credentials failed',
     3: 'Network error',
+    4: 'Application verification failed',
 }
 
 def error_string(error_code):

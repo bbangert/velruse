@@ -7,6 +7,9 @@ Example YAML config file::
     
     Store:
         Redis: true
+    Facebook:
+        Consumer Key: KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
+        Consumer Secret: ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
     Google:
         OAuth Consumer Key: yourdomain.com
         OAuth Consumer Secret: KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
@@ -62,6 +65,7 @@ import velruse.store as store
 from velruse.utils import path_info_pop
 
 PROVIDERS = {
+    'Facebook': providers.FacebookResponder,
     'Google': providers.GoogleResponder,
     'Yahoo': providers.YahooResponder,
     'OpenID': providers.OpenIDResponder,
