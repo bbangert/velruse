@@ -67,9 +67,10 @@ from velruse.utils import path_info_pop
 PROVIDERS = {
     'Facebook': providers.FacebookResponder,
     'Google': providers.GoogleResponder,
-    'Yahoo': providers.YahooResponder,
+    'Live': providers.LiveResponder,
     'OpenID': providers.OpenIDResponder,
     'Twitter': providers.TwitterResponder,
+    'Yahoo': providers.YahooResponder,
 }
 
 STORAGE = {
