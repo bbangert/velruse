@@ -38,6 +38,11 @@ class UserStore(object):
         The supplied value will be a dict and should be pickled with the
         before being stored. 
         
+        For backend's that don't automatically expire data, some record should
+        be kept with the key's data marking when it should have expired so that
+        :method:`~velruse.store.interface.purge_expired` can properly purge
+        old data.
+        
         :param key: The key to store the value under.
         :param value: The userdata to store
         :param expires: Optional expiration time in seconds from now before the
@@ -57,6 +62,16 @@ class UserStore(object):
         :returns: True if the delete proceeded ok, regardless of if the key
                   actually existed or not.
         :rtype: boolean
+        
+        """
+        raise NotImplementedError
+    
+    def purge_expired(self):
+        """This method purges all expired data from the storage
+        
+        All expired data should be purged from the UserStore when this method
+        is called. UserStore's that automatically expire old data must still
+        implement this method, but can do nothing.
         
         """
         raise NotImplementedError

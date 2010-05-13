@@ -65,3 +65,6 @@ class RedisStore(UserStore):
             return False
         else:
             return True
+    
+    def purge_expired(self):
+        pass
