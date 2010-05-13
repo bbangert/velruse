@@ -1,6 +1,10 @@
+import urlparse
+
 import oauth2 as oauth
+from openid.extensions import ax
 
 from velruse.providers.oid_extensions import OAuthRequest
+from velruse.providers.openidconsumer import ax_attributes
 from velruse.providers.openidconsumer import OpenIDResponder
 
 YAHOO_OAUTH = 'https://api.login.yahoo.com/oauth/v2/get_token'
@@ -43,7 +47,11 @@ class YahooResponder(OpenIDResponder):
         return 'https://yahoo.com/'
     
     def _update_authrequest(self, req, authrequest):
-        super(YahooResponder, self)._update_authrequest(self, req, authrequest)
+        # Add on the Attribute Exchange for those that support that            
+        ax_request = ax.FetchRequest()
+        for attrib in ax_attributes.values():
+            ax_request.add(ax.AttrInfo(attrib))
+        authrequest.addExtension(ax_request)
         
         # Add OAuth request?
         if 'oauth' in req.POST:
@@ -53,7 +61,7 @@ class YahooResponder(OpenIDResponder):
 
     def _get_access_token(self, request_token):
         consumer = oauth.Consumer(key=self.consumer, secret=self.oauth_secret)
-        token = oauth.Token(key=request_token, secret=None)
+        token = oauth.Token(key=request_token, secret='')
         client = oauth.Client(consumer, token)
         resp, content = client.request(YAHOO_OAUTH, "POST")
         access_token = dict(urlparse.parse_qsl(content))

@@ -80,7 +80,7 @@ class GoogleResponder(OpenIDResponder):
     
     def _get_access_token(self, request_token):
         consumer = oauth.Consumer(key=self.consumer, secret=self.oauth_secret)
-        token = oauth.Token(key=request_token, secret=None)
+        token = oauth.Token(key=request_token, secret='')
         client = oauth.Client(consumer, token)
         resp, content = client.request(GOOGLE_OAUTH, "POST")
         access_token = dict(urlparse.parse_qsl(content))
