@@ -50,3 +50,13 @@ class YahooResponder(OpenIDResponder):
             oauth_request = OAuthRequest(consumer=self.consumer)
             authrequest.addExtension(oauth_request)
         return None
+
+    def _get_access_token(self, request_token):
+        consumer = oauth.Consumer(key=self.consumer, secret=self.oauth_secret)
+        token = oauth.Token(key=request_token, secret=None)
+        client = oauth.Client(consumer, token)
+        resp, content = client.request(YAHOO_OAUTH, "POST")
+        access_token = dict(urlparse.parse_qsl(content))
+        
+        return {'oauthAccessToken': access_token['oauth_token'], 
+                'oauthAccessTokenSecret': access_token['oauth_token_secret']}
