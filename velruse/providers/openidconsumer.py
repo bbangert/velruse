@@ -149,6 +149,18 @@ class OpenIDResponder(utils.RouteResponder):
         self.endpoint_regex = endpoint_regex
         self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
     
+    @classmethod
+    def parse_config(cls, config):
+        params = {}
+        key_map = {'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
+        oids_vals = config['OpenID']
+        for k, v in key_map.items():
+            if k in oids_vals:
+                params[v] = oids_vals[k]
+        params['openid_store'] = config['OpenID Store']
+        params['storage'] = config['UserStore']
+        return params
+    
     def _lookup_identifier(self, req, identifier):
         """Extension point for inherited classes that want to change or set
         a default identifier"""

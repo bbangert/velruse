@@ -27,6 +27,48 @@ def generate_token():
     return base_encode(uuid.uuid4().int)
 
 
+# Copied from Paste
+def path_info_pop(environ):
+    """
+    'Pops' off the next segment of PATH_INFO, pushing it onto
+    SCRIPT_NAME, and returning that segment.
+
+    For instance::
+
+        >>> def call_it(script_name, path_info):
+        ...     env = {'SCRIPT_NAME': script_name, 'PATH_INFO': path_info}
+        ...     result = path_info_pop(env)
+        ...     print 'SCRIPT_NAME=%r; PATH_INFO=%r; returns=%r' % (
+        ...         env['SCRIPT_NAME'], env['PATH_INFO'], result)
+        >>> call_it('/foo', '/bar')
+        SCRIPT_NAME='/foo/bar'; PATH_INFO=''; returns='bar'
+        >>> call_it('/foo/bar', '')
+        SCRIPT_NAME='/foo/bar'; PATH_INFO=''; returns=None
+        >>> call_it('/foo/bar', '/')
+        SCRIPT_NAME='/foo/bar/'; PATH_INFO=''; returns=''
+        >>> call_it('', '/1/2/3')
+        SCRIPT_NAME='/1'; PATH_INFO='/2/3'; returns='1'
+        >>> call_it('', '//1/2')
+        SCRIPT_NAME='//1'; PATH_INFO='/2'; returns='1'
+
+    """
+    path = environ.get('PATH_INFO', '')
+    if not path:
+        return None
+    while path.startswith('/'):
+        environ['SCRIPT_NAME'] += '/'
+        path = path[1:]
+    if '/' not in path:
+        environ['SCRIPT_NAME'] += path
+        environ['PATH_INFO'] = ''
+        return path
+    else:
+        segment, path = path.split('/', 1)
+        environ['PATH_INFO'] = '/' + path
+        environ['SCRIPT_NAME'] += segment
+        return segment    
+
+
 class RouteResponder(object):
     def __call__(self, req):
         results = self.map.routematch(environ=req.environ)

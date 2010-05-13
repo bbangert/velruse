@@ -17,8 +17,26 @@ class YahooResponder(OpenIDResponder):
         """
         super(YahooResponder, self).__init__(*args, **kwargs)
         self.consumer = consumer
-        self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
+
+    @classmethod
+    def parse_config(cls, config):
+        """Parse config data from a config file
+        
+        We call the super's parse_config first to update it with our additional
+        values.
+        
+        """
+        conf = OpenIDResponder.parse_config(config)
+        params = {}
+        key_map = {'Consumer Key': 'consumer', 'Consumer Secret': 'oauth_secret',
+                   'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
+        yahoo_vals = config['Yahoo']
+        for k, v in key_map.items():
+            if k in yahoo_vals:
+                params[v] = yahoo_vals[k]
+        conf.update(params)
+        return conf
     
     def _lookup_identifier(self, req, identifier):
         """Return the Yahoo OpenID directed endpoint"""

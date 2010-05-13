@@ -4,7 +4,6 @@ A Google responder that authenticates against Google using OpenID, or optionally
 can use OpenId+OAuth hybrid protocol to request access to Google Apps using OAuth2.
 
 """
-import time
 import urlparse
 
 from openid.extensions import ax
@@ -30,6 +29,25 @@ class GoogleResponder(OpenIDResponder):
         super(GoogleResponder, self).__init__(*args, **kwargs)
         self.consumer = consumer
         self.oauth_secret = oauth_secret
+    
+    @classmethod
+    def parse_config(cls, config):
+        """Parse config data from a config file
+        
+        We call the super's parse_config first to update it with our additional
+        values.
+        
+        """
+        conf = OpenIDResponder.parse_config(config)
+        params = {}
+        key_map = {'OAuth Consumer Key': 'consumer', 'OAuth Consumer Secret': 'oauth_secret',
+                   'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
+        google_vals = config['Google']
+        for k, v in key_map.items():
+            if k in google_vals:
+                params[v] = google_vals[k]
+        conf.update(params)
+        return conf
     
     def _lookup_identifier(self, req, identifier):
         """Return the Google OpenID directed endpoint"""
@@ -63,16 +81,6 @@ class GoogleResponder(OpenIDResponder):
     def _get_access_token(self, request_token):
         consumer = oauth.Consumer(key=self.consumer, secret=self.oauth_secret)
         token = oauth.Token(key=request_token, secret=None)
-        params = {
-            'oauth_version': "1.0",
-            'oauth_nonce': oauth.generate_nonce(),
-            'oauth_timestamp': int(time.time()),
-            'oauth_token': request_token
-        }
-        req = oauth.Request(method="POST", url=GOOGLE_OAUTH, parameters=params)
-        signature_method = oauth.SignatureMethod_HMAC_SHA1()
-        req.sign_request(signature_method, consumer, token)
-        
         client = oauth.Client(consumer, token)
         resp, content = client.request(GOOGLE_OAUTH, "POST")
         access_token = dict(urlparse.parse_qsl(content))

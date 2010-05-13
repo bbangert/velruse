@@ -18,6 +18,23 @@ class RedisStore(UserStore):
         self.db = db
         self.key_prefix = key_prefix
     
+    @classmethod
+    def load_from_config(cls, config):
+        """Load the RedisStore based on the config"""
+        if config == 'true' or config == True:
+            return cls()
+        else:
+            params = {}
+            for k, v in config.items():
+                key = k.lower()
+                if key not in ['host', 'port', 'db', 'key_prefix']:
+                    continue
+                if key == 'db':
+                    params['db'] = int(v)
+                else:
+                    params[key] = v
+            return cls(**params)
+    
     @cached_property
     def _conn(self):
         """The Redis connection, cached for this call"""
