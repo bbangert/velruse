@@ -4,7 +4,6 @@ from openid.oidutil import autoSubmitHTML
 from routes import Mapper
 from webob import Response
 import httplib2
-import oauth2 as oauth
 import webob.exc as exc
 
 import velruse.utils as utils
