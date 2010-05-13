@@ -43,6 +43,14 @@ Default URL mapping to trigger provider authentication processing:
 If this WSGI application is mounted under a prefix, ie. 'velruse', the prefix should be
 moved to ``environ['SCRIPT_NAME']`` before the velruse WSGI app is called.
 
+.. note::
+    
+    The Velruse app relies on being able to set session specific information, using
+    Beaker. Beaker should be loaded and configured in front of the Velruse WSGI App,
+    or if using the :class:`~velruse.app.VelruseResponder`, the Beaker session should
+    be available as the 'session' attribute on the :class:`~webob.Request~ object
+    passed in.
+
 """
 import sys
 import webob
