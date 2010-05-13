@@ -22,6 +22,7 @@ setup(name='velruse',
           "Marco==0.1a1",
       ],
       entry_points="""
-      # -*- Entry points: -*-
+      [paste.app_factory]
+      main = velruse.app:make_velruse_app
       """,
       )
