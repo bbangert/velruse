@@ -36,6 +36,8 @@ class YahooResponder(OpenIDResponder):
         key_map = {'Consumer Key': 'consumer', 'Consumer Secret': 'oauth_secret',
                    'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
         yahoo_vals = config['Yahoo']
+        if not isinstance(yahoo_vals, dict):
+            return conf
         for k, v in key_map.items():
             if k in yahoo_vals:
                 params[v] = yahoo_vals[k]
