@@ -10,11 +10,16 @@
   with the exception of being open-source, locally installable, and easily
   pluggable for custom identity providers and authentication schemes.</p>
   
+  <p>You can run Velruse as a stand-alone service for use with your websites regardless
+      of the language they're written in. While Velruse itself is written in Python, since
+      it can interact with your website purely via HTTP POST's.</p>
+  
   <p>Velruse can:
       <ul>
-          <li><b>Normalize identity information</b> from varying provider sources (OpenID, Google, Facebook, etc.)</li>
+          <li><b>Normalize identity information</b> from varying provider sources (OpenID, Google, Facebook, etc.) to 
+              <a href="http://portablecontacts.net/draft-spec.html">Portable Contacts</a>.</li>
           <li><b>Simplify complex authentication protocols</b> by providing a simple consistent API</li>
-          <li><b>Extension points for other authentication systems</b>, write your own auth provider to handle
+          <li><b>Provide extension points for other authentication systems</b>, write your own auth provider to handle
               <a href="http://www.jasig.org/cas/cas2-architecture">CAS</a>,
               <a href="http://www.openldap.org/">LDAP</a>, and use it with ease</li>
           <li><b>Integrate with most web applications</b> regardless of the language used to write the website</li>

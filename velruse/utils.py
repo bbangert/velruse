@@ -16,6 +16,7 @@ from velruse.errors import error_string
 
 
 def redirect_form(end_point, token):
+    """Generate a redirect form for POSTing"""
     return """
 <form action="%s" method="post" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded">
 <input type="hidden" name="token" value="%s" />
@@ -71,7 +72,9 @@ def path_info_pop(environ):
 
 
 class RouteResponder(object):
+    """RouteResponder for Routes-based dispatching Responder"""
     def __call__(self, req):
+        """Handle being called with a request object"""
         results = self.map.routematch(environ=req.environ)
         if not results:
             return exc.HTTPNotFound()
@@ -93,6 +96,8 @@ class RouteResponder(object):
         return Response(body=autoSubmitHTML(form_html))
     
     def _success_redirect(self, user_data, end_point):
+        """Redirect the user to the endpoint, save the user_data to a new
+        random token in storage"""
         # Generate the token, store the extracted user-data for 5 mins, and send back
         token = generate_token()
         self.storage.store(token, user_data, expires=300)

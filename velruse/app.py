@@ -32,13 +32,13 @@ Example YAML config file::
         Type: openidredis:RedisStore
 
 Note that some providers take optional parameters, if a provider takes parameters, they
-should be provided, or if no additional parameters will be used indicating true is
+should be provided, or if no additional parameters will be used, indicating true is
 suffficient for the provider to be available.
 
 OpenID based providers such as Google/Yahoo required the OpenID Store parameter to be
 configured.
 
-Default URL mapping to trigger provider authentication processing:
+Default URL mapping to trigger provider authentication processing::
     
     Google
         /google/auth
@@ -59,7 +59,7 @@ moved to ``environ['SCRIPT_NAME']`` before the velruse WSGI app is called.
     The Velruse app relies on being able to set session specific information, using
     Beaker. Beaker should be loaded and configured in front of the Velruse WSGI App,
     or if using the :class:`~velruse.app.VelruseResponder`, the Beaker session should
-    be available as the 'session' attribute on the :class:`~webob.Request~ object
+    be available as the 'session' attribute on the :class:`~webob.Request` object
     passed in.
 
 """
@@ -157,6 +157,12 @@ class VelruseResponder(object):
 
 
 class VelruseApp(object):
+    """Velruse WSGI App
+    
+    The Velruse WSGI App mounts several Auth Providers as specified in the
+    YAML configuration file they're passed.
+    
+    """
     def __init__(self, config_file):
         self.config = parse_config_file(config_file)
     

@@ -81,6 +81,7 @@ class GoogleResponder(OpenIDResponder):
         return None
     
     def _get_access_token(self, request_token):
+        """Retrieve the access token if OAuth hybrid was used"""
         consumer = oauth.Consumer(key=self.consumer, secret=self.oauth_secret)
         token = oauth.Token(key=request_token, secret='')
         client = oauth.Client(consumer, token)

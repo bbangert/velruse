@@ -42,11 +42,13 @@ trans_dict = dict(
 )
 
 class AttribAccess(object):
+    """Uniform attribute accessor for Simple Reg and Attribute Exchange values"""
     def __init__(self, sreg_resp, ax_resp):
         self.sreg_resp = sreg_resp or {}
         self.ax_resp = ax_resp or ax.AXKeyValueMessage()
     
     def get(self, key, ax_only=False):
+        """Get a value from either Simple Reg or AX"""
         # First attempt to fetch it from AX
         v = self.ax_resp.getSingle(ax_attributes[key])
         if v:

@@ -1,5 +1,4 @@
 """Error generation and handling"""
-from velruse.utils import json
 
 ERROR_CODES = {
     0: 'Missing parameter',
@@ -16,3 +15,6 @@ def error_string(error_code):
     err['reason'] = {'code': error_code, 
                      'description': ERROR_CODES[error_code]}
     return json.dumps(err)
+
+# Avoid circular dependeny prob
+from velruse.utils import json

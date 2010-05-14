@@ -248,6 +248,10 @@ Delegated authentication will only be performed if the `Offers` YAML parameter i
 
 Login Authentication provides a single unique identifier, while Delegated Authentication provides the single unique identifier and a consent token to use to access Live services.
 
+.. note::
+    
+    The Windows Live API requires the Python package `PyCrypto <http://www.dlitz.net/software/pycrypto/>`_ to be installed before using.
+
 Windows Live Developer Links:
 
 * `Getting Your Application ID <http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_

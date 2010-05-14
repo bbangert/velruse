@@ -25,3 +25,8 @@ Glossary
         Persistent data storage to hold onto user records after a user
         has authenticated. The user data is stored temporarily until it
         has been retrieved for use.
+    
+    responder
+        Term used for an object that can be called with a WebOb Request, and
+        will return a WebOb Response object. All of the Auth Providers follow
+        this call style.

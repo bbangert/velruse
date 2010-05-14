@@ -40,7 +40,7 @@ class UserStore(object):
         
         For backend's that don't automatically expire data, some record should
         be kept with the key's data marking when it should have expired so that
-        :method:`~velruse.store.interface.purge_expired` can properly purge
+        :meth:`~velruse.store.interface.purge_expired` can properly purge
         old data.
         
         :param key: The key to store the value under.

@@ -24,7 +24,7 @@ import cgi
 import sys
 import re
 
-class WLLError(Exception):
+class WLLError(Exception): # pragma: no cover
 
     """All fatal errors in this class will throw this exception."""
 
@@ -34,7 +34,7 @@ class WLLError(Exception):
     def __str__(self):
         return repr(self.value)
 
-class ConsentToken :
+class ConsentToken : # pragma: no cover
     
     """Holds the Consent Token object corresponding to consent granted. """
     
@@ -197,7 +197,7 @@ class ConsentToken :
         self.__token = ct.__token
            
         
-class User:
+class User: # pragma: no cover
 
     """Holds the user information after a successful sign-in."""
 
@@ -278,7 +278,7 @@ class User:
         """Sets the raw User token."""
         self.__token = token
 
-class WindowsLiveLogin:
+class WindowsLiveLogin: # pragma: no cover
 
     ###################################################################
     # Implementation of the basic methods needed to perform 
