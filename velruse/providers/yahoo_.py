@@ -66,6 +66,9 @@ class YahooResponder(OpenIDResponder):
         token = oauth.Token(key=request_token, secret='')
         client = oauth.Client(consumer, token)
         resp, content = client.request(YAHOO_OAUTH, "POST")
+        if resp['status'] != '200':
+            return None
+        
         access_token = dict(urlparse.parse_qsl(content))
         
         return {'oauthAccessToken': access_token['oauth_token'], 

@@ -9,7 +9,7 @@ Authentication Providers supply varying levels of information when authenticatio
 Default POST Parameters
 =======================
 
-Every provider accepts the POST parameter `end_point`, which is the URL that the token will be POSTed to when authentication is complete.
+Almost every provider accepts the POST parameter `end_point`, which is the URL that the token will be POSTed to when authentication is complete.
 
 Facebook
 ========
@@ -206,3 +206,81 @@ Complete Example:
     <input type="submit" value="Login with Yahoo" />
     </form>
 
+Twitter
+=======
+
+The Twitter provider combines authentication with OAuth authorization. It requires a Twitter Application to have been created to use. Twitter only provides the twitter screen name and id, along with an OAuth access token.
+
+Twitter Developer Links:
+
+* `Register a New Twitter Application <http://dev.twitter.com/apps/new>`_
+* `Twitter OAuth API <http://dev.twitter.com/doc>`_
+
+YAML Parameters
+---------------
+
+Consumer Key
+    Twitter application consumer key
+Consumer Secret
+    Twitter application secret
+
+POST Parameters
+---------------
+
+Only the default `end_point` parameter is used.
+
+Complete Example:
+
+.. code-block:: html
+    
+    <form action="/velruse/twitter/auth'" method="post">
+    <input type="hidden" name="end_point" value="http://END_POINT" />
+    <input type="submit" value="Login with Twitter" />
+    </form>
+
+
+Windows Live
+============
+
+The Windows Live Provider handles Windows Live Web Authentication and Delegated Authentication. Both of these methods of authentication require a Live Services Component to be registered `per the 'Registering Your Application' documentation <http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_.
+
+Delegated authentication will only be performed if the `Offers` YAML parameter is set.
+
+Login Authentication provides a single unique identifier, while Delegated Authentication provides the single unique identifier and a consent token to use to access Live services.
+
+Windows Live Developer Links:
+
+* `Getting Your Application ID <http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_
+* `Services Available for Delegated Authentication <http://dev.live.com/blogs/liveid/archive/2008/02/25/211.aspx>`_
+* `Live Services Management Page <https://live.azure.com/Cloud/Provisioning/Services.aspx>`_
+
+YAML Parameters
+---------------
+
+Application ID
+    Component Application ID
+Secret Key
+    Component Secret Key
+Policy URL
+    Site's Policy URL
+Offers
+    Delegated auth Offers, e.g. `Contacts.View`
+
+The `Offers` parameter is optional to invoke Delegated Authentication.
+
+POST Parameters
+---------------
+
+Live Services authentication does not take any parameters, as the `end_point` must be registered with the Live Services component as the **Return URL**.
+
+Example Return URL::
+    
+    http://YOURDOMAIN.COM/velruse/live/process
+
+Complete Example:
+
+.. code-block:: html
+    
+    <form action="/velruse/live/auth'" method="post">
+    <input type="submit" value="Login with Windows Live" />
+    </form>

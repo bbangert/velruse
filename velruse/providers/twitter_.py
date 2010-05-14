@@ -1,8 +1,6 @@
 import urlparse
 
-from openid.oidutil import autoSubmitHTML
 from routes import Mapper
-from webob import Response
 import httplib2
 import oauth2 as oauth
 import webob.exc as exc
@@ -90,8 +88,4 @@ class TwitterResponder(utils.RouteResponder):
                 'oauthAccessTokenSecret': access_token['oauth_token_secret']}
         result_data['credentials'] = cred
         
-        # Generate the token, store the extracted user-data for 5 mins, and send back
-        token = utils.generate_token()
-        self.storage.store(token, result_data, expires=300)
-        form_html = utils.redirect_form(req.session['end_point'], token)
-        return Response(body=autoSubmitHTML(form_html))
+        return self._success_redirect(result_data, end_point)

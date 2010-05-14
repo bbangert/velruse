@@ -91,6 +91,14 @@ class RouteResponder(object):
         self.storage.store(token, error_string(error_code))
         form_html = redirect_form(end_point, token)
         return Response(body=autoSubmitHTML(form_html))
+    
+    def _success_redirect(self, user_data, end_point):
+        # Generate the token, store the extracted user-data for 5 mins, and send back
+        token = generate_token()
+        self.storage.store(token, user_data, expires=300)
+        form_html = redirect_form(end_point, token)
+        return Response(body=autoSubmitHTML(form_html))
+        
 
 
 class _Missing(object):

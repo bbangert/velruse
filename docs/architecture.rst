@@ -8,11 +8,11 @@ Velruse is designed as several sets of components that work together, and can
 be used individually for the authentication style desired.
 
 
-Provider Templates
-==================
+Provider HTML Examples
+======================
 
 Every authentication provider that is available comes with a basic HTML 
-template illustrating the parameters it requires. The template generally 
+example illustrating the parameters it requires. The template generally 
 includes a logo when its a third party :term:`identity provider` to help
 a website user find the preferred authentication option.
 
@@ -40,12 +40,12 @@ Each :term:`auth provider` must be a callable. It will be called with a
 
 The Auth Provider is expected to respond to a POST to `/auth`, and then
 proceed with the necessary calls and/or redirects necessary to complete
-the authentication.
+the authentication. The normalized user data should then be written to the
+store, and a token returned to the user.
 
-Auth Provider's are usually setup under the :class:`~velruse.wsgiapp.AuthApp`
+Auth Provider's are usually setup under the :class:`~velruse.app.VelruseApp`
 WSGI app, which is a minimal WSGI application that can dispatch to several
-configured Auth Provider's. This WSGI app can also be configured to serve
-user details given a token via HTTPS.
+configured Auth Provider's based on a YAML configuration file.
 
 
 UserStore Backends

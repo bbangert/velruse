@@ -4,7 +4,6 @@ import re
 from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
-from openid.oidutil import autoSubmitHTML
 from routes import Mapper
 from webob import Response
 import webob.exc as exc
@@ -289,10 +288,6 @@ class OpenIDResponder(utils.RouteResponder):
             # Delete the temporary token data used for the OpenID auth
             self.storage.delete(req.session.id)
             
-            # Generate the token, store the extracted user-data for 5 mins, and send back
-            token = utils.generate_token()
-            self.storage.store(token, result_data, expires=300)
-            form_html = utils.redirect_form(req.session['end_point'], token)
-            return Response(body=autoSubmitHTML(form_html))
+            return self._success_redirect(result_data, end_point)
         else:
             return self._error_redirect(1, end_point)
