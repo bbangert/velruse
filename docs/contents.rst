@@ -8,6 +8,7 @@ Contents:
    
    overview
    architecture
+   providers
 
 Indices and tables
 ==================

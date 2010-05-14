@@ -43,6 +43,8 @@ class GoogleResponder(OpenIDResponder):
         key_map = {'OAuth Consumer Key': 'consumer', 'OAuth Consumer Secret': 'oauth_secret',
                    'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
         google_vals = config['Google']
+        if not isinstance(google_vals, dict):
+            return conf
         for k, v in key_map.items():
             if k in google_vals:
                 params[v] = google_vals[k]

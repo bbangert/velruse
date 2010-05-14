@@ -209,15 +209,15 @@ class OpenIDResponder(utils.RouteResponder):
         end_point = req.POST['end_point']
         openid_url = req.POST.get('openid_identifier')
         
+        # Let inherited consumers alter the openid identifier if desired
+        openid_url = self._lookup_identifier(req, openid_url)
+        
         if not openid_url or not re.match(self.endpoint_regex, end_point):
             return self._error_redirect(0, end_point)
         
         openid_session = {}
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
-        
-        # Let inherited consumers alter the openid identifier if desired
-        openid_url = self._lookup_identifier(req, openid_url)
-        
+                
         try:
             authrequest = oidconsumer.begin(openid_url)
         except consumer.DiscoveryFailure:
