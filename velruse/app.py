@@ -205,7 +205,7 @@ def make_velruse_app(global_conf, config_file, **app_conf):
         beaker.session.cookie_domain = .yourdomain.com
 
         [app:YOURAPP]
-        use = egg:ofcode
+        use = egg:YOURAPP
         full_stack = true
         static_files = true
         
