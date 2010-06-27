@@ -21,7 +21,10 @@ class MemoryStore(UserStore):
             return None
     
     def store(self, key, value, expires=None):
-        self._store[key] = (value, time.time() + expires)
+        expiration = None
+        if expires:
+            expiration = time.time() + expires
+        self._store[key] = (value, expiration)
         return True
     
     def delete(self, key):
@@ -38,7 +41,7 @@ class MemoryStore(UserStore):
         # Record the keys to delete, there may be a lot, so we use iteritems
         # which doesn't let us change it while iterating
         for key, value in self._store.iteritems():
-            if now > value[1]:
+            if value[1] is not None and now > value[1]:
                 to_delete.append(key)
         for key in to_delete:
             del self._store[key]
