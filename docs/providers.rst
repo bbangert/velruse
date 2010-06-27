@@ -155,7 +155,7 @@ Complete Example:
 
 .. code-block:: html
     
-    <form action="/velruse/google/auth'" method="post">
+    <form action="/velruse/google/auth" method="post">
     <input type="hidden" name="popup_mode" value="popup" />
     <input type="hidden" name="end_point" value="http://END_POINT" />
     <input type="hidden" name="oauth_scope" value="http://www.google.com/m8/feeds/" />
@@ -200,7 +200,7 @@ Complete Example:
 
 .. code-block:: html
     
-    <form action="/velruse/yahoo/auth'" method="post">
+    <form action="/velruse/yahoo/auth" method="post">
     <input type="hidden" name="end_point" value="http://END_POINT" />
     <input type="hidden" name="oauth" value="true" />
     <input type="submit" value="Login with Yahoo" />
@@ -233,7 +233,7 @@ Complete Example:
 
 .. code-block:: html
     
-    <form action="/velruse/twitter/auth'" method="post">
+    <form action="/velruse/twitter/auth" method="post">
     <input type="hidden" name="end_point" value="http://END_POINT" />
     <input type="submit" value="Login with Twitter" />
     </form>
@@ -285,6 +285,6 @@ Complete Example:
 
 .. code-block:: html
     
-    <form action="/velruse/live/auth'" method="post">
+    <form action="/velruse/live/auth" method="post">
     <input type="submit" value="Login with Windows Live" />
     </form>
