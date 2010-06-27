@@ -104,7 +104,7 @@ def parse_config_file(config_file):
             config['UserStore'] = STORAGE[k].load_from_config(stores[k])
     
     # Check for and load the OpenID Store if present
-    oid_store = config.pop('OpenID Store')
+    oid_store = config.pop('OpenID Store', None)
     if oid_store:
         type_string = oid_store.pop('Type')
         package_name, obj_name = type_string.split(':')
