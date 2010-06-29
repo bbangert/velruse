@@ -6,7 +6,7 @@ specified in the YAML file.
 Example YAML config file::
     
     Store:
-        Redis: true
+        Type: Redis
     Facebook:
         API Key: eb7cf817bab6e28d3b941811cf1b014e
         Application Secret: KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
@@ -63,7 +63,6 @@ moved to ``environ['SCRIPT_NAME']`` before the velruse WSGI app is called.
     passed in.
 
 """
-import sys
 import webob
 import webob.exc as exc
 import yaml
@@ -72,7 +71,7 @@ from beaker.middleware import SessionMiddleware
 
 import velruse.providers as providers
 import velruse.store as store
-from velruse.utils import path_info_pop
+from velruse.utils import path_info_pop, load_package_obj
 
 PROVIDERS = {
     'Facebook': providers.FacebookResponder,
@@ -98,18 +97,18 @@ def parse_config_file(config_file):
     config = yaml.load(content)
     
     # Initialize the UserStore(s) first for use with the providers
-    stores = config['Store']
-    for k, v in STORAGE.items():
-        if k in stores:
-            config['UserStore'] = STORAGE[k].load_from_config(stores[k])
-    
+    store_config = config['Store']
+    store_type = store_config.pop('Type')
+    if store_type in STORAGE: 
+        config['UserStore'] = STORAGE[store_type].load_from_config(store_config)
+    else:
+        obj = load_package_obj(store_type)
+        config['UserStore'] = obj.load_from_config(store_config)
+
     # Check for and load the OpenID Store if present
     oid_store = config.pop('OpenID Store', None)
     if oid_store:
-        type_string = oid_store.pop('Type')
-        package_name, obj_name = type_string.split(':')
-        __import__(package_name)
-        obj = getattr(sys.modules[package_name], obj_name)
+        obj = load_package_obj(oid_store.pop('Type'))
         config['OpenID Store'] = obj(**oid_store)
         
     # The loaded providers

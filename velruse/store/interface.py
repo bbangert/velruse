@@ -9,8 +9,7 @@ class UserStore(object):
     def load_from_config(cls, config):
         """This method creates and returns a configured UserStore
         
-        :param config: Either a string 'true' indicating the default values
-                       should be used, or a dict of key/value's to use when
+        :param config: A dict of key/value's to use when
                        instantiating the UserStore. The key/value's accepted
                        from a config should be documented.
         :returns: A configured UserStore.
