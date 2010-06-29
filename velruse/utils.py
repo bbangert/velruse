@@ -1,4 +1,5 @@
 """Utilities for the auth functionality"""
+import sys
 import uuid
 
 try:
@@ -27,6 +28,17 @@ def redirect_form(end_point, token):
 def generate_token():
     """Generate a random token"""
     return base_encode(uuid.uuid4().int)
+
+
+def load_package_obj(package_obj_string):
+    """Extract a package name and object name, import the package and return
+    the object from that package by name.
+
+    The format is velruse.store.memstore:MemoryStore.
+    """
+    package_name, obj_name = package_obj_string.split(':')
+    __import__(package_name)
+    return getattr(sys.modules[package_name], obj_name)
 
 
 # Copied from Paste
