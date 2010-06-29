@@ -63,6 +63,7 @@ moved to ``environ['SCRIPT_NAME']`` before the velruse WSGI app is called.
     passed in.
 
 """
+import sys
 import webob
 import webob.exc as exc
 import yaml
@@ -71,7 +72,7 @@ from beaker.middleware import SessionMiddleware
 
 import velruse.providers as providers
 import velruse.store as store
-from velruse.utils import path_info_pop, load_package_obj
+from velruse.utils import path_info_pop
 
 PROVIDERS = {
     'Facebook': providers.FacebookResponder,
@@ -98,19 +99,17 @@ def parse_config_file(config_file):
     
     # Initialize the UserStore(s) first for use with the providers
     stores = config['Store']
-    for k in stores:
-        if k in STORAGE:
+    for k, v in STORAGE.items():
+        if k in stores:
             config['UserStore'] = STORAGE[k].load_from_config(stores[k])
-        else:
-            obj = load_package_obj(stores[k]['Type'])
-            config['UserStore'] = obj.load_from_config(stores[k])
-        # The first store is used as the UserStore.
-        break
-
+    
     # Check for and load the OpenID Store if present
     oid_store = config.pop('OpenID Store', None)
     if oid_store:
-        obj = load_package_obj(oid_store.pop('Type'))
+        type_string = oid_store.pop('Type')
+        package_name, obj_name = type_string.split(':')
+        __import__(package_name)
+        obj = getattr(sys.modules[package_name], obj_name)
         config['OpenID Store'] = obj(**oid_store)
         
     # The loaded providers
