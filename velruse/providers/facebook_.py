@@ -66,7 +66,7 @@ def extract_fb_data(data):
 
 
 class FacebookResponder(utils.RouteResponder):
-    """Handle Twitter OAuth login/authentication"""
+    """Handle Facebook OAuth login/authentication"""
     map = Mapper()
     map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
     map.connect('process', '/process', action='process')
