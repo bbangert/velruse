@@ -13,7 +13,7 @@ from openid.oidutil import autoSubmitHTML
 from webob import Response
 
 from velruse.baseconvert import base_encode
-from velruse.errors import error_string
+from velruse.errors import error_dict
 
 
 def redirect_form(end_point, token):
@@ -103,7 +103,7 @@ class RouteResponder(object):
         """Redirect the user to the endpoint, save the error
         status to the storage under the token"""
         token = generate_token()
-        self.storage.store(token, error_string(error_code))
+        self.storage.store(token, error_dict(error_code))
         form_html = redirect_form(end_point, token)
         return Response(body=autoSubmitHTML(form_html))
     

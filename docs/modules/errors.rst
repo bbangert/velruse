@@ -6,4 +6,4 @@
 Module Contents
 ---------------
 
-.. autofunction:: error_string
+.. autofunction:: error_dict
