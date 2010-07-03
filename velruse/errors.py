@@ -8,9 +8,13 @@ ERROR_CODES = {
     4: 'Application verification failed',
 }
 
-def error_dict(error_code):
-    """Generates an Error dict suitable for storing in a key/value store."""
+def error_string(error_code):
+    """Generates an Error string suitable for storing in a
+    key/value store using simplejson"""
     err = {'status': 'fail'}
     err['reason'] = {'code': error_code, 
                      'description': ERROR_CODES[error_code]}
-    return err
+    return json.dumps(err)
+
+# Avoid circular dependeny prob
+from velruse.utils import json
