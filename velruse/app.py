@@ -85,6 +85,7 @@ PROVIDERS = {
 STORAGE = {
     'Memory': store.MemoryStore,
     'Redis': store.RedisStore,
+    'MongoDB': store.MongoDBStore,
 }
 
 
