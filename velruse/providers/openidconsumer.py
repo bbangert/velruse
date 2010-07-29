@@ -144,18 +144,19 @@ class OpenIDResponder(utils.RouteResponder):
     map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
     map.connect('process', '/process', action='process')
     
-    def __init__(self, storage, openid_store, endpoint_regex, realm):
+    def __init__(self, storage, openid_store, endpoint_regex, realm, protocol):
         """Create the OpenID Consumer"""
         self.storage = storage
         self.openid_store = openid_store
         self.realm = realm
         self.endpoint_regex = endpoint_regex
         self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
-    
+        self.protocol = protocol
+        print "Protocol: ", self.protocol
     @classmethod
     def parse_config(cls, config):
         params = {}
-        key_map = {'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
+        key_map = {'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex', 'Protocol': 'protocol'}
         oids_vals = config['OpenID']
         for k, v in key_map.items():
             if k in oids_vals:
@@ -226,12 +227,19 @@ class OpenIDResponder(utils.RouteResponder):
         
         if authrequest is None:
             return self._error_redirect(1, end_point)
-        
+
         # Update the authrequest
         self._update_authrequest(req, authrequest)
         
         return_to = req.link('process', qualified=True)
         
+        #Check protocol and adjust return_to to be either http/https
+        if self.protocol:
+            if return_to.startswith('https:') and self.protocol == 'http':
+                return_to = return_to.replace('https:', self.protocol)
+            elif return_to.startswith('http:') and self.protocol == 'https':
+                return_to = return_to.replace('http:', self.protocol)
+
         # Ensure our session is saved for the id to persist
         req.session['end_point'] = end_point
         req.session.save()
