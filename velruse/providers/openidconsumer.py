@@ -235,10 +235,12 @@ class OpenIDResponder(utils.RouteResponder):
         
         #Check protocol and adjust return_to to be either http/https
         if self.protocol:
-            if return_to.startswith('https:') and self.protocol == 'http':
-                return_to = return_to.replace('https:', self.protocol)
-            elif return_to.startswith('http:') and self.protocol == 'https':
-                return_to = return_to.replace('http:', self.protocol)
+            if return_to.startswith('https://') and self.protocol == 'http':
+                return_to = return_to.replace('https://', "%s://"
+                        %(self.protocol))
+            elif return_to.startswith('http://') and self.protocol == 'https':
+                return_to = return_to.replace('http://', "%s://"
+                        %(self.protocol))
 
         # Ensure our session is saved for the id to persist
         req.session['end_point'] = end_point
@@ -275,10 +277,12 @@ class OpenIDResponder(utils.RouteResponder):
         return_to = req.link('process', qualified=True)
         #Check protocol and adjust return_to to be either http/https
         if self.protocol:
-            if return_to.startswith('https:') and self.protocol == 'http':
-                return_to = return_to.replace('https:', self.protocol)
-            elif return_to.startswith('http:') and self.protocol == 'https':
-                return_to = return_to.replace('http:', self.protocol)
+            if return_to.startswith('https://') and self.protocol == 'http':
+                return_to = return_to.replace('https://', "%s://"
+                        %(self.protocol))
+            elif return_to.startswith('http://') and self.protocol == 'https':
+                return_to = return_to.replace('http://', "%s://"
+                        %(self.protocol))
         info = oidconsumer.complete(req.params, return_to)
         
         if info.status in [consumer.FAILURE, consumer.CANCEL]:
