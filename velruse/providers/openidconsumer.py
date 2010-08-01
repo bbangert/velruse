@@ -230,18 +230,9 @@ class OpenIDResponder(utils.RouteResponder):
 
         # Update the authrequest
         self._update_authrequest(req, authrequest)
-        
-        return_to = req.link('process', qualified=True)
-        
-        #Check protocol and adjust return_to to be either http/https
-        if self.protocol:
-            if return_to.startswith('https://') and self.protocol == 'http':
-                return_to = return_to.replace('https://', "%s://"
-                        %(self.protocol))
-            elif return_to.startswith('http://') and self.protocol == 'https':
-                return_to = return_to.replace('http://', "%s://"
-                        %(self.protocol))
 
+        return_to = self._get_return_to(req)
+        
         # Ensure our session is saved for the id to persist
         req.session['end_point'] = end_point
         req.session.save()
@@ -274,15 +265,7 @@ class OpenIDResponder(utils.RouteResponder):
         
         # Setup the consumer and parse the information coming back
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
-        return_to = req.link('process', qualified=True)
-        #Check protocol and adjust return_to to be either http/https
-        if self.protocol:
-            if return_to.startswith('https://') and self.protocol == 'http':
-                return_to = return_to.replace('https://', "%s://"
-                        %(self.protocol))
-            elif return_to.startswith('http://') and self.protocol == 'https':
-                return_to = return_to.replace('http://', "%s://"
-                        %(self.protocol))
+        return_to = self._get_return_to(req)
         info = oidconsumer.complete(req.params, return_to)
         
         if info.status in [consumer.FAILURE, consumer.CANCEL]:
