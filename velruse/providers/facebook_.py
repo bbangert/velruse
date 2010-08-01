@@ -71,12 +71,13 @@ class FacebookResponder(utils.RouteResponder):
     map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
     map.connect('process', '/process', action='process')
     
-    def __init__(self, storage, api_key, app_secret, app_id):
+    def __init__(self, storage, api_key, app_secret, app_id, protocol):
         self.api_key = api_key
         self.app_secret = app_secret
         self.app_id = app_id
         self.storage = storage
         self.client = httplib2.Http()
+        self.protocol = protocol
     
     @classmethod
     def parse_config(cls, config):
@@ -93,8 +94,9 @@ class FacebookResponder(utils.RouteResponder):
         req.session['end_point'] = req.POST['end_point']
         req.session.save()
         scope = req.POST.get('scope', '')
+        return_to = self._get_return_to(req)
         url = req.link(AUTHORIZE_URL, client_id=self.app_id, scope=scope,
-                       redirect_uri=req.link('process', qualified=True))
+                       redirect_uri=return_to)
         return exc.HTTPFound(location=url)
     
     def process(self, req):
@@ -103,8 +105,10 @@ class FacebookResponder(utils.RouteResponder):
         if not code:
             self._error_redirect(4, end_point)
         
-        access_url = req.link(ACCESS_URL, client_id=self.app_id, client_secret=self.app_secret,
-                              code=code, redirect_uri=req.link('process', qualified=True))
+        return_to = self._get_return_to(req)
+        access_url = req.link(ACCESS_URL, client_id=self.app_id,
+                client_secret=self.app_secret, code=code,
+                redirect_uri=return_to)
         resp, content = self.client.request(access_url)
         if resp['status'] != '200':
             return self._error_redirect(2, end_point)
