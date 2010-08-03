@@ -152,7 +152,6 @@ class OpenIDResponder(utils.RouteResponder):
         self.endpoint_regex = endpoint_regex
         self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
         self.protocol = protocol
-        print "Protocol: ", self.protocol
     @classmethod
     def parse_config(cls, config):
         params = {}
