@@ -1,4 +1,8 @@
 import urlparse
+try:
+     from urlparse import parse_qs
+except ImportError:
+     from cgi import parse_qs
 
 from routes import Mapper
 import httplib2
@@ -46,7 +50,6 @@ def extract_fb_data(data):
     if bday:
         mth, day, yr = bday.split('/')
         profile['birthday'] = '-'.join(yr, mth, day)
-    
     name = {}
     pcard_map = {'first_name': 'givenName', 'last_name': 'familyName'}
     for key, val in pcard_map.items():
@@ -71,13 +74,12 @@ class FacebookResponder(utils.RouteResponder):
     map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
     map.connect('process', '/process', action='process')
     
-    def __init__(self, storage, api_key, app_secret, app_id, protocol):
+    def __init__(self, storage, api_key, app_secret, app_id):
         self.api_key = api_key
         self.app_secret = app_secret
         self.app_id = app_id
         self.storage = storage
         self.client = httplib2.Http()
-        self.protocol = protocol
     
     @classmethod
     def parse_config(cls, config):
@@ -94,9 +96,8 @@ class FacebookResponder(utils.RouteResponder):
         req.session['end_point'] = req.POST['end_point']
         req.session.save()
         scope = req.POST.get('scope', '')
-        return_to = self._get_return_to(req)
         url = req.link(AUTHORIZE_URL, client_id=self.app_id, scope=scope,
-                       redirect_uri=return_to)
+                       redirect_uri=req.link('process', qualified=True))
         return exc.HTTPFound(location=url)
     
     def process(self, req):
@@ -105,16 +106,14 @@ class FacebookResponder(utils.RouteResponder):
         if not code:
             self._error_redirect(4, end_point)
         
-        return_to = self._get_return_to(req)
-        access_url = req.link(ACCESS_URL, client_id=self.app_id,
-                client_secret=self.app_secret, code=code,
-                redirect_uri=return_to)
+        access_url = req.link(ACCESS_URL, client_id=self.app_id, client_secret=self.app_secret,
+                              code=code, redirect_uri=req.link('process', qualified=True))
         resp, content = self.client.request(access_url)
         if resp['status'] != '200':
             return self._error_redirect(2, end_point)
-        
-        access_token = urlparse.parse_qs(content)['access_token'][0]
-        
+
+        access_token = parse_qs(content)['access_token'][0] 
+
         fields = 'id,first_name,last_name,name,link,birthday,email,website,verified,picture,gender,timezone'
         resp, content = self.client.request(
             req.link(PROFILE_URL, access_token=access_token, fields=fields))
