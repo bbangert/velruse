@@ -117,16 +117,10 @@ class RouteResponder(object):
         return Response(body=autoSubmitHTML(form_html))
 
     def _get_return_to(self, req):
-        return_to = req.link('process', qualified=True)
-        # post-process the return_to protocol.
         if self.protocol:
-            if return_to.startswith('https://') and self.protocol == 'http':
-                return_to = return_to.replace('https://', "%s://"
-                        %(self.protocol))
-            elif return_to.startswith('http://') and self.protocol == 'https':
-                return_to = return_to.replace('http://', "%s://"
-                        %(self.protocol))
-        return return_to
+            return_to = req.link('process', qualified=True, protocol=self.protocol)
+        else:
+            return_to = req.link('process', qualified=True)
 
 
 class _Missing(object):
