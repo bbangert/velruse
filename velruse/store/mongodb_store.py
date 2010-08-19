@@ -4,7 +4,7 @@ try:
 except ImportError:
     import pickle
 
-
+import datetime
 import pymongo
 from pymongo import Connection
 from pymongo.errors import ConnectionFailure
@@ -41,6 +41,9 @@ class MongoDBStore(UserStore):
         except ConnectionFailure:
             raise Exception('Unable to connect to MongoDB')
         conn = db_conn[self.db]
+        #Set arbitrary limit on how large user_store session can grow to
+        #http://www.mongodb.org/display/DOCS/Capped+Collections
+        conn.create_collection(self.collection, dict(capped=True, size=100000))
         return conn
 
     def retrieve(self, key):
@@ -52,8 +55,9 @@ class MongoDBStore(UserStore):
 
     def store(self, key, value, expires=None):
         try:
+            expire_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires)
             r =  self._conn[self.collection].update({ 'key': key},
-                { '$set' : { "value" : Binary(pickle.dumps(value)) }},
+                { '$set' : { "value" : Binary(pickle.dumps(value)), "expires" : expire_time }},
                 upsert=True, safe=True)
         except OperationFailure:
             return False
