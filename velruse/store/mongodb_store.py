@@ -43,7 +43,8 @@ class MongoDBStore(UserStore):
         conn = db_conn[self.db]
         #Set arbitrary limit on how large user_store session can grow to
         #http://www.mongodb.org/display/DOCS/Capped+Collections
-        conn.create_collection(self.collection, dict(capped=True, size=100000))
+        if not self.collection in conn.collection_names():
+            conn.create_collection(self.collection, dict(capped=True, size=100000))
         return conn
 
     def retrieve(self, key):
