@@ -18,7 +18,7 @@ __all__ = ['OpenIDResponder']
 # Setup our attribute objects that we'll be requesting
 ax_attributes = dict(
     nickname = 'http://axschema.org/namePerson/friendly',
-    email = 'http://axschema.org/contact/email',
+    email    =  'http://axschema.org/contact/email',
     full_name = 'http://axschema.org/namePerson',
     birthday = 'http://axschema.org/birthDate',
     gender = 'http://axschema.org/person/gender',
@@ -34,6 +34,25 @@ ax_attributes = dict(
     web = 'http://axschema.org/contact/web/default',
 )
 
+#Change names later to make things a little bit clearer
+alternate_ax_attributes = dict(
+    nickname = 'http://schema.openid.net/namePerson/friendly',
+    email = 'http://schema.openid.net/contact/email',
+    full_name = 'http://schema.openid.net/namePerson',
+    birthday = 'http://schema.openid.net/birthDate',
+    gender = 'http://schema.openid.net/person/gender',
+    postal_code = 'http://schema.openid.net/contact/postalCode/home',
+    country = 'http://schema.openid.net/contact/country/home',
+    timezone = 'http://schema.openid.net/pref/timezone',
+    language = 'http://schema.openid.net/pref/language',
+    name_prefix = 'http://schema.openid.net/namePerson/prefix',
+    first_name = 'http://schema.openid.net/namePerson/first',
+    last_name = 'http://schema.openid.net/namePerson/last',
+    middle_name = 'http://schema.openid.net/namePerson/middle',
+    name_suffix = 'http://schema.openid.net/namePerson/suffix',
+    web = 'http://schema.openid.net/contact/web/default',
+)
+
 # Translation dict for AX attrib names to sreg equiv
 trans_dict = dict(
     full_name = 'fullname',
@@ -41,16 +60,19 @@ trans_dict = dict(
     postal_code = 'postcode',
 )
 
+attributes = ax_attributes
+
+
 class AttribAccess(object):
     """Uniform attribute accessor for Simple Reg and Attribute Exchange values"""
     def __init__(self, sreg_resp, ax_resp):
         self.sreg_resp = sreg_resp or {}
         self.ax_resp = ax_resp or ax.AXKeyValueMessage()
-    
+
     def get(self, key, ax_only=False):
         """Get a value from either Simple Reg or AX"""
         # First attempt to fetch it from AX
-        v = self.ax_resp.getSingle(ax_attributes[key])
+        v = self.ax_resp.getSingle(attributes[key])
         if v:
             return v
         if ax_only:
@@ -88,7 +110,8 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
         # Extract the first bit as the username since Google doesn't return
         # any usable nickname info
         email = attribs.get('email')
-        ud['preferredUsername'] = re.match('(^.*?)@', email).groups()[0]
+        if email:
+            ud['preferredUsername'] = re.match('(^.*?)@', email).groups()[0]
     else:
         ud['preferredUsername'] = attribs.get('nickname')
     
@@ -144,7 +167,7 @@ class OpenIDResponder(utils.RouteResponder):
     map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
     map.connect('process', '/process', action='process')
     
-    def __init__(self, storage, openid_store, endpoint_regex, realm, protocol):
+    def __init__(self, storage, openid_store, endpoint_regex, realm, protocol, schema=None):
         """Create the OpenID Consumer"""
         self.storage = storage
         self.openid_store = openid_store
@@ -152,18 +175,23 @@ class OpenIDResponder(utils.RouteResponder):
         self.endpoint_regex = endpoint_regex
         self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
         self.protocol = protocol
+        self.schema = schema
+
     @classmethod
     def parse_config(cls, config):
         params = {}
-        key_map = {'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex', 'Protocol': 'protocol'}
+        key_map = {'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex', 'Protocol': 'protocol', 'Schema': 'schema'}
         oids_vals = config['OpenID']
         for k, v in key_map.items():
             if k in oids_vals:
                 params[v] = oids_vals[k]
         params['openid_store'] = config['OpenID Store']
         params['storage'] = config['UserStore']
+        if 'Schema' in config['OpenID'] and config['OpenID']['Schema'] in globals():
+            globals()["attributes"] = globals()[config['OpenID']['Schema']]
+
         return params
-    
+
     def _lookup_identifier(self, req, identifier):
         """Extension point for inherited classes that want to change or set
         a default identifier"""
@@ -179,7 +207,7 @@ class OpenIDResponder(utils.RouteResponder):
         """
         # Add on the Attribute Exchange for those that support that            
         ax_request = ax.FetchRequest()
-        for attrib in ax_attributes.values():
+        for attrib in attributes.values():
             ax_request.add(ax.AttrInfo(attrib))
         authrequest.addExtension(ax_request)
         
