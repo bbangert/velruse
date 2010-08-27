@@ -54,7 +54,7 @@ class MongoDBStore(UserStore):
         else:
             return None
 
-    def store(self, key, value, expires=None):
+    def store(self, key, value, expires=300):
         try:
             expire_time = datetime.datetime.utcnow() + datetime.timedelta(seconds=expires)
             r =  self._conn[self.collection].update({ 'key': key},
