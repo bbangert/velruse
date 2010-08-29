@@ -121,6 +121,7 @@ class RouteResponder(object):
             return_to = req.link('process', qualified=True, protocol=self.protocol)
         else:
             return_to = req.link('process', qualified=True)
+        return return_to
 
 
 class _Missing(object):

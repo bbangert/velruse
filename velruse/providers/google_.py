@@ -11,14 +11,14 @@ import oauth2 as oauth
 
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
-from velruse.providers.openidconsumer import ax_attributes
+from velruse.providers.openidconsumer import ax_attributes, alternate_ax_attributes, attributes
 from velruse.providers.openidconsumer import OpenIDResponder
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 
 
 class GoogleResponder(OpenIDResponder):
-    def __init__(self, consumer=None, oauth_key=None, oauth_secret=None, *args,
+    def __init__(self, consumer=None, oauth_key=None, oauth_secret=None, request_attributes=None, *args,
                  **kwargs):
         """Handle Google Auth
         
@@ -29,7 +29,10 @@ class GoogleResponder(OpenIDResponder):
         super(GoogleResponder, self).__init__(*args, **kwargs)
         self.consumer = consumer
         self.oauth_secret = oauth_secret
-    
+        if request_attributes:
+            self.request_attributes = request_attributes.split(",")
+        else:
+            self.request_attributes = ['country', 'email', 'first_name', 'last_name', 'language']
     @classmethod
     def parse_config(cls, config):
         """Parse config data from a config file
@@ -41,7 +44,7 @@ class GoogleResponder(OpenIDResponder):
         conf = OpenIDResponder.parse_config(config)
         params = {}
         key_map = {'OAuth Consumer Key': 'consumer', 'OAuth Consumer Secret': 'oauth_secret',
-                   'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
+                'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex', "Request Attributes": 'request_attributes' }
         google_vals = config['Google']
         if not isinstance(google_vals, dict):
             return conf
@@ -49,6 +52,9 @@ class GoogleResponder(OpenIDResponder):
             if k in google_vals:
                 params[v] = google_vals[k]
         conf.update(params)
+        if 'Schema' in config['OpenID'] and config['OpenID']['Schema'] in globals():
+            globals()["attributes"] = globals()[config['OpenID']['Schema']]
+
         return conf
     
     def _lookup_identifier(self, req, identifier):
@@ -63,8 +69,8 @@ class GoogleResponder(OpenIDResponder):
         
         """
         ax_request = ax.FetchRequest()
-        for attr in ['country', 'email', 'first_name', 'last_name', 'language']:
-            ax_request.add(ax.AttrInfo(ax_attributes[attr], required=True))
+        for attr in self.request_attributes:
+            ax_request.add(ax.AttrInfo(attributes[attr], required=True))
         authrequest.addExtension(ax_request)
         
         # Add OAuth request?
