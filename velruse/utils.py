@@ -103,7 +103,7 @@ class RouteResponder(object):
         """Redirect the user to the endpoint, save the error
         status to the storage under the token"""
         token = generate_token()
-        self.storage.store(token, error_dict(error_code))
+        self.storage.store(token, error_dict(error_code), expires=300)
         form_html = redirect_form(end_point, token)
         return Response(body=autoSubmitHTML(form_html))
     
