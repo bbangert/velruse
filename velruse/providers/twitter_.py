@@ -1,4 +1,5 @@
 import urlparse
+import logging
 
 from routes import Mapper
 import httplib2
@@ -6,6 +7,8 @@ import oauth2 as oauth
 import webob.exc as exc
 
 import velruse.utils as utils
+
+log = logging.getLogger(__name__)
 
 REQUEST_URL = 'https://twitter.com/oauth/request_token'
 ACCESS_URL = 'https://twitter.com/oauth/access_token'
@@ -51,6 +54,7 @@ class TwitterResponder(utils.RouteResponder):
             headers=request.to_header())
                     
         if resp['status'] != '200':
+            log.debug("Twiter oauth failed: %r %r" resp, content)
             return self._error_redirect(3, end_point)
         
         request_token = oauth.Token.from_string(content)
