@@ -54,7 +54,7 @@ class TwitterResponder(utils.RouteResponder):
             headers=request.to_header())
                     
         if resp['status'] != '200':
-            log.debug("Twiter oauth failed: %r %r" resp, content)
+            log.debug("Twiter oauth failed: %r %r", resp, content)
             return self._error_redirect(3, end_point)
         
         request_token = oauth.Token.from_string(content)
