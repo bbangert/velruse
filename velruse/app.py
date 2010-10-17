@@ -66,12 +66,15 @@ moved to ``environ['SCRIPT_NAME']`` before the velruse WSGI app is called.
 import webob
 import webob.exc as exc
 import yaml
+import logging
 
 from beaker.middleware import SessionMiddleware
 
 import velruse.providers as providers
 import velruse.store as store
 from velruse.utils import path_info_pop, load_package_obj
+
+log = logging.getLogger(__name__)
 
 PROVIDERS = {
     'Facebook': providers.FacebookResponder,
@@ -120,6 +123,7 @@ def parse_config_file(config_file):
         if k not in config:
             continue
         params = PROVIDERS[k].parse_config(config)
+        log.debug("Configuring %r with %r", k, params)
         auth_providers[k.lower()] = PROVIDERS[k](**params)    
     return auth_providers
 
