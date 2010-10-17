@@ -33,7 +33,7 @@ def extract_fb_data(data):
         'identifier': 'https://graph.facebook.com/%s' % data['id'],
         'displayName': data['name'],
         'emails': [data.get('email')],
-        'verifiedEmail': data['verified'] and data.get('email'),
+        'verifiedEmail': data.get('verified', False) and data.get('email'),
         'gender': data.get('gender'),
         'preferredUsername': nick or data['name'],
     }
