@@ -1,4 +1,5 @@
 import urlparse
+import logging
 try:
      from urlparse import parse_qs
 except ImportError:
@@ -85,7 +86,10 @@ class FacebookResponder(utils.RouteResponder):
     @classmethod
     def parse_config(cls, config):
         """Parse config data from a config file"""
-        key_map = {'API Key': 'api_key', 'Application Secret': 'app_secret', 'Application ID': 'app_id'}
+        key_map = {'API Key': 'api_key', 
+                   'Application Secret': 'app_secret',
+                   'Application ID': 'app_id',
+                   'Protocol': 'protocol'}
         fb_vals = config['Facebook']
         params = {}
         for k, v in key_map.items():

@@ -43,7 +43,7 @@ class GoogleResponder(OpenIDResponder):
         """
         conf = OpenIDResponder.parse_config(config)
         params = {}
-        key_map = {'OAuth Consumer Key': 'consumer', 'OAuth Consumer Secret': 'oauth_secret',
+        key_map = {'OAuth Consumer Key': 'consumer', 'OAuth Consumer Secret': 'oauth_secret', 'Protocol': 'protocol',
                 'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex', "Request Attributes": 'request_attributes' }
         google_vals = config['Google']
         if not isinstance(google_vals, dict):
