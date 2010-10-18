@@ -167,7 +167,7 @@ class OpenIDResponder(utils.RouteResponder):
     map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
     map.connect('process', '/process', action='process')
     
-    def __init__(self, storage, openid_store, endpoint_regex, realm, protocol, schema=None):
+    def __init__(self, storage, openid_store, endpoint_regex, realm, protocol=None, schema=None):
         """Create the OpenID Consumer"""
         self.storage = storage
         self.openid_store = openid_store

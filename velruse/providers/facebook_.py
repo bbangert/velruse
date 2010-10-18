@@ -75,7 +75,7 @@ class FacebookResponder(utils.RouteResponder):
     map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
     map.connect('process', '/process', action='process')
     
-    def __init__(self, storage, api_key, app_secret, app_id, protocol):
+    def __init__(self, storage, api_key, app_secret, app_id, protocol=None):
         self.api_key = api_key
         self.app_secret = app_secret
         self.app_id = app_id
@@ -88,12 +88,15 @@ class FacebookResponder(utils.RouteResponder):
         """Parse config data from a config file"""
         key_map = {'API Key': 'api_key', 
                    'Application Secret': 'app_secret',
-                   'Application ID': 'app_id',
-                   'Protocol': 'protocol'}
+                   'Application ID': 'app_id'}
+        optional_key_map = {'Protocol': 'protocol'}
         fb_vals = config['Facebook']
         params = {}
         for k, v in key_map.items():
             params[v] = fb_vals[k]
+        for k, v in optional_key_map.items():
+            if k in fb_vals:
+                 params[v] = fb_vals[k]
         params['storage'] = config['UserStore']
         return params
     
