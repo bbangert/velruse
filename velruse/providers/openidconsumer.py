@@ -180,9 +180,12 @@ class OpenIDResponder(utils.RouteResponder):
     @classmethod
     def parse_config(cls, config):
         params = {}
-        key_map = {'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex', 'Protocol': 'protocol', 'Schema': 'schema'}
+        key_map = {'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
+        optional_key_map = {'Protocol': 'protocol', 'Schema': 'schema'}
         oids_vals = config['OpenID']
         for k, v in key_map.items():
+            params[v] = oids_vals[k]
+        for k, v in optional_key_map.items():
             if k in oids_vals:
                 params[v] = oids_vals[k]
         params['openid_store'] = config['OpenID Store']

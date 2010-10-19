@@ -26,14 +26,22 @@ class LiveResponder(utils.RouteResponder):
     @classmethod
     def parse_config(cls, config):
         """Parse config data from a config file"""
-        key_map = {'Application ID': 'application_id', 'Secret Key': 'secret_key',
-                   'Policy URL': 'policy_url', 'Return URL': 'return_url', 'Offers': 'offers'}
+        key_map = {
+            'Application ID': 'application_id',
+            'Secret Key': 'secret_key'
+        }
+        optional_key_map = {
+            'Policy URL': 'policy_url',
+            'Return URL': 'return_url',
+            'Offers': 'offers'
+        }
         live_vals = config['Live']
         params = {}
         for k, v in key_map.items():
-            if k not in live_vals:
-                continue
             params[v] = live_vals[k]
+        for k, v in optional_key_map.items():
+            if k in live_vals:
+                params[v] = live_vals[k]
         params['storage'] = config['UserStore']
         return params
     
