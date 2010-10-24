@@ -51,6 +51,8 @@ class LiveResponder(utils.RouteResponder):
                                      policyurl=self.policy_url)
         
     def login(self, req):
+        req.session['end_point'] = req.POST['end_point']
+        req.session.save()
         wll = self._create_wll()
         return exc.HTTPFound(location=wll.getLoginUrl())
     

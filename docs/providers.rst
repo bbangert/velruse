@@ -252,6 +252,16 @@ Login Authentication provides a single unique identifier, while Delegated Authen
     
     The Windows Live API requires the Python package `PyCrypto <http://www.dlitz.net/software/pycrypto/>`_ to be installed before using.
 
+.. note::
+
+
+    The Return URL for velruse must be registered with Live Services as **Return URL**.
+
+    Example Return URL::
+    
+        http://YOURDOMAIN.COM/velruse/live/process
+
+
 Windows Live Developer Links:
 
 * `Getting Your Application ID <http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_
@@ -266,7 +276,13 @@ Application ID
 Secret Key
     Component Secret Key
 Policy URL
-    Site's Policy URL
+    Site's Privacy Policy URL, overrides the url specified during registration
+    of your application with Live Services.
+Return URL
+    Site's Return URL, overrides the url specified during registration of 
+    your application with Live Services. This is not *YOUR* applicaton's end
+    point!  This should only be overriden if your registration url is not
+    the velruse url.  For example http://YOURDOMAIN.COM/velruse/live/process.
 Offers
     Delegated auth Offers, e.g. `Contacts.View`
 
@@ -275,16 +291,13 @@ The `Offers` parameter is optional to invoke Delegated Authentication.
 POST Parameters
 ---------------
 
-Live Services authentication does not take any parameters, as the `end_point` must be registered with the Live Services component as the **Return URL**.
-
-Example Return URL::
-    
-    http://YOURDOMAIN.COM/velruse/live/process
+Only the default `end_point` parameter is used.
 
 Complete Example:
 
 .. code-block:: html
     
     <form action="/velruse/live/auth" method="post">
+    <input type="hidden" name="end_point" value="http://END_POINT" />
     <input type="submit" value="Login with Windows Live" />
     </form>
