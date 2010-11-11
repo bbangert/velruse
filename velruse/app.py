@@ -74,6 +74,11 @@ import velruse.providers as providers
 import velruse.store as store
 from velruse.utils import path_info_pop, load_package_obj
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 log = logging.getLogger(__name__)
 
 PROVIDERS = {
@@ -158,7 +163,7 @@ class VelruseResponder(object):
 
     """
     def __init__(self, config_file):
-        self.providers = parse_config_file(config_file)
+        self.providers, self.store = parse_config_file(config_file)
 
     def __call__(self, request):
         provider = path_info_pop(request.environ).lower()
@@ -182,11 +187,25 @@ class VelruseApp(object):
         req = webob.Request(environ)
         req.session = environ['beaker.session']
         provider = path_info_pop(environ)
+        if provider == 'auth_info':
+            return self.auth_info(req)(environ, start_response)
         if provider not in self.config:
             return exc.HTTPNotFound()(environ, start_response)
         else:
             return self.config[provider](req)(environ, start_response)
 
+    def auth_info(self, req):
+        token = req.params['token']
+        # apiKey?
+        format = req.params.get('format', 'json')
+        if format != 'json':
+            return exc.HTTPBadRequest('Unknown format: %s' % format)
+        data = self.store.retrieve(token)
+        # no permission check or API check?
+        data = json.dumps(data)
+        return webob.Response(
+            content_type='application/json',
+            body=data)
 
 def make_app(config_file):
     """Construct a complete WSGI app solely from a YAML config file"""
