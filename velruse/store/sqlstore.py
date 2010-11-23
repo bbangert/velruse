@@ -73,7 +73,7 @@ class SQLStore(UserStore):
 
     def delete(self, key):
         self.engine.execute(
-            delete(KeyStorage,
+            delete(KeyStorage.__table__,
                    KeyStorage.__table__.c.key == key))
         ## FIXME: do I need to tell if I was successful?
         return True
