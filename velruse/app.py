@@ -85,12 +85,18 @@ PROVIDERS = {
     'Yahoo': providers.YahooResponder,
 }
 
+
 STORAGE = {
     'Memory': store.MemoryStore,
-    'Redis': store.RedisStore,
-    'MongoDB': store.MongoDBStore,
     'Memcached': store.MemcachedStore,
 }
+
+if 'RedisStore' in dir(store):
+    STORAGE['Redis'] = store.RedisStore
+    
+if 'MongoDB' in dir(store):
+    STORAGE['MongoDB'] = store.MongoDBStore
+
 
 
 def parse_config_file(config_file):

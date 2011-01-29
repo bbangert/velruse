@@ -1,4 +1,8 @@
-import urlparse
+try:
+     from urlparse import parse_qs
+except ImportError:
+     from cgi import parse_qs
+
 
 import oauth2 as oauth
 from openid.extensions import ax
@@ -69,7 +73,7 @@ class YahooResponder(OpenIDResponder):
         if resp['status'] != '200':
             return None
         
-        access_token = dict(urlparse.parse_qsl(content))
+        access_token = dict(parse_qsl(content))
         
         return {'oauthAccessToken': access_token['oauth_token'], 
                 'oauthAccessTokenSecret': access_token['oauth_token_secret']}

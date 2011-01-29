@@ -18,7 +18,7 @@ setup(name='velruse',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          "WebOb>=0.9.8", "python-openid>=2.2.4", "nose>=0.11", "oauth2>=1.1.3", "pyyaml", "pymongo>=1.6", "redis"
+          "WebOb>=0.9.8", "python-openid>=2.2.4", "nose>=0.11", "oauth2>=1.1.3", "pyyaml", "beaker", "routes",
       ],
       entry_points="""
       [paste.app_factory]

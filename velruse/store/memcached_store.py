@@ -1,7 +1,13 @@
 """Memcached UserStore implementation"""
 
-import memcache
-from redis.exceptions import RedisError
+
+try:
+    import memcache
+except ImportError:
+    # fall back for Google App Engine -- hasnt been tested though
+    from google.appengine.api import memcache
+
+#from redis.exceptions import RedisError  #unused afaik -- bayle
 
 from velruse.store.interface import UserStore
 from velruse.utils import cached_property
