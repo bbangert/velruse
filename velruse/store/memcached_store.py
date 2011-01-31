@@ -1,5 +1,7 @@
 """Memcached UserStore implementation"""
 
+import logging
+log = logging.getLogger(__name__)
 
 try:
     import memcache
@@ -45,10 +47,13 @@ class MemcachedStore(UserStore):
         return self._conn.get(self._key(key))
     
     def store(self, key, value, expires=None):
+        log.debug('Servers %s storing %s=%s' % (`self.servers`, `self._key(key)`, `value`))
+        
         self._conn.set(self._key(key), value, expires or 0)
         return True
     
     def delete(self, key):
+        log.debug('Deleting %s', `key`)
         self._conn.delete(self._key(key))
     
     def purge_expired(self):
