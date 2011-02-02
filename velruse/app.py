@@ -145,7 +145,7 @@ def parse_session_options(config_file):
     if 'beaker' not in config:
         return options
     
-    for k, v in config['beaker']:
+    for k, v in config['beaker'].items():
         options['beaker.%s' % k] = v
     return options
 
