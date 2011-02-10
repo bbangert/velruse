@@ -83,6 +83,7 @@ PROVIDERS = {
     'OpenID': providers.OpenIDResponder,
     'Twitter': providers.TwitterResponder,
     'Yahoo': providers.YahooResponder,
+    'Identica': providers.IdenticaResponder
 }
 
 STORAGE = {

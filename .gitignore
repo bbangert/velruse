@@ -1,3 +1,11 @@
 *.py?
 *.egg-info
 *.swp
+*.vim
+config.yaml
+.coverage
+test.ini
+data
+build
+dist
+
