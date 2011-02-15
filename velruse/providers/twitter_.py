@@ -1,4 +1,7 @@
-import urlparse
+try:
+     from urlparse import parse_qs
+except ImportError:
+     from cgi import parse_qs
 import logging
 
 from routes import Mapper
@@ -78,7 +81,7 @@ class TwitterResponder(utils.RouteResponder):
         if resp['status'] != '200':
             return self._error_redirect(2, end_point)
         
-        access_token = dict(urlparse.parse_qsl(content))
+        access_token = dict(parse_qsl(content))
         
         # Setup the normalized contact info
         profile = {}

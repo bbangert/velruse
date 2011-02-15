@@ -94,11 +94,16 @@ PROVIDERS = {
 ## FIXME: these should lazy load (really just aliases)
 STORAGE = {
     'Memory': store.MemoryStore,
-    'Redis': store.RedisStore,
-    'MongoDB': store.MongoDBStore,
     'Memcached': store.MemcachedStore,
     'SQL': store.SQLStore,
 }
+
+if 'RedisStore' in dir(store):
+    STORAGE['Redis'] = store.RedisStore
+    
+if 'MongoDB' in dir(store):
+    STORAGE['MongoDB'] = store.MongoDBStore
+
 
 
 def parse_config_file(config_file, config_overrides=None):
@@ -152,8 +157,7 @@ def parse_session_options(config_file):
     options = {}
     if 'beaker' not in config:
         return options
-
-    for k, v in config['beaker']:
+    for k, v in config['beaker'].items():
         options['beaker.%s' % k] = v
     return options
 

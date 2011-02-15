@@ -1,4 +1,7 @@
 """Utilities for the auth functionality"""
+import logging
+log = logging.getLogger(__name__)
+
 import sys
 import uuid
 
@@ -112,6 +115,7 @@ class RouteResponder(object):
         random token in storage"""
         # Generate the token, store the extracted user-data for 5 mins, and send back
         token = generate_token()
+        log.debug("About to store %s = %s using self.storage.store" % (token, user_data))
         self.storage.store(token, user_data, expires=300)
         form_html = redirect_form(end_point, token)
         return Response(body=autoSubmitHTML(form_html))
