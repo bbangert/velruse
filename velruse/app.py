@@ -4,7 +4,7 @@ The Velruse WSGI app acts to handle authentication using the configured plugins
 specified in the YAML file.
 
 Example YAML config file::
-    
+
     Store:
         Type: Redis
     Facebook:
@@ -39,7 +39,7 @@ OpenID based providers such as Google/Yahoo required the OpenID Store parameter 
 configured.
 
 Default URL mapping to trigger provider authentication processing::
-    
+
     Google
         /google/auth
     Yahoo
@@ -55,7 +55,7 @@ If this WSGI application is mounted under a prefix, ie. 'velruse', the prefix sh
 moved to ``environ['SCRIPT_NAME']`` before the velruse WSGI app is called.
 
 .. note::
-    
+
     The Velruse app relies on being able to set session specific information, using
     Beaker. Beaker should be loaded and configured in front of the Velruse WSGI App,
     or if using the :class:`~velruse.app.VelruseResponder`, the Beaker session should
@@ -74,6 +74,11 @@ import velruse.providers as providers
 import velruse.store as store
 from velruse.utils import path_info_pop, load_package_obj
 
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
 log = logging.getLogger(__name__)
 
 PROVIDERS = {
@@ -86,48 +91,56 @@ PROVIDERS = {
     'Identica': providers.IdenticaResponder
 }
 
+## FIXME: these should lazy load (really just aliases)
 STORAGE = {
     'Memory': store.MemoryStore,
     'Redis': store.RedisStore,
     'MongoDB': store.MongoDBStore,
     'Memcached': store.MemcachedStore,
+    'SQL': store.SQLStore,
 }
 
 
-def parse_config_file(config_file):
+def parse_config_file(config_file, config_overrides=None):
     """Parse a YAML config file to load and configure
     the appropriate auth providers"""
     f = open(config_file, 'r')
     content = f.read()
     f.close()
     config = yaml.load(content)
-    
+    if config_overrides:
+        for section, options in config_overrides.iteritems():
+            for key, value in options.iteritems():
+                config.setdefault(section, {})
+                config[section].setdefault(key, value)
+
     # Initialize the UserStore(s) first for use with the providers
     store_config = config['Store']
     store_type = store_config.pop('Type')
-    if store_type in STORAGE: 
+    if store_type in STORAGE:
         config['UserStore'] = STORAGE[store_type].load_from_config(store_config)
     else:
         obj = load_package_obj(store_type)
         config['UserStore'] = obj.load_from_config(store_config)
+    user_storage = config['UserStore']
 
     # Check for and load the OpenID Store if present
     oid_store = config.pop('OpenID Store', None)
     if oid_store:
         obj = load_package_obj(oid_store.pop('Type'))
         config['OpenID Store'] = obj(**oid_store)
-        
+
     # The loaded providers
     auth_providers = {}
-    
+
     # Initialize the providers
     for k, v in PROVIDERS.items():
         if k not in config:
             continue
         params = PROVIDERS[k].parse_config(config)
         log.debug("Configuring %r with %r", k, params)
-        auth_providers[k.lower()] = PROVIDERS[k](**params)    
-    return auth_providers
+        auth_providers[k.lower()] = PROVIDERS[k](**params)
+    return auth_providers, user_storage
 
 def parse_session_options(config_file):
     """Parse a YAML config file to load and configure
@@ -139,21 +152,21 @@ def parse_session_options(config_file):
     options = {}
     if 'beaker' not in config:
         return options
-    
+
     for k, v in config['beaker']:
         options['beaker.%s' % k] = v
     return options
 
 class VelruseResponder(object):
     """Velruse Responder
-    
+
     Works in the same manner as the :class:`~velruse.app.VelruseApp` except
     utilizing the :term:`responder` API.
-    
+
     """
     def __init__(self, config_file):
-        self.providers = parse_config_file(config_file)
-    
+        self.providers, self.store = parse_config_file(config_file)
+
     def __call__(self, request):
         provider = path_info_pop(request.environ).lower()
         if provider not in self.providers:
@@ -164,23 +177,37 @@ class VelruseResponder(object):
 
 class VelruseApp(object):
     """Velruse WSGI App
-    
+
     The Velruse WSGI App mounts several Auth Providers as specified in the
     YAML configuration file they're passed.
-    
+
     """
-    def __init__(self, config_file):
-        self.config = parse_config_file(config_file)
-    
+    def __init__(self, config_file, config_overrides=None):
+        self.config, self.store = parse_config_file(config_file, config_overrides)
+
     def __call__(self, environ, start_response):
         req = webob.Request(environ)
         req.session = environ['beaker.session']
         provider = path_info_pop(environ)
+        if provider == 'auth_info':
+            return self.auth_info(req)(environ, start_response)
         if provider not in self.config:
             return exc.HTTPNotFound()(environ, start_response)
         else:
             return self.config[provider](req)(environ, start_response)
 
+    def auth_info(self, req):
+        token = req.params['token']
+        # apiKey?
+        format = req.params.get('format', 'json')
+        if format != 'json':
+            return exc.HTTPBadRequest('Unknown format: %s' % format)
+        data = self.store.retrieve(token)
+        # no permission check or API check?
+        data = json.dumps(data)
+        return webob.Response(
+            content_type='application/json',
+            body=data)
 
 def make_app(config_file):
     """Construct a complete WSGI app solely from a YAML config file"""
@@ -188,14 +215,14 @@ def make_app(config_file):
     app = SessionMiddleware(app, parse_session_options(config_file))
     return app
 
-    
+
 def make_velruse_app(global_conf, config_file, **app_conf):
     """Construct a complete WSGI app ready to serve by Paste
-    
+
     Example INI file:
-    
+
     .. code-block:: ini
-        
+
         [server:main]
         use = egg:Paste#http
         host = 0.0.0.0
@@ -221,7 +248,7 @@ def make_velruse_app(global_conf, config_file, **app_conf):
         use = egg:YOURAPP
         full_stack = true
         static_files = true
-        
+
     """
     app = VelruseApp(config_file)
     app = SessionMiddleware(app, app_conf)
