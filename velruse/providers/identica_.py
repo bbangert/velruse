@@ -1,7 +1,4 @@
-try:
-     from urlparse import parse_qs
-except ImportError:
-     from cgi import parse_qs
+import urlparse
 import logging
 
 from routes import Mapper
@@ -13,13 +10,13 @@ import velruse.utils as utils
 
 log = logging.getLogger(__name__)
 
-REQUEST_URL = 'https://twitter.com/oauth/request_token'
-ACCESS_URL = 'https://twitter.com/oauth/access_token'
-AUTHORIZE_URL = 'https://twitter.com/oauth/authenticate'
+REQUEST_URL = 'https://identi.ca/api/oauth/request_token'
+ACCESS_URL = 'https://identi.ca/api/oauth/access_token'
+AUTHORIZE_URL = 'https://identi.ca/api/oauth/authorize'
 
 
-class TwitterResponder(utils.RouteResponder):
-    """Handle Twitter OAuth login/authentication"""
+class IdenticaResponder(utils.RouteResponder):
+    """Handle Identi.ca OAuth login/authentication"""
     map = Mapper()
     map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
     map.connect('process', '/process', action='process')
@@ -35,10 +32,10 @@ class TwitterResponder(utils.RouteResponder):
     def parse_config(cls, config):
         """Parse config data from a config file"""
         key_map = {'Consumer Key': 'consumer_key', 'Consumer Secret': 'consumer_secret'}
-        twitter_vals = config['Twitter']
+        identica_vals = config['Identica']
         params = {}
         for k, v in key_map.items():
-            params[v] = twitter_vals[k]
+            params[v] = identica_vals[k]
         params['storage'] = config['UserStore']
         return params
     
@@ -57,7 +54,7 @@ class TwitterResponder(utils.RouteResponder):
             headers=request.to_header())
                     
         if resp['status'] != '200':
-            log.debug("Twiter oauth failed: %r %r", resp, content)
+            log.debug("Identi.ca oauth failed: %r %r", resp, content)
             return self._error_redirect(3, end_point)
         
         request_token = oauth.Token.from_string(content)
@@ -65,7 +62,7 @@ class TwitterResponder(utils.RouteResponder):
         req.session['end_point'] = end_point
         req.session.save()
         
-        # Send the user to twitter to authorize us
+        # Send the user to identica to authorize us
         request = oauth.Request.from_token_and_callback(token=request_token, http_url=AUTHORIZE_URL)
         return exc.HTTPFound(location=request.to_url())
     
@@ -81,13 +78,13 @@ class TwitterResponder(utils.RouteResponder):
         if resp['status'] != '200':
             return self._error_redirect(2, end_point)
         
-        access_token = dict(parse_qsl(content))
+        access_token = dict(urlparse.parse_qsl(content))
         
         # Setup the normalized contact info
         profile = {}
-        profile['providerName'] = 'Twitter'
+        profile['providerName'] = 'Identica'
         profile['displayName'] = access_token['screen_name']
-        profile['identifier'] = 'http://twitter.com/?id=%s' % access_token['user_id']
+        profile['identifier'] = 'http://identi.ca/%s' % access_token['user_id']
         
         result_data = {'status': 'ok', 'profile': profile}
         

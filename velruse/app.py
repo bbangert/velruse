@@ -88,6 +88,7 @@ PROVIDERS = {
     'OpenID': providers.OpenIDResponder,
     'Twitter': providers.TwitterResponder,
     'Yahoo': providers.YahooResponder,
+    'Identica': providers.IdenticaResponder
 }
 
 ## FIXME: these should lazy load (really just aliases)
@@ -151,8 +152,7 @@ def parse_session_options(config_file):
     options = {}
     if 'beaker' not in config:
         return options
-
-    for k, v in config['beaker']:
+    for k, v in config['beaker'].items():
         options['beaker.%s' % k] = v
     return options
 

@@ -1,7 +1,15 @@
 """Memcached UserStore implementation"""
 
-import memcache
-from redis.exceptions import RedisError
+import logging
+log = logging.getLogger(__name__)
+
+try:
+    import memcache
+except ImportError:
+    # fall back for Google App Engine -- hasnt been tested though
+    from google.appengine.api import memcache
+
+#from redis.exceptions import RedisError  #unused afaik -- bayle
 
 from velruse.store.interface import UserStore
 from velruse.utils import cached_property
@@ -39,10 +47,13 @@ class MemcachedStore(UserStore):
         return self._conn.get(self._key(key))
     
     def store(self, key, value, expires=None):
+        log.debug('Servers %s storing %s=%s' % (`self.servers`, `self._key(key)`, `value`))
+        
         self._conn.set(self._key(key), value, expires or 0)
         return True
     
     def delete(self, key):
+        log.debug('Deleting %s', `key`)
         self._conn.delete(self._key(key))
     
     def purge_expired(self):

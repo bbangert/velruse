@@ -244,20 +244,35 @@ class OpenIDResponder(utils.RouteResponder):
         # Let inherited consumers alter the openid identifier if desired
         openid_url = self._lookup_identifier(req, openid_url)
         
-        if not openid_url or not re.match(self.endpoint_regex, end_point):
+
+        if not openid_url:
+            log.error('Velruse: no openid_url')
+            return self._error_redirect(0, end_point)
+        
+        if not re.match(self.endpoint_regex, end_point):
+            log.error('Velruse: invalid endpoint')
             return self._error_redirect(0, end_point)
         
         openid_session = {}
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
                 
         try:
+            if log_debug:
+                log.debug('About to try OpenID begin')
             authrequest = oidconsumer.begin(openid_url)
         except consumer.DiscoveryFailure:
+            if log_debug:
+                log.debug('OpenID begin DiscoveryFailure')
             return self._error_redirect(1, end_point)
         
         if authrequest is None:
+            if log_debug:
+                log.debug('OpenID begin returned empty')
             return self._error_redirect(1, end_point)
 
+        if log_debug:
+            log.debug('Updating authrequest')
+        
         # Update the authrequest
         self._update_authrequest(req, authrequest)
 
@@ -267,15 +282,22 @@ class OpenIDResponder(utils.RouteResponder):
         req.session['end_point'] = end_point
         req.session.save()
         
+
         # OpenID 2.0 lets Providers request POST instead of redirect, this
         # checks for such a request.
         if authrequest.shouldSendRedirect():
+            if log_debug:
+                log.debug('About to initiate OpenID redirect')
+                log.debug('realm = %s, return_to = %s, immediate = False' % (self.realm, return_to))
             redirect_url = authrequest.redirectURL(realm=self.realm, 
                                                    return_to=return_to, 
                                                    immediate=False)
             self.storage.store(req.session.id, openid_session, expires=300)
             return exc.HTTPFound(location=redirect_url)
         else:
+            if log_debug:
+                log.debug('About to initiate OpenID POST')
+                log.debug('realm = %s, return_to = %s, immediate = False' % (self.realm, return_to))
             html = authrequest.htmlMarkup(realm=self.realm, return_to=return_to, 
                                           immediate=False)
             self.storage.store(req.session.id, openid_session, expires=300)
