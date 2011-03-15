@@ -47,5 +47,3 @@ class MemcachedStore(UserStore):
     
     def purge_expired(self):
         pass
-
-

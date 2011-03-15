@@ -17,9 +17,9 @@ from velruse.utils import cached_property
 class MongoDBStore(UserStore):
     """MongoDB Storage for Auth Provider"""
     def __init__(self, host='localhost', port=27017, db="mongo_db_name", collection='velruse_ustore'):
-        self.host       = host
-        self.port       = port
-        self.db         = db
+        self.host = host
+        self.port = port
+        self.db = db
         self.collection = collection
 
     @classmethod
