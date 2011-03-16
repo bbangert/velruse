@@ -1,5 +1,7 @@
 import time
 
+from lettuce import step
+from lettuce import world
 import lettuce_webdriver.webdriver
 
 def wait_for_elem(browser, xpath):
@@ -9,3 +11,12 @@ def wait_for_elem(browser, xpath):
         if not elems:
             time.sleep(0.2)
     return elems
+
+@step('I go to the velruse login page')
+def login_page(step):
+    world.browser.get(world.login_page)
+
+
+@step('I have no cookies')
+def no_cookies(step):
+    world.browser.delete_all_cookies()

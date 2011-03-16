@@ -3,15 +3,6 @@ from lettuce import world
 
 from steps import wait_for_elem
 
-@step('I go to the velruse login page')
-def login_page(step):
-    world.browser.get(world.login_page)
-
-
-@step('I have no cookies')
-def no_cookies(step):
-    world.browser.delete_all_cookies()
-
 
 @step('I am logged into Facebook')    
 def logged_into_facebook(step):
