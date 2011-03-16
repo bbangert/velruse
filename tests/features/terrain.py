@@ -18,6 +18,7 @@ config_dir = os.path.dirname(os.path.dirname(__file__))
 config_file = os.path.join(config_dir, 'config.yaml')
 login_page = os.path.join(config_dir, 'html_pages', 'signup_page.html')
 
+
 class VelruseServer(Thread):
     def __init__(self, config_file):
         Thread.__init__(self)
@@ -36,6 +37,7 @@ class VelruseServer(Thread):
     def kill(self):
         self.keep_running = False
 
+
 @before.all
 def setup_app():
     f = open(config_file, 'r')
@@ -43,10 +45,16 @@ def setup_app():
     f.close()
     config = yaml.load(content)
     
-    if 'Facebook Credentials' in config:
-        fb_config = config['Facebook Credentials']
-        world.facebook_email = fb_config['Username'].strip()
-        world.facebook_password = fb_config['Password'].strip()
+    for name in ['Facebook', 'Google', 'Twitter', 'Yahoo', 'Windows']:
+        if '%s Credentials' % name in config:
+            name_config = config['%s Credentials' % name]
+            lname = name.lower()
+            if 'Username' in name_config:
+                setattr(world, '%s_username' % lname, name_config['Username'].strip())
+            if 'Email' in name_config:
+                setattr(world, '%s_email' % lname, name_config['Email'].strip())
+            if 'Password' in name_config:
+                setattr(world, '%s_password' % lname, name_config['Password'].strip())
     
     world.login_page = 'file://%s' % login_page
     world.browser = webdriver.Firefox()
@@ -54,6 +62,7 @@ def setup_app():
     # Setup the velruse app thread
     world.velruse_thread = VelruseServer(config_file)
     world.velruse_thread.start()
+
 
 @after.all
 def teardown(total):
