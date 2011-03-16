@@ -91,14 +91,8 @@ PROVIDERS = {
     'Identica': providers.IdenticaResponder
 }
 
-## FIXME: these should lazy load (really just aliases)
-STORAGE = {
-    'Memory': store.MemoryStore,
-    'Redis': store.RedisStore,
-    'MongoDB': store.MongoDBStore,
-    'Memcached': store.MemcachedStore,
-    'SQL': store.SQLStore,
-}
+# Load the available stores that imported ok
+STORAGE = dict((name.replace('Store', ''), getattr(store, name)) for name in store.__all__)
 
 
 def parse_config_file(config_file, config_overrides=None):
@@ -190,6 +184,14 @@ class VelruseApp(object):
         provider = path_info_pop(environ)
         if provider == 'auth_info':
             return self.auth_info(req)(environ, start_response)
+        if provider == 'dest_page':
+            token = req.POST['token']
+            data = self.store.retrieve(token)
+            data = json.dumps(data)
+            return webob.Response(
+                content_type='text/plain',
+                body=data
+            )(environ, start_response)
         if provider not in self.config:
             return exc.HTTPNotFound()(environ, start_response)
         else:
