@@ -81,7 +81,7 @@ class TwitterResponder(utils.RouteResponder):
         if resp['status'] != '200':
             return self._error_redirect(2, end_point)
         
-        access_token = dict(parse_qsl(content))
+        access_token = dict(parse_qs(content))
         
         # Setup the normalized contact info
         profile = {}
