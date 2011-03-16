@@ -5,8 +5,9 @@ Facebook:
     Application Secret: 006197884167CXcl_PDXW7y8d8bPAX_ZZ3
     Application ID: 006197884167CXcl_PDXW7y8d8bPAX_ZZ3
 Facebook Credentials:
-    Username: EMAIL
+    Email: EMAIL
     Password: PASSWORD
+    App Name: APPNAME
 Google:
     OAuth Consumer Key: localhost
     OAuth Consumer Secret: 006197884167CXcl_PDXW7y8d8bPAX_ZZ3

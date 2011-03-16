@@ -56,6 +56,10 @@ def setup_app():
             if 'Password' in name_config:
                 setattr(world, '%s_password' % lname, name_config['Password'].strip())
     
+    # Facebook specific app name to look for
+    if 'Facebook Credentials' in config:
+        fb_config = config['Facebook Credentials']
+        world.facebook_app_name = fb_config['App Name']
     world.login_page = 'file://%s' % login_page
     world.browser = webdriver.Firefox()
     

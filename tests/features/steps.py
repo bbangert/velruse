@@ -45,7 +45,7 @@ def authorized_facebook_app(step):
 def not_authorized_facebook_app(step):
     b = world.browser
     b.get('http://www.facebook.com/settings/?tab=applications')
-    elems = b.find_elements_by_xpath('//span[contains(., "Velruse App")]')
+    elems = b.find_elements_by_xpath('//span[contains(., "%s")]' % world.facebook_app_name)
     if elems:
         elems[0].click()
         wait_for_elem(b, '//a[contains(., "Remove app")]')[0].click()
