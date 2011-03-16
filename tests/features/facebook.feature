@@ -8,10 +8,10 @@ Feature: Facebook testing
             And I have not authorized the Facebook app
             And I go to the velruse login page
         When I press "Login with Facebook"
-            And I should see "Logged in as"
+            And I should see "Logged in as" within 2 seconds
             And I should see "Send me email"
             And I press "Allow"
-        Then I should see "ok"
+        Then I should see "ok" within 2 seconds
             And I should see "displayName"
             And I should see "verifiedEmail"
             And I should see "credentials"
