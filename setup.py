@@ -26,6 +26,11 @@ setup(name='velruse',
           "beaker",
           "routes",
       ],
+      tests_require = [
+        'lettuce>=0.1.21',
+        'lettuce_webdriver>=0.12',
+        'selenium'
+      ],
       entry_points="""
       [paste.app_factory]
       main = velruse.app:make_velruse_app
