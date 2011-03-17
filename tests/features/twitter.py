@@ -5,7 +5,7 @@ from steps import wait_for_elem
 
 
 @step('I am logged into Twitter')    
-def logged_into_facebook(step):
+def logged_into_twitter(step):
     step.given('I have no cookies')
     step.given('I go to "http://twitter.com/"')
     step.given('I should see "Sign in"')
@@ -20,7 +20,7 @@ def logged_into_facebook(step):
 
 
 @step('I have not authorized the Twitter app')
-def not_authorized_facebook_app(step):
+def not_authorized_twitter_app(step):
     b = world.browser
     b.get('http://twitter.com/settings/connections')
     elem = b.find_elements_by_xpath(
