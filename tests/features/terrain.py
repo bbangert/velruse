@@ -63,13 +63,19 @@ def setup_app():
     
     # Setup the velruse app thread
     world.velruse_thread = VelruseServer(config_file)
+    world.velruse_thread.setDaemon(True)
     world.velruse_thread.start()
 
 
 @after.all
 def teardown(total):
-    while world.velruse_thread.isAlive():
+    if total.steps_failed:
+        print "Something went wrong :("
+        yes = raw_input('Manual test homepage? (Y/N):')
+        if yes in ('Y','y','yes'):
+            world.browser.get(world.login_page)
+        raw_input('Press Any key to quit.\n')
+    if world.velruse_thread.isAlive():
         world.velruse_thread.kill()
-        world.browser.get(world.login_page)
         world.velruse_thread.join(1)
     world.browser.quit()
