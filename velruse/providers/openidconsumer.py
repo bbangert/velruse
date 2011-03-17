@@ -199,21 +199,21 @@ class OpenIDResponder(utils.RouteResponder):
         """Extension point for inherited classes that want to change or set
         a default identifier"""
         return identifier
-    
+
     def _update_authrequest(self, req, authrequest):
         """Update the authrequest with the default extensions and attributes
         we ask for
-        
+
         This method doesn't need to return anything, since the extensions
         should be added to the authrequest object itself.
-        
+
         """
         # Add on the Attribute Exchange for those that support that            
         ax_request = ax.FetchRequest()
         for attrib in attributes.values():
             ax_request.add(ax.AttrInfo(attrib))
         authrequest.addExtension(ax_request)
-        
+
         # Form the Simple Reg request
         sreg_request = sreg.SRegRequest(
             optional=['nickname', 'email', 'fullname', 'dob', 'gender', 'postcode',
@@ -221,14 +221,14 @@ class OpenIDResponder(utils.RouteResponder):
         )
         authrequest.addExtension(sreg_request)
         return None
-    
+
     def _get_access_token(self, request_token):
         """Called to exchange a request token for the access token
-        
+
         This method doesn't by default return anything, other OpenID+Oauth
         consumers should override it to do the appropriate lookup for the
         access token, and return the access token.
-        
+
         """
         return None
 
@@ -236,26 +236,25 @@ class OpenIDResponder(utils.RouteResponder):
         log_debug = self.log_debug
         if log_debug:
             log.debug('Handling OpenID login')
-        
+
         # Load default parameters that all Auth Responders take
         end_point = req.POST['end_point']
         openid_url = req.POST.get('openid_identifier')
-        
+
         # Let inherited consumers alter the openid identifier if desired
         openid_url = self._lookup_identifier(req, openid_url)
-        
 
         if not openid_url:
             log.error('Velruse: no openid_url')
             return self._error_redirect(0, end_point)
-        
+
         if not re.match(self.endpoint_regex, end_point):
             log.error('Velruse: invalid endpoint')
             return self._error_redirect(0, end_point)
-        
+
         openid_session = {}
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
-                
+
         try:
             if log_debug:
                 log.debug('About to try OpenID begin')
@@ -264,7 +263,7 @@ class OpenIDResponder(utils.RouteResponder):
             if log_debug:
                 log.debug('OpenID begin DiscoveryFailure')
             return self._error_redirect(1, end_point)
-        
+
         if authrequest is None:
             if log_debug:
                 log.debug('OpenID begin returned empty')
@@ -272,12 +271,12 @@ class OpenIDResponder(utils.RouteResponder):
 
         if log_debug:
             log.debug('Updating authrequest')
-        
+
         # Update the authrequest
         self._update_authrequest(req, authrequest)
 
         return_to = self._get_return_to(req)
-        
+
         # Ensure our session is saved for the id to persist
         req.session['end_point'] = end_point
         req.session.save()
@@ -333,7 +332,6 @@ class OpenIDResponder(utils.RouteResponder):
                                             sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
                                             ax_resp=ax.FetchResponse.fromSuccessResponse(info))
             result_data = {'status': 'ok', 'profile': user_data}
-            
             # Did we get any OAuth info?
             oauth = info.extensionResponse('http://specs.openid.net/extensions/oauth/1.0', False)
             if oauth and 'request_token' in oauth:

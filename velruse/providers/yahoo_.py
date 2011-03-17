@@ -1,3 +1,5 @@
+import logging
+
 try:
      from urlparse import parse_qs
 except ImportError:
@@ -12,16 +14,17 @@ from velruse.providers.openidconsumer import ax_attributes
 from velruse.providers.openidconsumer import OpenIDResponder
 
 YAHOO_OAUTH = 'https://api.login.yahoo.com/oauth/v2/get_token'
+log = logging.getLogger(__name__)
 
 
 class YahooResponder(OpenIDResponder):
     def __init__(self, consumer=None, oauth_key=None, oauth_secret=None, *args,
                  **kwargs):
         """Handle Yahoo Auth
-        
+
         This also handles making an OAuth request during the OpenID
         authentication.
-        
+
         """
         super(YahooResponder, self).__init__(*args, **kwargs)
         self.consumer = consumer
@@ -30,10 +33,10 @@ class YahooResponder(OpenIDResponder):
     @classmethod
     def parse_config(cls, config):
         """Parse config data from a config file
-        
+
         We call the super's parse_config first to update it with our additional
         values.
-        
+
         """
         conf = OpenIDResponder.parse_config(config)
         params = {}
@@ -47,18 +50,18 @@ class YahooResponder(OpenIDResponder):
                 params[v] = yahoo_vals[k]
         conf.update(params)
         return conf
-    
+
     def _lookup_identifier(self, req, identifier):
         """Return the Yahoo OpenID directed endpoint"""
-        return 'https://yahoo.com/'
-    
+        return 'https://me.yahoo.com/'
+
     def _update_authrequest(self, req, authrequest):
         # Add on the Attribute Exchange for those that support that            
         ax_request = ax.FetchRequest()
         for attrib in ax_attributes.values():
             ax_request.add(ax.AttrInfo(attrib))
         authrequest.addExtension(ax_request)
-        
+
         # Add OAuth request?
         if 'oauth' in req.POST:
             oauth_request = OAuthRequest(consumer=self.consumer)
@@ -71,9 +74,11 @@ class YahooResponder(OpenIDResponder):
         client = oauth.Client(consumer, token)
         resp, content = client.request(YAHOO_OAUTH, "POST")
         if resp['status'] != '200':
+            log.error("OAuth token validation failed. Status: %s, Content: %s",
+                resp['status'], content)
             return None
-        
-        access_token = dict(parse_qsl(content))
-        
+
+        access_token = dict(parse_qs(content))
+
         return {'oauthAccessToken': access_token['oauth_token'], 
                 'oauthAccessTokenSecret': access_token['oauth_token_secret']}

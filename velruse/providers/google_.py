@@ -37,6 +37,7 @@ class GoogleResponder(OpenIDResponder):
             self.request_attributes = request_attributes.split(",")
         else:
             self.request_attributes = ['country', 'email', 'first_name', 'last_name', 'language']
+
     @classmethod
     def parse_config(cls, config):
         """Parse config data from a config file
@@ -99,7 +100,7 @@ class GoogleResponder(OpenIDResponder):
         if resp['status'] != '200':
             return None
         
-        access_token = dict(parse_qsl(content))
+        access_token = dict(parse_qs(content))
         
         return {'oauthAccessToken': access_token['oauth_token'], 
                 'oauthAccessTokenSecret': access_token['oauth_token_secret']}
