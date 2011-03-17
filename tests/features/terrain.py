@@ -63,13 +63,13 @@ def setup_app():
     
     # Setup the velruse app thread
     world.velruse_thread = VelruseServer(config_file)
+    world.velruse_thread.setDaemon(True)
     world.velruse_thread.start()
 
 
 @after.all
 def teardown(total):
-    while world.velruse_thread.isAlive():
+    if world.velruse_thread.isAlive():
         world.velruse_thread.kill()
-        world.browser.get(world.login_page)
         world.velruse_thread.join(1)
     world.browser.quit()
