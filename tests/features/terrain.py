@@ -69,6 +69,12 @@ def setup_app():
 
 @after.all
 def teardown(total):
+    if total.steps_failed:
+        print "Something went wrong :("
+        yes = raw_input('Manual test homepage? (Y/N):')
+        if yes in ('Y','y','yes'):
+            world.browser.get(world.login_page)
+        raw_input('Press Any key to quit.\n')
     if world.velruse_thread.isAlive():
         world.velruse_thread.kill()
         world.velruse_thread.join(1)
