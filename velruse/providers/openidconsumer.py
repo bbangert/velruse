@@ -291,7 +291,8 @@ class OpenIDResponder(utils.RouteResponder):
             redirect_url = authrequest.redirectURL(realm=self.realm, 
                                                    return_to=return_to, 
                                                    immediate=False)
-            self.storage.store(req.session.id, openid_session, expires=300)
+            #self.storage.store(req.session.id, openid_session, expires=300)
+            req.session['openid_session'] = openid_session
             return exc.HTTPFound(location=redirect_url)
         else:
             if log_debug:
@@ -299,7 +300,8 @@ class OpenIDResponder(utils.RouteResponder):
                 log.debug('realm = %s, return_to = %s, immediate = False' % (self.realm, return_to))
             html = authrequest.htmlMarkup(realm=self.realm, return_to=return_to, 
                                           immediate=False)
-            self.storage.store(req.session.id, openid_session, expires=300)
+            #self.storage.store(req.session.id, openid_session, expires=300)
+            req.session['openid_session'] = openid_session
             return Response(body=html)
     
     def process(self, req):
@@ -310,7 +312,9 @@ class OpenIDResponder(utils.RouteResponder):
         
         end_point = req.session['end_point']
         
-        openid_session = self.storage.retrieve(req.session.id)
+        #openid_session = self.storage.retrieve(req.session.id)
+        openid_session = req.session.get('openid_session', None)
+        del req.session['openid_session']
         if not openid_session:
             return self._error_redirect(1, end_point)
         
@@ -340,7 +344,7 @@ class OpenIDResponder(utils.RouteResponder):
                     result_data['credentials'] = access_token
             
             # Delete the temporary token data used for the OpenID auth
-            self.storage.delete(req.session.id)
+            #self.storage.delete(req.session.id)
             
             return self._success_redirect(result_data, end_point)
         else:
