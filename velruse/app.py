@@ -6,7 +6,7 @@ specified in the YAML file.
 Example YAML config file::
 
     Store:
-        Type: Redis
+        Type: velruse.store.redis_store:RedisStore
     Facebook:
         API Key: eb7cf817bab6e28d3b941811cf1b014e
         Application Secret: KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
