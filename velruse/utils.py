@@ -39,7 +39,13 @@ def load_package_obj(package_obj_string):
 
     The format is velruse.store.memstore:MemoryStore.
     """
-    package_name, obj_name = package_obj_string.split(':')
+    try:
+        package_name, obj_name = package_obj_string.split(':')
+    except ValueError:
+        raise ValueError((
+                "Could not parse package and object name "
+                "from %r, should be 'package:object'"
+                ) % package_obj_string)
     __import__(package_name)
     return getattr(sys.modules[package_name], obj_name)
 
