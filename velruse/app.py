@@ -29,7 +29,7 @@ Example YAML config file::
         Policy URL: http://YOURDOMAIN/policy.html
         Offers: Contacts.View
     OpenID Store:
-        Type: openidredis:RedisStore
+        Type: openid.store.memstore:MemoryStore
 
 Note that some providers take optional parameters, if a provider takes parameters, they
 should be provided, or if no additional parameters will be used, indicating true is
