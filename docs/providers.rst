@@ -115,7 +115,7 @@ Google Developer Links:
 YAML Parameters
 ---------------
 
-The Google Provider requires that an OpenIP provider configuration be present in your configuration file in order to provide the ``Realm`` and ``Endpoint`` configuration values.
+The Google Provider requires that an OpenID provider configuration be present in your configuration file in order to provide the ``Realm`` and ``Endpoint Regex`` configuration values.
 
 The following are only required if using the OAuth hybrid:
 
