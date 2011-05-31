@@ -191,6 +191,13 @@ Consumer Key
 Consumer Secret
     Yahoo secret
 
+If OAuth is not being used, the value of true by itself must be used instead
+to enable the Google provider, e.g.:
+
+.. code-block:: yaml
+    
+    Yahoo: true
+
 POST Parameters
 ---------------
 
