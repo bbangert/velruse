@@ -79,6 +79,10 @@ Endpoint Regex
     Valid end-point regular expression. This is to prevent redirects with the
     token to domains you don't know. e.g. `http://yourdomain.com/.*`.
 
+In addition, an ``OpenID Store`` section must be included in yours configuration which points to a class from which the OpenID store will be instantiated.
+
+.. note:: The OpenID store is a different store to the Velruse store. Please see the :mod:`python-openid` documentation for details.
+
 POST Parameters
 ---------------
 
@@ -111,11 +115,14 @@ Google Developer Links:
 YAML Parameters
 ---------------
 
-These parameters are only required if using the OAuth hybrid. Google will use
-the parameters provided for the OpenID Provider unless they are also declared
-specifically for the Google Provider. That is, if you're using the OpenID 
-provider *and* the Google Provider, you can declare the `Realm` and 
-`Endpoint Regex` just once.
+The Google Provider requires that an OpenID provider configuration be present in your configuration file in order to provide the ``Realm`` and ``Endpoint Regex`` configuration values.
+
+The following are only required if using the OAuth hybrid:
+
+OAuth Consumer Key
+    The consumer key, e.g. `yourdomain.com`
+OAuth Consumer Secret
+    Consumer secret as specified
 
 .. warning::
     
@@ -123,11 +130,6 @@ provider *and* the Google Provider, you can declare the `Realm` and
     OpenID `Realm` domain, otherwise Google will not consider the OAuth to
     be valid. If this domain is *not a valid DNS name*, Google will also
     consider it invalid.
-
-OAuth Consumer Key
-    The consumer key, e.g. `yourdomain.com`
-OAuth Consumer Secret
-    Consumer secret as specified
 
 If OAuth is not being used, the value of true by itself must be used instead
 to enable the Google provider, e.g.:
@@ -166,7 +168,7 @@ Complete Example:
 Yahoo
 =====
 
-Like Google, Yahoo accepts an OpenID+OAuth hybrid authentication granting access to Yahoo applications while authenticating a user for sign-on. Unlike Google, Yahoo requires the application to register in advance the scope of the API token to issue. Using the Yahoo OAuth requires registration of a Yahoo application.
+Like Google, Yahoo offers either plain OpenID for authentication or an OpenID+OAuth hybrid authentication granting access to Yahoo applications while authenticating a user for sign-on. Unlike Google, Yahoo requires the application to register in advance the scope of the API token to issue. Using the Yahoo OAuth requires registration of a Yahoo application.
 
 Yahoo Developer Links:
 
@@ -176,20 +178,25 @@ Yahoo Developer Links:
 YAML Parameters
 ---------------
 
-These parameters are only required if using the OAuth hybrid. Yahoo will use
-the parameters provided for the OpenID Provider unless they are also declared
-specifically for the Yahoo Provider. That is, if you're using the OpenID 
-provider *and* the Yahoo Provider, you can declare the `Realm` and 
-`Endpoint Regex` just once.
+Like Google, the Yahoo Provider requires that an OpenID provider configuration be present in your configuration file in order to provide the ``Realm`` and ``Endpoint Regex`` configuration values.
+
+.. warning::
+    
+    Both the ``Realm`` and ``Endpoint Regex`` must point to valid DNS names that are resolvable by Yahoo's authentication servers. If this is not the case, Yahoo will consider the authentication invalid and display an error message.
+
+The following parameters are only required if using the OAuth hybrid:
 
 Consumer Key
     Yahoo consumer key
 Consumer Secret
     Yahoo secret
 
-.. warning::
+If OAuth is not being used, the value of true by itself must be used instead
+to enable the Google provider, e.g.:
+
+.. code-block:: yaml
     
-    If this domain is *not a valid DNS name*, Yahoo will consider it invalid.
+    Yahoo: true
 
 POST Parameters
 ---------------
