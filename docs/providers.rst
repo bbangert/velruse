@@ -266,7 +266,7 @@ Windows Live Developer Links:
 
 * `Getting Your Application ID <http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_
 * `Services Available for Delegated Authentication <http://dev.live.com/blogs/liveid/archive/2008/02/25/211.aspx>`_
-* `Live Services Management Page <https://live.azure.com/Cloud/Provisioning/Services.aspx>`_
+* `Live Services Management Page <http://go.microsoft.com/fwlink/?LinkID=144070>`_
 
 YAML Parameters
 ---------------

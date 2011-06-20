@@ -8,8 +8,8 @@ Feature: Google testing
             And I have not authorized the Google app
             And I go to the velruse login page
         When I press "Login with Google"
-            And I should see "An application would like to connect to your account" within 5 seconds
-            And I should see "access?"
+            And I should see "asking for some information from your Google Account" within 5 seconds
+            And I should see "Remember this approval"
             And I press "Allow"
         Then I should see "ok" within 5 seconds
             And I should see "displayName"

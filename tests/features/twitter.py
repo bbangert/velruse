@@ -23,6 +23,7 @@ def logged_into_twitter(step):
 def not_authorized_twitter_app(step):
     b = world.browser
     b.get('http://twitter.com/settings/connections')
+    wait_for_elem(world.browser, '//a[@class="revoke-access"]', 4)
     elem = b.find_elements_by_xpath(
         '//li[contains(.//label//*, "%s")]//a[@class="revoke-access"]' % world.twitter_app_name
     )
