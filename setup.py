@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import sys, os
 
-version = '0.20'
+version = '0.20a1'
 
 setup(name='velruse',
       version=version,
@@ -28,7 +28,7 @@ setup(name='velruse',
       ],
       tests_require = [
         'lettuce>=0.1.21',
-        'lettuce_webdriver>=0.12',
+        'lettuce_webdriver>=0.1.2',
         'selenium'
       ],
       entry_points="""

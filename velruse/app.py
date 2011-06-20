@@ -6,7 +6,7 @@ specified in the YAML file.
 Example YAML config file::
 
     Store:
-        Type: Redis
+        Type: velruse.store.redis_store:RedisStore
     Facebook:
         API Key: eb7cf817bab6e28d3b941811cf1b014e
         Application Secret: KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
@@ -29,7 +29,7 @@ Example YAML config file::
         Policy URL: http://YOURDOMAIN/policy.html
         Offers: Contacts.View
     OpenID Store:
-        Type: openidredis:RedisStore
+        Type: openid.store.memstore:MemoryStore
 
 Note that some providers take optional parameters, if a provider takes parameters, they
 should be provided, or if no additional parameters will be used, indicating true is
