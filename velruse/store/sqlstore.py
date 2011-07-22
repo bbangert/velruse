@@ -26,9 +26,12 @@ class SQLStore(UserStore):
     def __init__(self, sqluri, pool_size=100, pool_recycle=3600,
                  logging_name='velruse', reset_on_return=True):
         self.sqluri = sqluri
-        kw = dict(pool_size=int(pool_size),
-                  pool_recycle=int(pool_recycle),
-                  logging_name=logging_name)
+
+        kw = dict(logging_name=logging_name)
+
+        if not self.sqluri.startswith('sqlite'):
+            kw.update(dict(pool_size=int(pool_size),
+                           pool_recycle=int(pool_recycle)))
 
         if self.sqluri.startswith('mysql'):
             kw['reset_on_return'] = reset_on_return
