@@ -1,5 +1,5 @@
 """Velruse Exceptions"""
-class VelruseException(BaseException):
+class VelruseException(Exception):
 	"""Base Velruse Exception"""
 
 

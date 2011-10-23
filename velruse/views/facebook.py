@@ -1,6 +1,6 @@
-"""Facebook Authentication Views
+"""Facebook Authentication Views"""
+import uuid
 
-"""
 from urlparse import parse_qs
 
 from pyramid.httpexceptions import HTTPFound
@@ -24,11 +24,12 @@ def includeme(config):
 
 def facebook_login(request):
 	"""Initiate a facebook login"""
-	config = request.registry['velruse_config']
-	scope = config.get('facebook.scope', request.POST.get('scope', ''))
+	config = request.registry.settings
+	scope = config.get('velruse.facebook.scope',
+					   request.POST.get('scope', ''))
 	request.session['state'] = state = uuid.uuid4().hex
 	fb_url = flat_url('https://www.facebook.com/dialog/oauth/', scope=scope,
-					  client_id=config['facebook.app_id'],
+					  client_id=config['velruse.facebook.app_id'],
 					  redirect_uri=request.route_url('facebook_process'),
 					  state=state)
 	return HTTPFound(location=fb_url)
@@ -41,7 +42,7 @@ def facebook_process(request):
 						"not the same as session state %s" % (
 						request.GET.get('state'), request.session.get('state')
 						))
-	config = request.registry['velruse_config']
+	config = request.registry.settings
 	code = request.GET.get('code')
 	if not code:
 		reason = request.GET.get('error_reason', 'No reason provided.')
@@ -49,9 +50,10 @@ def facebook_process(request):
 
 	# Now retrieve the access token with the code
 	access_url = flat_url('https://graph.facebook.com/oauth/access_token',
-						  client_id=config['facebook_app_id'], code=code,
-						  client_secret=config['facebook_app_secret'],
-						  redirect_uri=request.route_url('facebook_process'))
+						  client_id=config['velruse.facebook.app_id'],
+						  client_secret=config['velruse.facebook.app_secret'],
+						  redirect_uri=request.route_url('facebook_process'),
+						  code=code)
 	r = requests.get(access_url)
 	if r.status_code != 200:
 		raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
@@ -70,6 +72,5 @@ def facebook_process(request):
 	# appropriate data to be passed
 	complete = AuthenticationComplete()
 	complete.profile = profile
-	complete.access_token = access_token
-	complete.providor = 'Facebook'
+	complete.credentials = { 'oauthAccessToken': access_token }
 	raise complete
