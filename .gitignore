@@ -8,4 +8,6 @@ test.ini
 data
 build
 dist
+associations
+openid_data
 

@@ -14,6 +14,13 @@ from velruse.exceptions import ThirdPartyFailure
 from velruse.parsers import extract_fb_data
 from velruse.utils import flat_url
 
+def includeme(config):
+	config.add_route("facebook_login", "/facebook/login")
+	config.add_route("facebook_process", "/facebook/process")
+	config.add_view(facebook_login, route_name="facebook_login")
+	config.add_view(facebook_process, route_name="facebook_process")
+
+
 def facebook_login(request):
 	"""Initiate a facebook login"""
 	config = request.registry['velruse_config']
@@ -31,8 +38,11 @@ def facebook_login(request):
 
 def facebook_process(request):
 	"""Process the facebook redirect"""
-	if request.GET.get('state') != request.session['state']:
-		raise CSRFError
+	if request.GET.get('state') != request.session.get('state'):
+		raise CSRFError("CSRF Validation check failed. Request state %s is "
+						"not the same as session state %s" % (
+						request.GET.get('state'), request.session.get('state')
+						))
 	config = request.registry['velruse_config']
 	code = request.GET.get('code')
 	if not code:
