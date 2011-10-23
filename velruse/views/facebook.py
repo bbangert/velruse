@@ -14,6 +14,7 @@ from velruse.exceptions import ThirdPartyFailure
 from velruse.parsers import extract_fb_data
 from velruse.utils import flat_url
 
+
 def includeme(config):
 	config.add_route("facebook_login", "/facebook/login")
 	config.add_route("facebook_process", "/facebook/process")
@@ -24,13 +25,10 @@ def includeme(config):
 def facebook_login(request):
 	"""Initiate a facebook login"""
 	config = request.registry['velruse_config']
-	if config.get('accept_form_scope'):
-		scope = request.POST.get('scope')
-	else:
-		scope = config.get('facebook_scope', '')
+	scope = config.get('facebook.scope', request.POST.get('scope', ''))
 	request.session['state'] = state = uuid.uuid4().hex
 	fb_url = flat_url('https://www.facebook.com/dialog/oauth/', scope=scope,
-					  client_id=config['facebook_app_id'],
+					  client_id=config['facebook.app_id'],
 					  redirect_uri=request.route_url('facebook_process'),
 					  state=state)
 	return HTTPFound(location=fb_url)
