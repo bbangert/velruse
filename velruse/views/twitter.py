@@ -15,7 +15,6 @@ from velruse.utils import flat_url
 
 REQUEST_URL = 'https://api.twitter.com/oauth/request_token'
 ACCESS_URL = 'https://api.twitter.com/oauth/access_token'
-AUTHORIZE_URL = 'https://api.twitter.com/oauth/authorize'
 
 
 def includeme(config):
@@ -49,13 +48,20 @@ def twitter_login(request):
     request.session['token'] = r.content
 
     # Send the user to twitter now for authorization
+    if config.get('velruse.twitter.authorize', '').lower() in ['true']:
+        req_url = 'https://api.twitter.com/oauth/authorize'
+    else:
+        req_url = 'https://api.twitter.com/oauth/authenticate'
     oauth_request = oauth.Request.from_token_and_callback(
-        token=request_token, http_url=AUTHORIZE_URL)
+        token=request_token, http_url=req_url)
     return HTTPFound(location=oauth_request.to_url())
 
 
 def twitter_process(request):
     """Process the Twitter redirect"""
+    if 'denied' in request.GET:
+        raise AuthenticationDenied("User denied authentication")
+
     config = request.registry.settings
     request_token = oauth.Token.from_string(request.session['token'])
     verifier = request.GET.get('oauth_verifier')
@@ -77,9 +83,9 @@ def twitter_process(request):
     profile = {}
     profile['providerName'] = 'Twitter'
     profile['displayName'] = access_token['screen_name']
-    profile['identifier'] = 'http://twitter.com/?id=%s' % access_token['user_id']
+    profile['identifier'] = 'http://twitter.com/?id=%s' % access_token['user_id'][0]
     
-    cred = {'oauthAccessToken': access_token['oauth_token'], 
+    cred = {'oauthAccessToken': access_token['oauth_token'],
             'oauthAccessTokenSecret': access_token['oauth_token_secret']}
 
     # Create and raise our AuthenticationComplete exception with the
