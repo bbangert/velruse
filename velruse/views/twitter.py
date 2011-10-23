@@ -1,16 +1,13 @@
 """Facebook Authentication Views"""
-import uuid
 from urlparse import parse_qs
 
 from pyramid.httpexceptions import HTTPFound
-from simplejson import loads
 import oauth2 as oauth
 import requests
 
 from velruse.exceptions import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import flat_url
 
 
 REQUEST_URL = 'https://api.twitter.com/oauth/request_token'
