@@ -79,11 +79,11 @@ def twitter_process(request):
     # Setup the normalized contact info
     profile = {}
     profile['providerName'] = 'Twitter'
-    profile['displayName'] = access_token['screen_name']
+    profile['displayName'] = access_token['screen_name'][0]
     profile['identifier'] = 'http://twitter.com/?id=%s' % access_token['user_id'][0]
     
-    cred = {'oauthAccessToken': access_token['oauth_token'],
-            'oauthAccessTokenSecret': access_token['oauth_token_secret']}
+    cred = {'oauthAccessToken': access_token['oauth_token'][0],
+            'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
 
     # Create and raise our AuthenticationComplete exception with the
     # appropriate data to be passed
