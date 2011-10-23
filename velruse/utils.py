@@ -3,6 +3,7 @@ import logging
 log = logging.getLogger(__name__)
 
 import sys
+import urllib
 import uuid
 
 try:
@@ -17,6 +18,12 @@ from webob import Response
 
 from velruse.baseconvert import base_encode
 from velruse.errors import error_dict
+
+
+def flat_url(url, **kw):
+    """Creates a URL with the query param encoded"""
+    url += '?' + urllib.urlencode(kw)
+    return url
 
 
 def redirect_form(end_point, token):
