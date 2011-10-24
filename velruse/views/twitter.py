@@ -1,4 +1,4 @@
-"""Facebook Authentication Views"""
+"""Twitter Authentication Views"""
 from urlparse import parse_qs
 
 from pyramid.httpexceptions import HTTPFound
