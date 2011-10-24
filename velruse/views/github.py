@@ -7,9 +7,7 @@ import requests
 
 from velruse.exceptions import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
-from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
-from velruse.parsers import extract_fb_data
 from velruse.utils import flat_url
 
 
