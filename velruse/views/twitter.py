@@ -16,9 +16,9 @@ ACCESS_URL = 'https://api.twitter.com/oauth/access_token'
 
 def includeme(config):
     config.add_route("twitter_login", "/twitter/login")
-    config.add_route("twitter_process", "/twitter/process")
+    config.add_route("twitter_process", "/twitter/process",
+                     factory=twitter_process)
     config.add_view(twitter_login, route_name="twitter_login")
-    config.add_view(twitter_process, route_name="twitter_process")
 
 
 def twitter_login(request):
@@ -57,7 +57,7 @@ def twitter_login(request):
 def twitter_process(request):
     """Process the Twitter redirect"""
     if 'denied' in request.GET:
-        raise AuthenticationDenied("User denied authentication")
+        return AuthenticationDenied("User denied authentication")
 
     config = request.registry.settings
     request_token = oauth.Token.from_string(request.session['token'])
@@ -90,4 +90,4 @@ def twitter_process(request):
     complete = AuthenticationComplete()
     complete.profile = profile
     complete.credentials = cred
-    raise complete
+    return complete

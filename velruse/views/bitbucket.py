@@ -19,9 +19,9 @@ SIGMETHOD = oauth.SignatureMethod_HMAC_SHA1()
 
 def includeme(config):
     config.add_route("bitbucket_login", "/bitbucket/login")
-    config.add_route("bitbucket_process", "/bitbucket/process")
+    config.add_route("bitbucket_process", "/bitbucket/process",
+                     factory=bitbucket_process)
     config.add_view(bitbucket_login, route_name="bitbucket_login")
-    config.add_view(bitbucket_process, route_name="bitbucket_process")
 
 
 def bitbucket_login(request):
@@ -60,7 +60,7 @@ def bitbucket_login(request):
 def bitbucket_process(request):
     """Process the bitbucket redirect"""
     if 'denied' in request.GET:
-        raise AuthenticationDenied("User denied authentication")
+        return AuthenticationDenied("User denied authentication")
 
     config = request.registry.settings
     request_token = oauth.Token.from_string(request.session['token'])
@@ -107,4 +107,4 @@ def bitbucket_process(request):
     complete = AuthenticationComplete()
     complete.profile = profile
     complete.credentials = cred
-    raise complete
+    return complete

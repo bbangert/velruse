@@ -17,9 +17,9 @@ from velruse.utils import flat_url
 
 def includeme(config):
     config.add_route("facebook_login", "/facebook/login")
-    config.add_route("facebook_process", "/facebook/process")
+    config.add_route("facebook_process", "/facebook/process",
+                     factory=facebook_process)
     config.add_view(facebook_login, route_name="facebook_login")
-    config.add_view(facebook_process, route_name="facebook_process")
 
 
 def facebook_login(request):
@@ -46,7 +46,7 @@ def facebook_process(request):
     code = request.GET.get('code')
     if not code:
         reason = request.GET.get('error_reason', 'No reason provided.')
-        raise AuthenticationDenied(reason)
+        return AuthenticationDenied(reason)
 
     # Now retrieve the access token with the code
     access_url = flat_url('https://graph.facebook.com/oauth/access_token',
@@ -73,4 +73,4 @@ def facebook_process(request):
     complete = AuthenticationComplete()
     complete.profile = profile
     complete.credentials = { 'oauthAccessToken': access_token }
-    raise complete
+    return complete

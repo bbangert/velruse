@@ -13,9 +13,9 @@ from velruse.utils import flat_url
 
 def includeme(config):
     config.add_route("github_login", "/github/login")
-    config.add_route("github_process", "/github/process")
+    config.add_route("github_process", "/github/process",
+                     factory=github_process)
     config.add_view(github_login, route_name="github_login")
-    config.add_view(github_process, route_name="github_process")
 
 
 def github_login(request):
@@ -35,7 +35,7 @@ def github_process(request):
     code = request.GET.get('code')
     if not code:
         reason = request.GET.get('error', 'No reason provided.')
-        raise AuthenticationDenied(reason)
+        return AuthenticationDenied(reason)
 
     # Now retrieve the access token with the code
     access_url = flat_url('https://github.com/login/oauth/access_token',
@@ -65,12 +65,10 @@ def github_process(request):
     if 'email' in data:
         profile['emails'] = [data['email']]
         profile['verifiedEmail'] = data['email']
-    
-    cred = {'oauthAccessToken': access_token}
 
     # Create and raise our AuthenticationComplete exception with the
     # appropriate data to be passed
     complete = AuthenticationComplete()
     complete.profile = profile
     complete.credentials = { 'oauthAccessToken': access_token }
-    raise complete
+    return complete

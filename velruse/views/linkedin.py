@@ -17,9 +17,9 @@ ACCESS_URL = 'https://api.linkedin.com/uas/oauth/accessToken'
 
 def includeme(config):
     config.add_route("linkedin_login", "/linkedin/login")
-    config.add_route("linkedin_process", "/linkedin/process")
+    config.add_route("linkedin_process", "/linkedin/process",
+                     factory=linkedin_process)
     config.add_view(linkedin_login, route_name="linkedin_login")
-    config.add_view(linkedin_process, route_name="linkedin_process")
 
 
 def linkedin_login(request):
@@ -58,7 +58,7 @@ def linkedin_login(request):
 def linkedin_process(request):
     """Process the LinkedIn redirect"""
     if 'denied' in request.GET:
-        raise AuthenticationDenied("User denied authentication")
+        return AuthenticationDenied("User denied authentication")
 
     config = request.registry.settings
     request_token = oauth.Token.from_string(request.session['token'])
@@ -109,4 +109,4 @@ def linkedin_process(request):
     complete = AuthenticationComplete()
     complete.profile = profile
     complete.credentials = cred
-    raise complete
+    return complete
