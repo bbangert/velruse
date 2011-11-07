@@ -6,7 +6,7 @@ import oauth2 as oauth
 import requests
 import json
 
-from velruse.api import AuthenticationComplete
+from velruse.api import BitbucketAuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 
@@ -101,5 +101,6 @@ def bitbucket_process(request):
                        }
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
-    complete = AuthenticationComplete(profile=profile, credentials=cred)
+    complete = BitbucketAuthenticationComplete(
+        profile=profile, credentials=cred)
     return complete

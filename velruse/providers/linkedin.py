@@ -6,7 +6,7 @@ from pyramid.httpexceptions import HTTPFound
 import oauth2 as oauth
 import requests
 
-from velruse.api import AuthenticationComplete
+from velruse.api import LinkedInAuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 
@@ -106,5 +106,6 @@ def linkedin_process(request):
 
     # Create and raise our AuthenticationComplete exception with the
     # appropriate data to be passed
-    complete = AuthenticationComplete(profile=profile, credentials=cred)
+    complete = LinkedInAuthenticationComplete(
+        profile=profile, credentials=cred)
     return complete

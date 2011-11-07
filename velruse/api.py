@@ -7,3 +7,23 @@ class AuthenticationComplete(object):
         """Create an AuthenticationComplete object with user data"""
         self.profile = profile
         self.credentials = credentials
+
+
+class BitbucketAuthenticationComplete(AuthenticationComplete):
+    """Bitbucket auth complete"""
+
+
+class FacebookAuthenticationComplete(AuthenticationComplete):
+    """Facebook auth complete"""
+
+
+class GithubAuthenticationComplete(AuthenticationComplete):
+    """Github auth complete"""
+
+
+class LinkedInAuthenticationComplete(AuthenticationComplete):
+    """LinkedIn auth complete"""
+
+
+class TwitterAuthenticationComplete(AuthenticationComplete):
+    """Twitter auth complete"""
