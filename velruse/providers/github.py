@@ -5,7 +5,7 @@ from pyramid.httpexceptions import HTTPFound
 from simplejson import loads
 import requests
 
-from velruse.exceptions import AuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
@@ -66,9 +66,6 @@ def github_process(request):
         profile['emails'] = [data['email']]
         profile['verifiedEmail'] = data['email']
 
-    # Create and raise our AuthenticationComplete exception with the
-    # appropriate data to be passed
-    complete = AuthenticationComplete()
-    complete.profile = profile
-    complete.credentials = { 'oauthAccessToken': access_token }
+    cred = {'oauthAccessToken': access_token}
+    complete = AuthenticationComplete(profile=profile, credentials=cred)
     return complete

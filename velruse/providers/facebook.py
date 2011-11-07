@@ -7,7 +7,7 @@ from pyramid.httpexceptions import HTTPFound
 from simplejson import loads
 import requests
 
-from velruse.exceptions import AuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
@@ -68,9 +68,6 @@ def facebook_process(request):
     fb_profile = loads(r.content)
     profile = extract_fb_data(fb_profile)
 
-    # Create and raise our AuthenticationComplete exception with the
-    # appropriate data to be passed
-    complete = AuthenticationComplete()
-    complete.profile = profile
-    complete.credentials = { 'oauthAccessToken': access_token }
+    cred = {'oauthAccessToken': access_token}
+    complete = AuthenticationComplete(profile=profile, credentials=cred)
     return complete
