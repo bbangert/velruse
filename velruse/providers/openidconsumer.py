@@ -288,6 +288,9 @@ class OpenIDConsumer(object):
             request.session['openid_session'] = openid_session
             return Response(body=html)
     
+    def _update_profile_data(self, request, user_data, credentials):
+        """Update the profile data using an OAuth request to fetch more data"""
+
     def process(self, request):
         """Handle incoming redirect from OpenID Provider"""
         log_debug = self.log_debug
@@ -323,6 +326,9 @@ class OpenIDConsumer(object):
                 access_token = self._get_access_token(oauth['request_token'])
                 if access_token:
                     cred.update(access_token)
+                
+                # See if we need to update our profile data with an OAuth call
+                self._update_profile_data(request, user_data, cred)
             
             # Delete the temporary token data used for the OpenID auth
             return OpenIDAuthenticationComplete(

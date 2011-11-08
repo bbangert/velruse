@@ -12,6 +12,7 @@ except ImportError:
 
 from openid.extensions import ax
 from pyramid.util import DottedNameResolver
+from simplejson import loads
 import oauth2 as oauth
 
 from velruse.providers.oid_extensions import OAuthRequest
@@ -103,6 +104,36 @@ class GoogleConsumer(OpenIDConsumer):
             authrequest.addExtension(ui_request)
         return None
     
+    def _update_profile_data(self, request, profile, credentials):
+        """Update the user data with profile information from Google Contacts
+
+        This only works if the oauth_scope included access to Google Contacts
+        i.e. the scope needs::
+            
+            http://www-opensocial.googleusercontent.com/api/people
+
+        """
+        settings = request.registry.settings
+        if 'velruse.google.consumer_key' not in settings:
+            return
+
+        # Create the consumer and client, make the request
+        consumer = oauth.Consumer(settings['velruse.google.consumer_key'],
+                                  settings['velruse.google.consumer_secret'])
+
+        # Make a request with the data for more user info
+        print credentials
+        token = oauth.Token(key=credentials['oauthAccessToken'],
+                            secret=credentials['oauthAccessTokenSecret'])
+        client = oauth.Client(consumer, token)
+        profile_url = 'https://www-opensocial.googleusercontent.com/api/people/@me/@self'
+        resp, content = client.request(profile_url)
+        if resp['status'] != '200':
+            return
+        data = loads(content)
+        if 'entry' in data:
+            profile.update(data['entry'])
+
     def _get_access_token(self, request_token):
         """Retrieve the access token if OAuth hybrid was used"""
         consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
@@ -114,5 +145,5 @@ class GoogleConsumer(OpenIDConsumer):
         
         access_token = dict(parse_qs(content))
         
-        return {'oauthAccessToken': access_token['oauth_token'], 
-                'oauthAccessTokenSecret': access_token['oauth_token_secret']}
+        return {'oauthAccessToken': access_token['oauth_token'][0], 
+                'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
