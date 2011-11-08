@@ -15,14 +15,38 @@ import oauth2 as oauth
 
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
-from velruse.providers.openidconsumer import ax_attributes, alternate_ax_attributes, attributes
-from velruse.providers.openidconsumer import OpenIDResponder
+from velruse.providers.openidconsumer import ax_attributes
+from velruse.providers.openidconsumer import alternate_ax_attributes
+from velruse.providers.openidconsumer import attributes
+from velruse.providers.openidconsumer import OpenIDConsumer
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 
 
-class GoogleResponder(OpenIDResponder):
-    def __init__(self, consumer=None, oauth_key=None, oauth_secret=None, request_attributes=None, *args,
+def includeme(config):
+    settings = config.registry.settings
+    store = config.registry.get('velruse.openid_store')
+    if not store and 'velruse.openid.store' not in settings:
+        raise Exception("Missing 'velruse.openid.store' in config settings.")
+    if not store:
+        store = dotted_resolver.resolve(settings['velruse.openid.store'])()
+        config.registry['velruse.openid_store'] = store
+    realm = settings['velruse.openid.realm']
+    consumer = GoogleConsumer(storage=store, realm=realm,
+                              process_url='google_process',
+                              oauth_key=settings.get('velruse.google.consumer_key'),
+                              oauth_secret=settings.get('velruse.google.consumer_secret'),
+                              request_attributes=settings.get('request_attributes')
+                              )
+    config.add_route("google_login", "/google/login")
+    config.add_route("google_process", "/google/process",
+                     use_global_views=True,
+                     factory=consumer.process)
+    config.add_view(consumer.login, route_name="google_login")
+
+
+class GoogleConsumer(OpenIDConsumer):
+    def __init__(self, oauth_key=None, oauth_secret=None, request_attributes=None, *args,
                  **kwargs):
         """Handle Google Auth
         
@@ -30,8 +54,8 @@ class GoogleResponder(OpenIDResponder):
         authentication.
         
         """
-        super(GoogleResponder, self).__init__(*args, **kwargs)
-        self.consumer = consumer
+        super(GoogleConsumer, self).__init__(*args, **kwargs)
+        self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
         if request_attributes:
             self.request_attributes = request_attributes.split(",")
