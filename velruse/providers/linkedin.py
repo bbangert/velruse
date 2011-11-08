@@ -101,7 +101,7 @@ def linkedin_process(request):
     profile['name'] = {
         'givenName': data['firstName'],
         'familyName': data['lastName'],
-        'formatted': data['firstName'] + data['lastName']
+        'formatted': '%s %s' % (data['firstName'], data['lastName'])
     }
     profile['identifier'] = data['id']
     return LinkedInAuthenticationComplete(profile=profile,

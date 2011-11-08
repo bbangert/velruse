@@ -89,15 +89,16 @@ def bitbucket_process(request):
     client = oauth.Client(consumer, token)
     resp, content = client.request(USER_URL)
     user_data = json.loads(content)
+    data = user_data['user']
     # Setup the normalized contact info
     profile = {}
     profile['providerName'] = 'bitbucket'
-    profile['displayName'] = user_data['user']['username']
-    profile['identifier'] = 'https://api.bitbucket.org/1.0/users/%s/' % user_data['user']['username']
+    profile['displayName'] = data['username']
+    profile['identifier'] = 'https://api.bitbucket.org/1.0/users/%s/' % data['username']
     profile['name'] = {
-                       ''
-                       'givenName': user_data['user']['first_name'],
-                       'familyName': user_data['user']['last_name']
+                       'formatted': '%s %s' % (data['firstName'], data['lastName']),
+                       'givenName': data['first_name'],
+                       'familyName': data['last_name']
                        }
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
