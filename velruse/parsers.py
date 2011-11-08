@@ -62,7 +62,7 @@ def extract_live_data(data):
         'providerName': 'Live',
         'identifier': data['id'],
         'gender': data.get('gender'),
-        'verifiedEmail': emails.get('account'),
+        'verifiedEmail': emails.get('preferred'),
         'updated': data.get('updated_time'),
         'name': {
             'formatted': data.get('name'),
@@ -82,6 +82,9 @@ def extract_live_data(data):
         profile['emails'].append(
             {'type': 'preferred', 'value': emails['preferred'],
              'primary': True})
+    if emails.get('account'):
+        profile['emails'].append(
+            {'type': 'account', 'value': emails['account']})
     if 'link' in data:
         profile['urls'].append(
             {'type': 'profile', 'value': data['link']})
