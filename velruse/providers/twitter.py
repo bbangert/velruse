@@ -17,6 +17,7 @@ ACCESS_URL = 'https://api.twitter.com/oauth/access_token'
 def includeme(config):
     config.add_route("twitter_login", "/twitter/login")
     config.add_route("twitter_process", "/twitter/process",
+                     use_global_views=True,
                      factory=twitter_process)
     config.add_view(twitter_login, route_name="twitter_login")
 
@@ -84,9 +85,5 @@ def twitter_process(request):
     
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
-
-    # Create and raise our AuthenticationComplete exception with the
-    # appropriate data to be passed
-    complete = TwitterAuthenticationComplete(
-        profile=profile, credentials=cred)
-    return complete
+    return TwitterAuthenticationComplete(profile=profile,
+                                         credentials=cred)

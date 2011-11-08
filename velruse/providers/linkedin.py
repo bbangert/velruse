@@ -18,6 +18,7 @@ ACCESS_URL = 'https://api.linkedin.com/uas/oauth/accessToken'
 def includeme(config):
     config.add_route("linkedin_login", "/linkedin/login")
     config.add_route("linkedin_process", "/linkedin/process",
+                     use_global_views=True,
                      factory=linkedin_process)
     config.add_view(linkedin_login, route_name="linkedin_login")
 
@@ -103,9 +104,5 @@ def linkedin_process(request):
         'formatted': data['firstName'] + data['lastName']
     }
     profile['identifier'] = data['id']
-
-    # Create and raise our AuthenticationComplete exception with the
-    # appropriate data to be passed
-    complete = LinkedInAuthenticationComplete(
-        profile=profile, credentials=cred)
-    return complete
+    return LinkedInAuthenticationComplete(profile=profile,
+                                          credentials=cred)

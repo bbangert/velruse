@@ -12,7 +12,6 @@ except ImportError:
     import json
 
 import webob.exc as exc
-from routes import URLGenerator
 from openid.oidutil import autoSubmitHTML
 from webob import Response
 

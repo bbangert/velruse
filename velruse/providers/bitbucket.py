@@ -101,6 +101,5 @@ def bitbucket_process(request):
                        }
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
-    complete = BitbucketAuthenticationComplete(
-        profile=profile, credentials=cred)
-    return complete
+    return BitbucketAuthenticationComplete(profile=profile,
+                                           credentials=cred)

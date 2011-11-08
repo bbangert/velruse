@@ -18,6 +18,7 @@ from velruse.utils import flat_url
 def includeme(config):
     config.add_route("facebook_login", "/facebook/login")
     config.add_route("facebook_process", "/facebook/process",
+                     use_global_views=True,
                      factory=facebook_process)
     config.add_view(facebook_login, route_name="facebook_login")
 
@@ -69,6 +70,5 @@ def facebook_process(request):
     profile = extract_fb_data(fb_profile)
 
     cred = {'oauthAccessToken': access_token}
-    complete = FacebookAuthenticationComplete(
-        profile=profile, credentials=cred)
-    return complete
+    return FacebookAuthenticationComplete(profile=profile,
+                                          credentials=cred)

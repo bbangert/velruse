@@ -14,6 +14,7 @@ from velruse.utils import flat_url
 def includeme(config):
     config.add_route("github_login", "/github/login")
     config.add_route("github_process", "/github/process",
+                     use_global_views=True,
                      factory=github_process)
     config.add_view(github_login, route_name="github_login")
 
@@ -67,6 +68,5 @@ def github_process(request):
         profile['verifiedEmail'] = data['email']
 
     cred = {'oauthAccessToken': access_token}
-    complete = GithubAuthenticationComplete(
-        profile=profile, credentials=cred)
-    return complete
+    return GithubAuthenticationComplete(profile=profile,
+                                        credentials=cred)
