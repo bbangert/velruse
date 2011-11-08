@@ -91,7 +91,7 @@ class GoogleConsumer(OpenIDConsumer):
         elif 'velruse.google.oauth_scope' in settings:
             oauth_scope = settings['velruse.google.oauth_scope']
         if oauth_scope:
-            oauth_request = OAuthRequest(consumer=self.consumer,
+            oauth_request = OAuthRequest(consumer=self.oauth_key,
                                          scope=oauth_scope)
             authrequest.addExtension(oauth_request)
 
@@ -105,7 +105,7 @@ class GoogleConsumer(OpenIDConsumer):
     
     def _get_access_token(self, request_token):
         """Retrieve the access token if OAuth hybrid was used"""
-        consumer = oauth.Consumer(key=self.consumer, secret=self.oauth_secret)
+        consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
         token = oauth.Token(key=request_token, secret='')
         client = oauth.Client(consumer, token)
         resp, content = client.request(GOOGLE_OAUTH, "POST")
