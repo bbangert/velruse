@@ -53,3 +53,40 @@ def extract_fb_data(data):
             del profile[k]
     
     return profile
+
+
+def extract_live_data(data):
+    """Extract and normalize Windows Live Connect data"""
+    emails = data.get('emails', {})
+    profile = {
+        'providerName': 'Live',
+        'identifier': data['id'],
+        'gender': data.get('gender'),
+        'verifiedEmail': emails.get('account'),
+        'updated': data.get('updated_time'),
+        'name': {
+            'formatted': data.get('name'),
+            'familyName': data.get('last_name'),
+            'givenName': data.get('first_name'),
+        },
+        'emails': [],
+        'urls': [],
+    }
+    if emails.get('personal'):
+        profile['emails'].append(
+            {'type': 'personal', 'value': emails['personal']})
+    if emails.get('business'):
+        profile['emails'].append(
+            {'type': 'business', 'value': emails['business']})
+    if emails.get('preferred'):
+        profile['emails'].append(
+            {'type': 'preferred', 'value': emails['preferred'],
+             'primary': True})
+    if 'link' in data:
+        profile['urls'].append(
+            {'type': 'profile', 'value': data['link']})
+    if 'birth_day' in data:
+        profile['birthday'] = '%s-%s-%s' % (data['birth_year'],
+                                            data['birth_month'],
+                                            data['birth_day'])
+    return profile

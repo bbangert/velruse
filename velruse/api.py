@@ -17,6 +17,10 @@ class FacebookAuthenticationComplete(AuthenticationComplete):
     """Facebook auth complete"""
 
 
+class LiveAuthenticationComplete(AuthenticationComplete):
+    """Live Connect auth complete"""
+
+
 class GithubAuthenticationComplete(AuthenticationComplete):
     """Github auth complete"""
 
