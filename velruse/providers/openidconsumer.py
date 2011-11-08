@@ -11,6 +11,7 @@ from pyramid.util import DottedNameResolver
 from velruse.api import OpenIDAuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import MissingParameter
+from velruse.exceptions import ThirdPartyFailure
 import velruse.utils as utils
 
 dotted_resolver = DottedNameResolver(None)
@@ -160,9 +161,12 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
 
 def includeme(config):
     settings = config.registry.settings
-    if 'velruse.openid.store' not in settings:
+    store = config.registry.get('velruse.openid_store')
+    if not store and 'velruse.openid.store' not in settings:
         raise Exception("Missing 'velruse.openid.store' in config settings.")
-    store = dotted_resolver.resolve(settings['velruse.openid.store'])()
+    if not store:
+        store = dotted_resolver.resolve(settings['velruse.openid.store'])()
+        config.registry['velruse.openid_store'] = store
     realm = settings['velruse.openid.realm']
     consumer = OpenIDConsumer(storage=store, realm=realm,
                               process_url='openid_process')
@@ -254,7 +258,7 @@ class OpenIDConsumer(object):
         if authrequest is None:
             if log_debug:
                 log.debug('OpenID begin returned empty')
-            return self._error_redirect(1, end_point)
+            raise ThirdPartyFailure("OpenID begin returned nothing")
 
         if log_debug:
             log.debug('Updating authrequest')
@@ -293,7 +297,7 @@ class OpenIDConsumer(object):
         openid_session = request.session.get('openid_session', None)
         del request.session['openid_session']
         if not openid_session:
-            return self._error_redirect(1, end_point)
+            raise ThirdPartyFailure("No OpenID Session has begun.")
         
         # Setup the consumer and parse the information coming back
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
@@ -301,7 +305,7 @@ class OpenIDConsumer(object):
         info = oidconsumer.complete(request.params, return_to)
         
         if info.status in [consumer.FAILURE, consumer.CANCEL]:
-            return self._error_redirect(2, end_point)
+            raise AuthenticationDenied("OpenID failure")
         elif info.status == consumer.SUCCESS:
             openid_identity = info.identity_url
             if info.endpoint.canonicalID:
@@ -325,4 +329,4 @@ class OpenIDConsumer(object):
             return OpenIDAuthenticationComplete(
                 profile=user_data, credentials=cred)
         else:
-            return self._error_redirect(1, end_point)
+            raise ThirdPartyFailure("OpenID failed.")
