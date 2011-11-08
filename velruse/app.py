@@ -4,19 +4,37 @@ from pyramid.response import Response
 from pyramid.settings import asbool
 from pyramid.view import view_config
 
+from velruse.utils import generate_token
+from velruse.utils import redirect_form
 from velruse.utils import splitlines
 
 
 @view_config(context='velruse.exceptions.AuthenticationComplete')
-def auth_complete_view(request):
-    import pdb; pdb.set_trace()
-    return Response('logged in')
+def auth_complete_view(context, request):
+    end_point = request.session['end_point']
+    token = generate_token()
+    storage = request.registry.velruse_store
+    result_data = {
+        'profile': context.profile,
+        'credentials': context.credentials,
+    }
+    storage.store(token, result_data, expires=300)
+    form = redirect_form(end_point, token)
+    return Response(body=form)
 
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')
-def auth_denied_view(request):
-    import pdb; pdb.set_trace()
-    return Response('login denied')
+def auth_denied_view(context, request):
+    end_point = request.session['end_point']
+    token = generate_token()
+    storage = request.registry.velruse_store
+    error_dict = {
+        'code': context.code,
+        'description': context.description,
+    }
+    storage.store(token, error_dict, expires=300)
+    form = redirect_form(end_point, token)
+    return Response(body=form)
 
 
 def debug_views(config):
