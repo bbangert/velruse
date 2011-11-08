@@ -35,6 +35,7 @@ ax_attributes = dict(
     middle_name = 'http://axschema.org/namePerson/middle',
     name_suffix = 'http://axschema.org/namePerson/suffix',
     web = 'http://axschema.org/contact/web/default',
+    thumbnail = 'http://axschema.org/media/image/default',
 )
 
 #Change names later to make things a little bit clearer
@@ -64,7 +65,6 @@ trans_dict = dict(
 )
 
 attributes = ax_attributes
-
 
 class AttribAccess(object):
     """Uniform attribute accessor for Simple Reg and Attribute Exchange values"""
@@ -150,7 +150,16 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     
     for k in ['gender', 'birthday']:
         ud[k] = attribs.get(k)
-    
+        if ud[k] == 'M':
+            ud[k] = 'Male'
+        elif ud[k] == 'F':
+            ud[k] = 'Female'
+
+    thumbnail = attribs.get('thumbnail')
+    if thumbnail:
+        ud['photos'] = [{'type': 'thumbnail', 'value': thumbnail}]
+        ud['thumbnailUrl'] = thumbnail
+
     # Now strip out empty values
     for k, v in ud.items():
         if not v or (isinstance(v, list) and not v[0]):
@@ -189,6 +198,7 @@ class OpenIDConsumer(object):
         self.schema = schema
         self.realm = realm
         self.process_url = process_url
+        self.AuthenticationComplete = OpenIDAuthenticationComplete
         self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
     
     def _lookup_identifier(self, request, identifier):
@@ -331,7 +341,7 @@ class OpenIDConsumer(object):
                 self._update_profile_data(request, user_data, cred)
             
             # Delete the temporary token data used for the OpenID auth
-            return OpenIDAuthenticationComplete(
+            return self.AuthenticationComplete(
                 profile=user_data, credentials=cred)
         else:
             raise ThirdPartyFailure("OpenID failed.")

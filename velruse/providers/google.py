@@ -15,6 +15,7 @@ from pyramid.util import DottedNameResolver
 from simplejson import loads
 import oauth2 as oauth
 
+from velruse.api import GoogleAuthenticationComplete
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
 from velruse.providers.openidconsumer import ax_attributes
@@ -61,6 +62,7 @@ class GoogleConsumer(OpenIDConsumer):
         super(GoogleConsumer, self).__init__(*args, **kwargs)
         self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
+        self.AuthenticationComplete = GoogleAuthenticationComplete
         if request_attributes:
             self.request_attributes = request_attributes.split(",")
         else:

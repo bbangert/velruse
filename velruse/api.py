@@ -31,3 +31,11 @@ class TwitterAuthenticationComplete(AuthenticationComplete):
 
 class OpenIDAuthenticationComplete(AuthenticationComplete):
     """OpenID auth complete"""
+
+
+class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
+    """Google auth complete"""
+
+
+class YahooAuthenticationComplete(OpenIDAuthenticationComplete):
+    """Yahoo auth complete"""
