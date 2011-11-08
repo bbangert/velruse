@@ -11,8 +11,24 @@ except ImportError:
 
 #from redis.exceptions import RedisError  #unused afaik -- bayle
 
+from pyramid.exceptions import ConfigurationError
+
 from velruse.store.interface import UserStore
 from velruse.utils import cached_property
+from velruse.utils import splitlines
+
+
+def includeme(config):
+    settings = config.registry.settings
+    servers = splitlines(settings.get('velruse.store.servers', ''))
+    key_prefix = settings.get('velruse.store.key_prefix', 'velruse_ustore')
+
+    if not servers:
+        raise ConfigurationError('Missing "velruse.store.servers" setting')
+
+    store = MemcachedStore(servers=servers, key_prefix=key_prefix)
+    config.registry.velruse_store = store
+
 
 class MemcachedStore(UserStore):
     """Memcached Storage for Auth Provider"""
@@ -20,20 +36,6 @@ class MemcachedStore(UserStore):
     def __init__(self, servers=None, key_prefix='velruse_ustore'):
         self.key_prefix = key_prefix
         self.servers = servers or ['localhost:11211']
-    
-    @classmethod
-    def load_from_config(cls, config):
-        """Load the MemcachedStore based on the config"""
-        params = {}
-        for k, v in config.items():
-            key = k.lower()
-            if key not in ('servers', 'key_prefix'):
-                continue
-            elif key == 'servers':
-                params[key] = v.split(',')
-            else:
-                params[key] = v
-        return cls(**params)
     
     @cached_property
     def _conn(self):

@@ -1,223 +1,53 @@
-"""Velruse WSGI App
+from pyramid.config import Configurator
+from pyramid.exceptions import ConfigurationError
+from pyramid.response import Response
+from pyramid.settings import asbool
+from pyramid.view import view_config
 
-The Velruse WSGI app acts to handle authentication using the configured plugins
-specified in the YAML file.
-
-Example YAML config file::
-
-    Store:
-        Type: velruse.store.redis_store:RedisStore
-    Facebook:
-        API Key: eb7cf817bab6e28d3b941811cf1b014e
-        Application Secret: KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
-        Application ID: ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
-    Google:
-        OAuth Consumer Key: yourdomain.com
-        OAuth Consumer Secret: KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
-    Yahoo:
-        Consumer Key: eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
-        Consumer Secret: ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
-    Twitter:
-        Consumer Key: ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
-        Consumer Secret: eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
-    OpenID:
-        Realm: http://*.example.com
-        Endpoint Regex: http://example.com/.*
-    Live:
-        Application ID: 00000000004242234EA4
-        Secret Key: eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
-        Policy URL: http://YOURDOMAIN/policy.html
-        Offers: Contacts.View
-    OpenID Store:
-        Type: openid.store.memstore:MemoryStore
-
-Note that some providers take optional parameters, if a provider takes parameters, they
-should be provided, or if no additional parameters will be used, indicating true is
-suffficient for the provider to be available.
-
-OpenID based providers such as Google/Yahoo required the OpenID Store parameter to be
-configured.
-
-Default URL mapping to trigger provider authentication processing::
-
-    Google
-        /google/auth
-    Yahoo
-        /yahoo/auth
-    OpenID
-        /openid/auth
-    Twitter
-        /twitter/auth
-    Windows Live
-        /live/auth
-
-If this WSGI application is mounted under a prefix, ie. 'velruse', the prefix should be
-moved to ``environ['SCRIPT_NAME']`` before the velruse WSGI app is called.
-
-.. note::
-
-    The Velruse app relies on being able to set session specific information, using
-    Beaker. Beaker should be loaded and configured in front of the Velruse WSGI App,
-    or if using the :class:`~velruse.app.VelruseResponder`, the Beaker session should
-    be available as the 'session' attribute on the :class:`~webob.Request` object
-    passed in.
-
-"""
-import webob
-import webob.exc as exc
-import yaml
-import logging
-
-from beaker.middleware import SessionMiddleware
-
-import velruse.providers as providers
-import velruse.store as store
-from velruse.utils import path_info_pop, load_package_obj
-
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
-log = logging.getLogger(__name__)
-
-PROVIDERS = {
-    'Facebook': providers.FacebookResponder,
-    'Google': providers.GoogleResponder,
-    'Live': providers.LiveResponder,
-    'OpenID': providers.OpenIDResponder,
-    'Twitter': providers.TwitterResponder,
-    'Yahoo': providers.YahooResponder,
-    'Identica': providers.IdenticaResponder
-}
-
-# Load the available stores that imported ok
-STORAGE = dict((name.replace('Store', ''), getattr(store, name)) for name in store.__all__)
+from velruse.utils import splitlines
 
 
-def parse_config_file(config_file, config_overrides=None):
-    """Parse a YAML config file to load and configure
-    the appropriate auth providers"""
-    f = open(config_file, 'r')
-    content = f.read()
-    f.close()
-    config = yaml.load(content)
-    if config_overrides:
-        for section, options in config_overrides.iteritems():
-            for key, value in options.iteritems():
-                config.setdefault(section, {})
-                config[section].setdefault(key, value)
-
-    # Initialize the UserStore(s) first for use with the providers
-    store_config = config['Store']
-    store_type = store_config.pop('Type')
-    if store_type in STORAGE:
-        config['UserStore'] = STORAGE[store_type].load_from_config(store_config)
-    else:
-        obj = load_package_obj(store_type)
-        config['UserStore'] = obj.load_from_config(store_config)
-    user_storage = config['UserStore']
-
-    # Check for and load the OpenID Store if present
-    oid_store = config.pop('OpenID Store', None)
-    if oid_store:
-        obj = load_package_obj(oid_store.pop('Type'))
-        config['OpenID Store'] = obj(**oid_store)
-
-    # The loaded providers
-    auth_providers = {}
-
-    # Initialize the providers
-    for k, v in PROVIDERS.items():
-        if k not in config:
-            continue
-        params = PROVIDERS[k].parse_config(config)
-        log.debug("Configuring %r with %r", k, params)
-        auth_providers[k.lower()] = PROVIDERS[k](**params)
-    return auth_providers, user_storage
-
-def parse_session_options(config_file):
-    """Parse a YAML config file to load and configure
-    the appropriate auth providers"""
-    f = open(config_file, 'r')
-    content = f.read()
-    f.close()
-    config = yaml.load(content)
-    options = {}
-    if 'beaker' not in config:
-        return options
-    for k, v in config['beaker'].items():
-        options['beaker.%s' % k] = v
-    return options
-
-class VelruseResponder(object):
-    """Velruse Responder
-
-    Works in the same manner as the :class:`~velruse.app.VelruseApp` except
-    utilizing the :term:`responder` API.
-
-    """
-    def __init__(self, config_file):
-        self.providers, self.store = parse_config_file(config_file)
-
-    def __call__(self, request):
-        provider = path_info_pop(request.environ).lower()
-        if provider not in self.providers:
-            return exc.HTTPNotFound()
-        else:
-            return self.providers[provider](request)
+@view_config(context='velruse.exceptions.AuthenticationComplete')
+def auth_complete_view(request):
+    import pdb; pdb.set_trace()
+    return Response('logged in')
 
 
-class VelruseApp(object):
-    """Velruse WSGI App
-
-    The Velruse WSGI App mounts several Auth Providers as specified in the
-    YAML configuration file they're passed.
-
-    """
-    def __init__(self, config_file, config_overrides=None):
-        self.config, self.store = parse_config_file(config_file, config_overrides)
-
-    def __call__(self, environ, start_response):
-        req = webob.Request(environ)
-        req.session = environ['beaker.session']
-        provider = path_info_pop(environ)
-        if provider == 'auth_info':
-            return self.auth_info(req)(environ, start_response)
-        if provider == 'dest_page':
-            token = req.POST['token']
-            data = self.store.retrieve(token)
-            data = json.dumps(data)
-            return webob.Response(
-                content_type='text/plain',
-                body=data
-            )(environ, start_response)
-        if provider not in self.config:
-            return exc.HTTPNotFound()(environ, start_response)
-        else:
-            return self.config[provider](req)(environ, start_response)
-
-    def auth_info(self, req):
-        token = req.params['token']
-        # apiKey?
-        format = req.params.get('format', 'json')
-        if format != 'json':
-            return exc.HTTPBadRequest('Unknown format: %s' % format)
-        data = self.store.retrieve(token)
-        # no permission check or API check?
-        data = json.dumps(data)
-        return webob.Response(
-            content_type='application/json',
-            body=data)
-
-def make_app(config_file):
-    """Construct a complete WSGI app solely from a YAML config file"""
-    app = VelruseApp(config_file)
-    app = SessionMiddleware(app, parse_session_options(config_file))
-    return app
+@view_config(context='velruse.exceptions.AuthenticationDenied')
+def auth_denied_view(request):
+    import pdb; pdb.set_trace()
+    return Response('login denied')
 
 
-def make_velruse_app(global_conf, config_file, **app_conf):
+def debug_views(config):
+    config.add_route('/')
+
+
+def make_app(**settings):
+    config = Configurator(settings=settings)
+    config.include('pyramid_beaker')
+
+    store = settings.get('velruse.store', '')
+    try:
+        config.include(store)
+    except ImportError:
+        raise ConfigurationError('invalid velruse store: {0}'.format(store))
+
+    providers = settings.get('velruse.providers', '')
+    providers = splitlines(providers)
+
+    for provider in providers:
+        config.include(provider)
+
+    debug = asbool(settings.get('debug', False))
+    if debug:
+        config.include(debug_views)
+
+    config.scan(__name__)
+    return config.make_wsgi_app()
+
+
+def make_velruse_app(global_conf, **settings):
     """Construct a complete WSGI app ready to serve by Paste
 
     Example INI file:
@@ -236,7 +66,23 @@ def make_velruse_app(global_conf, config_file, **app_conf):
 
         [app:velruse]
         use = egg:velruse
-        config_file = %(here)s/LOCATION_TO/CONFIG.yaml
+
+        velruse.store = velruse.store.redis
+        velruse.store.host = localhost
+        velruse.store.port = 6379
+        velruse.store.db = 0
+        velruse.store.key_prefix = velruse_ustore
+
+        velruse.providers =
+            velruse.providers.facebook
+            velruse.providers.twitter
+
+        velruse.facebook.api_key = eb7cf817bab6e28d3b941811cf1b014e
+        velruse.facebook.app_secret = KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
+        velruse.facebook.app_id = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
+        velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
+        velruse.twitter.consumer_secret = eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
+
         beaker.session.data_dir = %(here)s/data/sdata
         beaker.session.lock_dir = %(here)s/data/slock
         beaker.session.key = velruse
@@ -251,6 +97,4 @@ def make_velruse_app(global_conf, config_file, **app_conf):
         static_files = true
 
     """
-    app = VelruseApp(config_file)
-    app = SessionMiddleware(app, app_conf)
-    return app
+    return make_app(**settings)

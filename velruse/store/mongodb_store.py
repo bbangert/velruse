@@ -11,8 +11,27 @@ from pymongo.errors import ConnectionFailure
 from pymongo.binary import Binary
 from pymongo.errors import OperationFailure
 
+from pyramid.exceptions import ConfigurationError
+
 from velruse.store.interface import UserStore
 from velruse.utils import cached_property
+
+
+def includeme(config):
+    settings = config.registry.settings
+    host = settings.get('velruse.store.host', 'localhost')
+    port = int(settings.get('velruse.store.port', '27017'))
+    db = settings.get('velruse.store.db')
+    collection = settings.get('velruse.store.collection', 'velruse_ustore')
+
+    if db is None:
+        raise ConfigurationError('Missing "velruse.store.db" setting.')
+
+    store = MongoDBStore(
+        host=host, port=port, db=db, collection=collection,
+    )
+    config.registry.velruse_store = store
+
 
 class MongoDBStore(UserStore):
     """MongoDB Storage for Auth Provider"""
@@ -21,17 +40,6 @@ class MongoDBStore(UserStore):
         self.port = port
         self.db = db
         self.collection = collection
-
-    @classmethod
-    def load_from_config(cls, config):
-        """Load the MongoDBStore based on the config"""
-        params = {}
-        for k, v in config.items():
-            key = k.lower()
-            if key not in ['host', 'port', 'db', 'collection']:
-                continue
-            params[key] = v
-        return cls(**params)
 
     @cached_property #Fix this later -htormey
     def _conn(self):
