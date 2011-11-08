@@ -20,6 +20,7 @@ SIGMETHOD = oauth.SignatureMethod_HMAC_SHA1()
 def includeme(config):
     config.add_route("bitbucket_login", "/bitbucket/login")
     config.add_route("bitbucket_process", "/bitbucket/process",
+                     use_global_views=True,
                      factory=bitbucket_process)
     config.add_view(bitbucket_login, route_name="bitbucket_login")
 

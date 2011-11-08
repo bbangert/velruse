@@ -1,19 +1,21 @@
-import logging
 import re
+import logging
 
 from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
-from routes import Mapper
-from webob import Response
-import webob.exc as exc
+from pyramid.request import Response
+from pyramid.httpexceptions import HTTPFound
+from pyramid.util import DottedNameResolver
 
+from velruse.api import OpenIDAuthenticationComplete
+from velruse.exceptions import AuthenticationDenied
+from velruse.exceptions import MissingParameter
 import velruse.utils as utils
 
+dotted_resolver = DottedNameResolver(None)
+
 log = logging.getLogger(__name__)
-
-__all__ = ['OpenIDResponder']
-
 
 # Setup our attribute objects that we'll be requesting
 ax_attributes = dict(
@@ -156,51 +158,41 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     return ud
 
 
-class OpenIDResponder(utils.RouteResponder):
-    """OpenID Consumer for handling OpenID authentication
-    
-    This follows the same responder style of Marco apps. It is called
-    with a WebOb Request, and responds with a WebOb Response.
-    
+def includeme(config):
+    settings = config.registry.settings
+    if 'velruse.openid.store' not in settings:
+        raise Exception("Missing 'velruse.openid.store' in config settings.")
+    store = dotted_resolver.resolve(settings['velruse.openid.store'])()
+    realm = settings['velruse.openid.realm']
+    consumer = OpenIDConsumer(storage=store, realm=realm,
+                              process_url='openid_process')
+    config.add_route("openid_login", "/openid/login")
+    config.add_route("openid_process", "/openid/process",
+                     use_global_views=True,
+                     factory=consumer.process)
+    config.add_view(consumer.login, route_name="openid_login")
+
+
+class OpenIDConsumer(object):
+    """OpenID Consumer base class
+
+    Providors using specialized OpenID based authentication subclass this.
+
     """
-    map = Mapper()
-    map.connect('login', '/auth', action='login', requirements=dict(method='POST'))
-    map.connect('process', '/process', action='process')
-    
-    def __init__(self, storage, openid_store, endpoint_regex, realm, protocol=None, schema=None):
-        """Create the OpenID Consumer"""
-        self.storage = storage
-        self.openid_store = openid_store
-        self.realm = realm
-        self.endpoint_regex = endpoint_regex
-        self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
+    def __init__(self, storage, realm, protocol=None, schema=None, process_url=None):
+        self.openid_store = storage
         self.protocol = protocol
         self.schema = schema
-
-    @classmethod
-    def parse_config(cls, config):
-        params = {}
-        key_map = {'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex'}
-        optional_key_map = {'Protocol': 'protocol', 'Schema': 'schema'}
-        oids_vals = config['OpenID']
-        for k, v in key_map.items():
-            params[v] = oids_vals[k]
-        for k, v in optional_key_map.items():
-            if k in oids_vals:
-                params[v] = oids_vals[k]
-        params['openid_store'] = config['OpenID Store']
-        params['storage'] = config['UserStore']
-        if 'Schema' in config['OpenID'] and config['OpenID']['Schema'] in globals():
-            globals()["attributes"] = globals()[config['OpenID']['Schema']]
-
-        return params
-
-    def _lookup_identifier(self, req, identifier):
+        self.realm = realm
+        self.process_url = process_url
+        self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
+    
+    def _lookup_identifier(self, request, identifier):
         """Extension point for inherited classes that want to change or set
         a default identifier"""
         return identifier
 
-    def _update_authrequest(self, req, authrequest):
+    def _update_authrequest(self, request, authrequest):
         """Update the authrequest with the default extensions and attributes
         we ask for
 
@@ -232,25 +224,20 @@ class OpenIDResponder(utils.RouteResponder):
         """
         return None
 
-    def login(self, req):
+    def login(self, request):
         log_debug = self.log_debug
         if log_debug:
             log.debug('Handling OpenID login')
 
         # Load default parameters that all Auth Responders take
-        end_point = req.POST['end_point']
-        openid_url = req.POST.get('openid_identifier')
+        openid_url = request.params.get('openid_identifier')
 
         # Let inherited consumers alter the openid identifier if desired
-        openid_url = self._lookup_identifier(req, openid_url)
+        openid_url = self._lookup_identifier(request, openid_url)
 
         if not openid_url:
             log.error('Velruse: no openid_url')
-            return self._error_redirect(0, end_point)
-
-        if not re.match(self.endpoint_regex, end_point):
-            log.error('Velruse: invalid endpoint')
-            return self._error_redirect(0, end_point)
+            raise MissingParameter('No openid_identifier was found')
 
         openid_session = {}
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
@@ -262,7 +249,7 @@ class OpenIDResponder(utils.RouteResponder):
         except consumer.DiscoveryFailure:
             if log_debug:
                 log.debug('OpenID begin DiscoveryFailure')
-            return self._error_redirect(1, end_point)
+            raise
 
         if authrequest is None:
             if log_debug:
@@ -273,14 +260,9 @@ class OpenIDResponder(utils.RouteResponder):
             log.debug('Updating authrequest')
 
         # Update the authrequest
-        self._update_authrequest(req, authrequest)
+        self._update_authrequest(request, authrequest)
 
-        return_to = self._get_return_to(req)
-
-        # Ensure our session is saved for the id to persist
-        req.session['end_point'] = end_point
-        req.session.save()
-        
+        return_to = request.route_url(self.process_url)
 
         # OpenID 2.0 lets Providers request POST instead of redirect, this
         # checks for such a request.
@@ -291,37 +273,32 @@ class OpenIDResponder(utils.RouteResponder):
             redirect_url = authrequest.redirectURL(realm=self.realm, 
                                                    return_to=return_to, 
                                                    immediate=False)
-            #self.storage.store(req.session.id, openid_session, expires=300)
-            req.session['openid_session'] = openid_session
-            return exc.HTTPFound(location=redirect_url)
+            request.session['openid_session'] = openid_session
+            return HTTPFound(location=redirect_url)
         else:
             if log_debug:
                 log.debug('About to initiate OpenID POST')
                 log.debug('realm = %s, return_to = %s, immediate = False' % (self.realm, return_to))
             html = authrequest.htmlMarkup(realm=self.realm, return_to=return_to, 
                                           immediate=False)
-            #self.storage.store(req.session.id, openid_session, expires=300)
-            req.session['openid_session'] = openid_session
+            request.session['openid_session'] = openid_session
             return Response(body=html)
     
-    def process(self, req):
+    def process(self, request):
         """Handle incoming redirect from OpenID Provider"""
         log_debug = self.log_debug
         if log_debug:
             log.debug('Handling processing of response from server')
         
-        end_point = req.session['end_point']
-        
-        #openid_session = self.storage.retrieve(req.session.id)
-        openid_session = req.session.get('openid_session', None)
-        del req.session['openid_session']
+        openid_session = request.session.get('openid_session', None)
+        del request.session['openid_session']
         if not openid_session:
             return self._error_redirect(1, end_point)
         
         # Setup the consumer and parse the information coming back
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
-        return_to = self._get_return_to(req)
-        info = oidconsumer.complete(req.params, return_to)
+        return_to = request.route_url(self.process_url)
+        info = oidconsumer.complete(request.params, return_to)
         
         if info.status in [consumer.FAILURE, consumer.CANCEL]:
             return self._error_redirect(2, end_point)
@@ -335,17 +312,17 @@ class OpenIDResponder(utils.RouteResponder):
             user_data = extract_openid_data(identifier=openid_identity, 
                                             sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
                                             ax_resp=ax.FetchResponse.fromSuccessResponse(info))
-            result_data = {'status': 'ok', 'profile': user_data}
             # Did we get any OAuth info?
             oauth = info.extensionResponse('http://specs.openid.net/extensions/oauth/1.0', False)
+            cred = {}
             if oauth and 'request_token' in oauth:
                 access_token = self._get_access_token(oauth['request_token'])
                 if access_token:
-                    result_data['credentials'] = access_token
+                    cred['oauthAccessToken'] = access_token
             
             # Delete the temporary token data used for the OpenID auth
             #self.storage.delete(req.session.id)
-            
-            return self._success_redirect(result_data, end_point)
+            return OpenIDAuthenticationComplete(
+                profile=user_data, credentials=cred)
         else:
             return self._error_redirect(1, end_point)

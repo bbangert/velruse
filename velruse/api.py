@@ -27,3 +27,7 @@ class LinkedInAuthenticationComplete(AuthenticationComplete):
 
 class TwitterAuthenticationComplete(AuthenticationComplete):
     """Twitter auth complete"""
+
+
+class OpenIDAuthenticationComplete(AuthenticationComplete):
+    """OpenID auth complete"""
