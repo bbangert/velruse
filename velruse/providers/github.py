@@ -65,7 +65,6 @@ def github_process(request):
 
     if 'email' in data:
         profile['emails'] = [data['email']]
-        profile['verifiedEmail'] = data['email']
 
     cred = {'oauthAccessToken': access_token}
     return GithubAuthenticationComplete(profile=profile,
