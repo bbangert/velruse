@@ -38,3 +38,5 @@ def generate_token():
     """Generate a random token"""
     return base_encode(uuid.uuid4().int)
 
+def splitlines(s):
+    return filter(None, [x.strip() for x in s.splitlines()])

@@ -3,15 +3,15 @@ import time
 
 from velruse.store.interface import UserStore
 
+
+def includeme(config):
+    config.registry.store = MemoryStore()
+
+
 class MemoryStore(UserStore):
     """Memory Storage for Auth Provider"""
     def __init__(self):
         self._store = {}
-    
-    @classmethod
-    def load_from_config(cls, config):
-        """Load the Memory based on the config"""
-        return cls()
     
     def retrieve(self, key):
         data = self._store.get(key)

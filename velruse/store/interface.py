@@ -6,17 +6,6 @@ as defined here.
 """
 class UserStore(object):
     """This is the interface for storing retrieved and normalized userdata"""
-    def load_from_config(cls, config):
-        """This method creates and returns a configured UserStore
-        
-        :param config: A dict of key/value's to use when
-                       instantiating the UserStore. The key/value's accepted
-                       from a config should be documented.
-        :returns: A configured UserStore.
-        :rtype: UserStore
-        
-        """
-        raise NotImplementedError
     
     def retrieve(self, key):
         """This method retrieves the data for a key from the storage.

@@ -1,6 +1,6 @@
 """In Memory UserStore implementation"""
 from datetime import datetime, timedelta
-from sqlalchemy import create_engine
+from sqlalchemy import engine_from_config
 from sqlalchemy.sql import select, delete
 from sqlalchemy.ext.declarative import declarative_base, Column
 from sqlalchemy import String, Text, DateTime
@@ -14,6 +14,13 @@ except ImportError:
 SQLBase = declarative_base()
 
 
+def includeme(config):
+    settings = config.registry.settings
+    engine = engine_from_config(settings, 'velruse.store.')
+    store = SQLStore(engine)
+    config.registry.velruse_store = store
+
+
 class KeyStorage(SQLBase):
     __tablename__ = 'velruse_key_storage'
     key = Column(String(200), primary_key=True, nullable=False)
@@ -23,38 +30,11 @@ class KeyStorage(SQLBase):
 
 class SQLStore(UserStore):
     """Memory Storage for Auth Provider"""
-    def __init__(self, sqluri, pool_size=100, pool_recycle=3600,
-                 logging_name='velruse', reset_on_return=True):
-        self.sqluri = sqluri
-
-        kw = dict(logging_name=logging_name)
-
-        if not self.sqluri.startswith('sqlite'):
-            kw.update(dict(pool_size=int(pool_size),
-                           pool_recycle=int(pool_recycle)))
-
-        if self.sqluri.startswith('mysql'):
-            kw['reset_on_return'] = reset_on_return
-
-        self.engine = create_engine(sqluri, **kw)
-        ## FIXME: not threadsafe:
-        KeyStorage.metadata.bind = self.engine
+    def __init__(self, engine):
+        self.engine = engine
 
     def create(self):
-        KeyStorage.__table__.create(checkfirst=True)
-
-    @classmethod
-    def load_from_config(cls, config):
-        ## FIXME: load other vars
-        kw = {
-            'sqluri': config['DB'],
-            }
-        for key in ['pool_size', 'pool_recycle', 'logging_name',
-                    'reset_on_return']:
-            ## FIXME: type coercion?
-            if key in config:
-                kw[key] = config[key]
-        return cls(**kw)
+        KeyStorage.__table__.create(checkfirst=True, bind=self.engine)
 
     def retrieve(self, key):
         s = KeyStorage.__table__

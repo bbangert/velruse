@@ -10,6 +10,17 @@ from redis.exceptions import RedisError
 from velruse.store.interface import UserStore
 from velruse.utils import cached_property
 
+def includeme(config):
+    settings = config.registry.settings
+    host = settings.get('velruse.store.host', 'localhost')
+    port = int(settings.get('velruse.store.port', '6379'))
+    db = int(settings.get('velruse.store.db', '0'))
+    key_prefix = settings.get('velruse.store.key_prefix', 'velruse_ustore')
+    store = RedisStore(
+        host=host, port=port, db=db, key_prefix=key_prefix,
+    )
+    config.registry.velruse_store = store
+
 class RedisStore(UserStore):
     """Redis Storage for Auth Provider"""
     def __init__(self, host='localhost', port=6379, db=0, key_prefix='velruse_ustore'):
@@ -17,20 +28,6 @@ class RedisStore(UserStore):
         self.port = port
         self.db = db
         self.key_prefix = key_prefix
-    
-    @classmethod
-    def load_from_config(cls, config):
-        """Load the RedisStore based on the config"""
-        params = {}
-        for k, v in config.items():
-            key = k.lower()
-            if key not in ['host', 'port', 'db', 'key_prefix']:
-                continue
-            if key == 'db':
-                params['db'] = int(v)
-            else:
-                params[key] = v
-        return cls(**params)
     
     @cached_property
     def _conn(self):
