@@ -1,23 +1,8 @@
 """Utilities for the auth functionality"""
-import logging
-log = logging.getLogger(__name__)
-
-import sys
 import urllib
 import uuid
 
-try:
-    import simplejson as json
-except ImportError:
-    import json
-
-import webob.exc as exc
-from openid.oidutil import autoSubmitHTML
-from webob import Response
-
 from velruse.baseconvert import base_encode
-from velruse.errors import error_dict
-
 
 def flat_url(url, **kw):
     """Creates a URL with the query param encoded"""

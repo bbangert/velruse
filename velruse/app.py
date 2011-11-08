@@ -1,7 +1,7 @@
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
-from pyramid.settings import asbool
+#from pyramid.settings import asbool
 from pyramid.view import view_config
 
 from velruse.utils import generate_token
@@ -37,10 +37,6 @@ def auth_denied_view(context, request):
     return Response(body=form)
 
 
-def debug_views(config):
-    config.add_route('/')
-
-
 def make_app(**settings):
     config = Configurator(settings=settings)
     config.include('pyramid_beaker')
@@ -57,9 +53,9 @@ def make_app(**settings):
     for provider in providers:
         config.include(provider)
 
-    debug = asbool(settings.get('debug', False))
-    if debug:
-        config.include(debug_views)
+    #debug = asbool(settings.get('debug', False))
+    #if debug:
+    #    config.include(debug_views)
 
     config.scan(__name__)
     return config.make_wsgi_app()
