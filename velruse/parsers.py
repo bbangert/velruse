@@ -1,9 +1,11 @@
 """Parsers to extract data and normalize it per Portable Contacts format"""
+
+
 def extract_fb_data(data):
     """Extact and normalize facebook data as parsed from the graph JSON"""
     # Setup the normalized contact info
     nick = None
-    
+
     # Setup the nick and preferred username to the last portion of the
     # FB link URL if its not their ID
     link = data.get('link')
@@ -11,7 +13,7 @@ def extract_fb_data(data):
         last = link.split('/')[-1]
         if last != data['id']:
             nick = last
-    
+
     profile = {
         'providerName': 'Facebook',
         'identifier': 'https://graph.facebook.com/%s' % data['id'],
@@ -44,14 +46,14 @@ def extract_fb_data(data):
         if part:
             name[val] = part
     name['formatted'] = data.get('name')
-    
+
     profile['name'] = name
-    
+
     # Now strip out empty values
     for k, v in profile.items():
         if not v or (isinstance(v, list) and not v[0]):
             del profile[k]
-    
+
     return profile
 
 

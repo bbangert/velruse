@@ -12,7 +12,6 @@ from velruse.api import OpenIDAuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import MissingParameter
 from velruse.exceptions import ThirdPartyFailure
-import velruse.utils as utils
 
 dotted_resolver = DottedNameResolver(None)
 
@@ -20,54 +19,56 @@ log = logging.getLogger(__name__)
 
 # Setup our attribute objects that we'll be requesting
 ax_attributes = dict(
-    nickname = 'http://axschema.org/namePerson/friendly',
-    email    =  'http://axschema.org/contact/email',
-    full_name = 'http://axschema.org/namePerson',
-    birthday = 'http://axschema.org/birthDate',
-    gender = 'http://axschema.org/person/gender',
-    postal_code = 'http://axschema.org/contact/postalCode/home',
-    country = 'http://axschema.org/contact/country/home',
-    timezone = 'http://axschema.org/pref/timezone',
-    language = 'http://axschema.org/pref/language',
-    name_prefix = 'http://axschema.org/namePerson/prefix',
-    first_name = 'http://axschema.org/namePerson/first',
-    last_name = 'http://axschema.org/namePerson/last',
-    middle_name = 'http://axschema.org/namePerson/middle',
-    name_suffix = 'http://axschema.org/namePerson/suffix',
-    web = 'http://axschema.org/contact/web/default',
-    thumbnail = 'http://axschema.org/media/image/default',
+    nickname='http://axschema.org/namePerson/friendly',
+    email='http://axschema.org/contact/email',
+    full_name='http://axschema.org/namePerson',
+    birthday='http://axschema.org/birthDate',
+    gender='http://axschema.org/person/gender',
+    postal_code='http://axschema.org/contact/postalCode/home',
+    country='http://axschema.org/contact/country/home',
+    timezone='http://axschema.org/pref/timezone',
+    language='http://axschema.org/pref/language',
+    name_prefix='http://axschema.org/namePerson/prefix',
+    first_name='http://axschema.org/namePerson/first',
+    last_name='http://axschema.org/namePerson/last',
+    middle_name='http://axschema.org/namePerson/middle',
+    name_suffix='http://axschema.org/namePerson/suffix',
+    web='http://axschema.org/contact/web/default',
+    thumbnail='http://axschema.org/media/image/default',
 )
 
 #Change names later to make things a little bit clearer
 alternate_ax_attributes = dict(
-    nickname = 'http://schema.openid.net/namePerson/friendly',
-    email = 'http://schema.openid.net/contact/email',
-    full_name = 'http://schema.openid.net/namePerson',
-    birthday = 'http://schema.openid.net/birthDate',
-    gender = 'http://schema.openid.net/person/gender',
-    postal_code = 'http://schema.openid.net/contact/postalCode/home',
-    country = 'http://schema.openid.net/contact/country/home',
-    timezone = 'http://schema.openid.net/pref/timezone',
-    language = 'http://schema.openid.net/pref/language',
-    name_prefix = 'http://schema.openid.net/namePerson/prefix',
-    first_name = 'http://schema.openid.net/namePerson/first',
-    last_name = 'http://schema.openid.net/namePerson/last',
-    middle_name = 'http://schema.openid.net/namePerson/middle',
-    name_suffix = 'http://schema.openid.net/namePerson/suffix',
-    web = 'http://schema.openid.net/contact/web/default',
+    nickname='http://schema.openid.net/namePerson/friendly',
+    email='http://schema.openid.net/contact/email',
+    full_name='http://schema.openid.net/namePerson',
+    birthday='http://schema.openid.net/birthDate',
+    gender='http://schema.openid.net/person/gender',
+    postal_code='http://schema.openid.net/contact/postalCode/home',
+    country='http://schema.openid.net/contact/country/home',
+    timezone='http://schema.openid.net/pref/timezone',
+    language='http://schema.openid.net/pref/language',
+    name_prefix='http://schema.openid.net/namePerson/prefix',
+    first_name='http://schema.openid.net/namePerson/first',
+    last_name='http://schema.openid.net/namePerson/last',
+    middle_name='http://schema.openid.net/namePerson/middle',
+    name_suffix='http://schema.openid.net/namePerson/suffix',
+    web='http://schema.openid.net/contact/web/default',
 )
 
 # Translation dict for AX attrib names to sreg equiv
 trans_dict = dict(
-    full_name = 'fullname',
-    birthday = 'dob',
-    postal_code = 'postcode',
+    full_name='fullname',
+    birthday='dob',
+    postal_code='postcode',
 )
 
 attributes = ax_attributes
 
+
 class AttribAccess(object):
-    """Uniform attribute accessor for Simple Reg and Attribute Exchange values"""
+    """Uniform attribute accessor for Simple Reg and Attribute Exchange
+    values"""
     def __init__(self, sreg_resp, ax_resp):
         self.sreg_resp = sreg_resp or {}
         self.ax_resp = ax_resp or ax.AXKeyValueMessage()
@@ -80,26 +81,26 @@ class AttribAccess(object):
             return v
         if ax_only:
             return None
-        
+
         # Translate the key if needed
         if key in trans_dict:
             key = trans_dict[key]
-        
+
         # Don't attempt to fetch keys that aren't valid sreg fields
         if key not in sreg.data_fields:
             return None
-        
+
         return self.sreg_resp.get(key)
 
 
 def extract_openid_data(identifier, sreg_resp, ax_resp):
     """Extract the OpenID Data from Simple Reg and AX data
-    
+
     This normalizes the data to the appropriate format.
-    
+
     """
     attribs = AttribAccess(sreg_resp, ax_resp)
-    
+
     ud = {'identifier': identifier}
     if 'google.com' in identifier:
         ud['providerName'] = 'Google'
@@ -109,7 +110,7 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
         ud['providerName'] = 'AOL'
     else:
         ud['providerName'] = 'OpenID'
-    
+
     # Sort out the display name and preferred username
     if ud['providerName'] == 'Google':
         # Extract the first bit as the username since Google doesn't return
@@ -119,18 +120,21 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
             ud['preferredUsername'] = re.match('(^.*?)@', email).groups()[0]
     else:
         ud['preferredUsername'] = attribs.get('nickname')
-    
+
     # We trust that Google and Yahoo both verify their email addresses
     if ud['providerName'] in ['Google', 'Yahoo']:
         ud['verifiedEmail'] = attribs.get('email', ax_only=True)
     else:
         ud['emails'] = [attribs.get('email')]
-    
+
     # Parse through the name parts, assign the properly if present
     name = {}
-    name_keys = ['name_prefix', 'first_name', 'middle_name', 'last_name', 'name_suffix']
-    pcard_map = {'first_name': 'givenName', 'middle_name': 'middleName', 'last_name': 'familyName',
-                 'name_prefix': 'honorificPrefix', 'name_suffix': 'honorificSuffix'}
+    name_keys = ['name_prefix', 'first_name', 'middle_name', 'last_name',
+                 'name_suffix']
+    pcard_map = {'first_name': 'givenName', 'middle_name': 'middleName',
+                 'last_name': 'familyName',
+                 'name_prefix': 'honorificPrefix',
+                 'name_suffix': 'honorificSuffix'}
     full_name_vals = []
     for part in name_keys:
         val = attribs.get(part)
@@ -143,13 +147,13 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
 
     name['formatted'] = full_name
     ud['name'] = name
-    
+
     ud['displayName'] = full_name or ud.get('preferredUsername')
-    
+
     urls = attribs.get('web')
     if urls:
         ud['urls'] = [urls]
-    
+
     for k in ['gender', 'birthday']:
         ud[k] = attribs.get(k)
         if ud[k] == 'M':
@@ -166,7 +170,7 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     for k, v in ud.items():
         if not v or (isinstance(v, list) and not v[0]):
             del ud[k]
-    
+
     return ud
 
 
@@ -179,13 +183,13 @@ def includeme(config):
         store = dotted_resolver.resolve(settings['velruse.openid.store'])()
         config.registry['velruse.openid_store'] = store
     realm = settings['velruse.openid.realm']
-    consumer = OpenIDConsumer(storage=store, realm=realm,
-                              process_url='openid_process')
+    oid_consumer = OpenIDConsumer(storage=store, realm=realm,
+                                  process_url='openid_process')
     config.add_route("openid_login", "/openid/login")
     config.add_route("openid_process", "/openid/process",
                      use_global_views=True,
-                     factory=consumer.process)
-    config.add_view(consumer.login, route_name="openid_login")
+                     factory=oid_consumer.process)
+    config.add_view(oid_consumer.login, route_name="openid_login")
 
 
 class OpenIDConsumer(object):
@@ -194,7 +198,8 @@ class OpenIDConsumer(object):
     Providors using specialized OpenID based authentication subclass this.
 
     """
-    def __init__(self, storage, realm, protocol=None, schema=None, process_url=None):
+    def __init__(self, storage, realm, protocol=None, schema=None,
+                 process_url=None):
         self.openid_store = storage
         self.protocol = protocol
         self.schema = schema
@@ -202,7 +207,7 @@ class OpenIDConsumer(object):
         self.process_url = process_url
         self.AuthenticationComplete = OpenIDAuthenticationComplete
         self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
-    
+
     def _lookup_identifier(self, request, identifier):
         """Extension point for inherited classes that want to change or set
         a default identifier"""
@@ -216,7 +221,7 @@ class OpenIDConsumer(object):
         should be added to the authrequest object itself.
 
         """
-        # Add on the Attribute Exchange for those that support that            
+        # Add on the Attribute Exchange for those that support that
         ax_request = ax.FetchRequest()
         for attrib in attributes.values():
             ax_request.add(ax.AttrInfo(attrib))
@@ -224,8 +229,8 @@ class OpenIDConsumer(object):
 
         # Form the Simple Reg request
         sreg_request = sreg.SRegRequest(
-            optional=['nickname', 'email', 'fullname', 'dob', 'gender', 'postcode',
-                      'country', 'language', 'timezone'],
+            optional=['nickname', 'email', 'fullname', 'dob', 'gender',
+                      'postcode', 'country', 'language', 'timezone'],
         )
         authrequest.addExtension(sreg_request)
         return None
@@ -285,21 +290,19 @@ class OpenIDConsumer(object):
         if authrequest.shouldSendRedirect():
             if log_debug:
                 log.debug('About to initiate OpenID redirect')
-                log.debug('realm = %s, return_to = %s, immediate = False' % (self.realm, return_to))
-            redirect_url = authrequest.redirectURL(realm=self.realm, 
-                                                   return_to=return_to, 
+            redirect_url = authrequest.redirectURL(realm=self.realm,
+                                                   return_to=return_to,
                                                    immediate=False)
             request.session['openid_session'] = openid_session
             return HTTPFound(location=redirect_url)
         else:
             if log_debug:
                 log.debug('About to initiate OpenID POST')
-                log.debug('realm = %s, return_to = %s, immediate = False' % (self.realm, return_to))
-            html = authrequest.htmlMarkup(realm=self.realm, return_to=return_to, 
-                                          immediate=False)
+            html = authrequest.htmlMarkup(
+                realm=self.realm, return_to=return_to, immediate=False)
             request.session['openid_session'] = openid_session
             return Response(body=html)
-    
+
     def _update_profile_data(self, request, user_data, credentials):
         """Update the profile data using an OAuth request to fetch more data"""
 
@@ -308,17 +311,17 @@ class OpenIDConsumer(object):
         log_debug = self.log_debug
         if log_debug:
             log.debug('Handling processing of response from server')
-        
+
         openid_session = request.session.get('openid_session', None)
         del request.session['openid_session']
         if not openid_session:
             raise ThirdPartyFailure("No OpenID Session has begun.")
-        
+
         # Setup the consumer and parse the information coming back
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
         return_to = request.route_url(self.process_url)
         info = oidconsumer.complete(request.params, return_to)
-        
+
         if info.status in [consumer.FAILURE, consumer.CANCEL]:
             raise AuthenticationDenied("OpenID failure")
         elif info.status == consumer.SUCCESS:
@@ -327,21 +330,25 @@ class OpenIDConsumer(object):
                 # If it's an i-name, use the canonicalID as its secure even if
                 # the old one is compromised
                 openid_identity = info.endpoint.canonicalID
-            
-            user_data = extract_openid_data(identifier=openid_identity, 
-                                            sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
-                                            ax_resp=ax.FetchResponse.fromSuccessResponse(info))
+
+            user_data = extract_openid_data(
+                identifier=openid_identity,
+                sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
+                ax_resp=ax.FetchResponse.fromSuccessResponse(info)
+            )
             # Did we get any OAuth info?
-            oauth = info.extensionResponse('http://specs.openid.net/extensions/oauth/1.0', False)
+            oauth = info.extensionResponse(
+                'http://specs.openid.net/extensions/oauth/1.0', False
+            )
             cred = {}
             if oauth and 'request_token' in oauth:
                 access_token = self._get_access_token(oauth['request_token'])
                 if access_token:
                     cred.update(access_token)
-                
+
                 # See if we need to update our profile data with an OAuth call
                 self._update_profile_data(request, user_data, cred)
-            
+
             # Delete the temporary token data used for the OpenID auth
             return self.AuthenticationComplete(
                 profile=user_data, credentials=cred)
