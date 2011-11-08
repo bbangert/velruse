@@ -105,6 +105,8 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
         ud['providerName'] = 'Google'
     elif 'yahoo.com' in identifier:
         ud['providerName'] = 'Yahoo'
+    elif 'aol.com' in identifier:
+        ud['providerName'] = 'AOL'
     else:
         ud['providerName'] = 'OpenID'
     
@@ -151,9 +153,9 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     for k in ['gender', 'birthday']:
         ud[k] = attribs.get(k)
         if ud[k] == 'M':
-            ud[k] = 'Male'
+            ud[k] = 'male'
         elif ud[k] == 'F':
-            ud[k] = 'Female'
+            ud[k] = 'female'
 
     thumbnail = attribs.get('thumbnail')
     if thumbnail:
