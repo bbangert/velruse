@@ -20,12 +20,14 @@ from velruse.utils import splitlines
 
 def includeme(config):
     settings = config.registry.settings
-    servers = splitlines(settings.get('servers', ''))
+    servers = splitlines(settings.get('velruse.store.servers', ''))
+    key_prefix = settings.get('velruse.store.key_prefix', 'velruse_ustore')
+
     if not servers:
         raise ConfigurationError('Missing "velruse.store.servers" setting')
 
     store = MemcachedStore(servers=servers, key_prefix=key_prefix)
-    config.registry.store = store
+    config.registry.velruse_store = store
 
 
 class MemcachedStore(UserStore):

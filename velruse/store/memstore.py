@@ -5,7 +5,7 @@ from velruse.store.interface import UserStore
 
 
 def includeme(config):
-    config.registry.store = MemoryStore()
+    config.registry.velruse_store = MemoryStore()
 
 
 class MemoryStore(UserStore):
