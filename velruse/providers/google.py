@@ -122,7 +122,6 @@ class GoogleConsumer(OpenIDConsumer):
                                   settings['velruse.google.consumer_secret'])
 
         # Make a request with the data for more user info
-        print credentials
         token = oauth.Token(key=credentials['oauthAccessToken'],
                             secret=credentials['oauthAccessTokenSecret'])
         client = oauth.Client(consumer, token)
