@@ -322,10 +322,9 @@ class OpenIDConsumer(object):
             if oauth and 'request_token' in oauth:
                 access_token = self._get_access_token(oauth['request_token'])
                 if access_token:
-                    cred['oauthAccessToken'] = access_token
+                    cred.update(access_token)
             
             # Delete the temporary token data used for the OpenID auth
-            #self.storage.delete(req.session.id)
             return OpenIDAuthenticationComplete(
                 profile=user_data, credentials=cred)
         else:

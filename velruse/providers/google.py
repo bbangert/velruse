@@ -11,6 +11,7 @@ except ImportError:
 
 
 from openid.extensions import ax
+from pyramid.util import DottedNameResolver
 import oauth2 as oauth
 
 from velruse.providers.oid_extensions import OAuthRequest
@@ -21,6 +22,8 @@ from velruse.providers.openidconsumer import attributes
 from velruse.providers.openidconsumer import OpenIDConsumer
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
+
+dotted_resolver = DottedNameResolver(None)
 
 
 def includeme(config):
@@ -46,8 +49,8 @@ def includeme(config):
 
 
 class GoogleConsumer(OpenIDConsumer):
-    def __init__(self, oauth_key=None, oauth_secret=None, request_attributes=None, *args,
-                 **kwargs):
+    def __init__(self, oauth_key=None, oauth_secret=None,
+                 request_attributes=None, *args, **kwargs):
         """Handle Google Auth
         
         This also handles making an OAuth request during the OpenID
@@ -61,56 +64,41 @@ class GoogleConsumer(OpenIDConsumer):
             self.request_attributes = request_attributes.split(",")
         else:
             self.request_attributes = ['country', 'email', 'first_name', 'last_name', 'language']
-
-    @classmethod
-    def parse_config(cls, config):
-        """Parse config data from a config file
-        
-        We call the super's parse_config first to update it with our additional
-        values.
-        
-        """
-        conf = OpenIDResponder.parse_config(config)
-        params = {}
-        key_map = {'OAuth Consumer Key': 'consumer', 'OAuth Consumer Secret': 'oauth_secret', 'Protocol': 'protocol',
-                'Realm': 'realm', 'Endpoint Regex': 'endpoint_regex', "Request Attributes": 'request_attributes' }
-        google_vals = config['Google']
-        if not isinstance(google_vals, dict):
-            return conf
-        for k, v in key_map.items():
-            if k in google_vals:
-                params[v] = google_vals[k]
-        conf.update(params)
-        if 'Schema' in config['OpenID'] and config['OpenID']['Schema'] in globals():
-            globals()["attributes"] = globals()[config['OpenID']['Schema']]
-
-        return conf
     
-    def _lookup_identifier(self, req, identifier):
+    def _lookup_identifier(self, request, identifier):
         """Return the Google OpenID directed endpoint"""
         return "https://www.google.com/accounts/o8/id"
     
-    def _update_authrequest(self, req, authrequest):
+    def _update_authrequest(self, request, authrequest):
         """Update the authrequest with Attribute Exchange and optionally OAuth
         
-        To optionally request OAuth, the request POST must include an ``oauth_scope``
-        parameter that indicates what Google Apps should have access requested.
+        To optionally request OAuth, the request POST must include an 
+        ``oauth_scope`` parameter that indicates what Google Apps should have
+        access requested.
         
         """
+        settings = request.registry.settings
+
         ax_request = ax.FetchRequest()
         for attr in self.request_attributes:
             ax_request.add(ax.AttrInfo(attributes[attr], required=True))
         authrequest.addExtension(ax_request)
         
         # Add OAuth request?
-        if 'oauth_scope' in req.POST:
-            oauth_request = OAuthRequest(consumer=self.consumer, scope=req.POST['oauth_scope'])
+        oauth_scope = None
+        if 'oauth_scope' in request.POST:
+            oauth_scope = request.POST['oauth_scope']
+        elif 'velruse.google.oauth_scope' in settings:
+            oauth_scope = settings['velruse.google.oauth_scope']
+        if oauth_scope:
+            oauth_request = OAuthRequest(consumer=self.consumer,
+                                         scope=oauth_scope)
             authrequest.addExtension(oauth_request)
-        
-        if 'popup_mode' in req.POST:
-            kw_args = {'mode': req.POST['popup_mode']}
-            if 'popup_icon' in req.POST:
-                kw_args['icon'] = req.POST['popup_icon']
+
+        if 'popup_mode' in request.POST:
+            kw_args = {'mode': request.POST['popup_mode']}
+            if 'popup_icon' in request.POST:
+                kw_args['icon'] = request.POST['popup_icon']
             ui_request = UIRequest(**kw_args)
             authrequest.addExtension(ui_request)
         return None
