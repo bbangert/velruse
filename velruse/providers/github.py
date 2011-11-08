@@ -63,6 +63,8 @@ def github_process(request):
     profile['displayName'] = data['name']
     profile['identifier'] = profile['preferredUsername'] = data['login']
 
+    # We don't add this to verifiedEmail because ppl can change email addresses
+    # without verifying them
     if 'email' in data:
         profile['emails'] = [data['email']]
 
