@@ -4,17 +4,22 @@
 Providers
 =========
 
-Authentication Providers supply varying levels of information when authentication has occurred. Some of them can also provide API access tokens in addition to authenticating a user for sign-on.
+Authentication Providers supply varying levels of information when
+authentication has occurred. Some of them can also provide API access
+tokens in addition to authenticating a user for sign-on.
 
 Default POST Parameters
 =======================
 
-Almost every provider accepts the POST parameter `end_point`, which is the URL that the token will be POSTed to when authentication is complete.
+Almost every provider accepts the POST parameter `end_point`, which is
+the URL that the token will be POSTed to when authentication is complete.
 
 Facebook
 ========
 
-The Facebook provider authenticates using the latest Facebook OAuth 2.0 API with the Social Graph API to obtain additional profile information for use with user registration.
+The Facebook provider authenticates using the latest Facebook OAuth 2.0
+API with the Social Graph API to obtain additional profile information
+for use with user registration.
 
 To use the Facebook authentication, you must register a Facebook application
 for use with Velruse.
@@ -25,22 +30,28 @@ Facebook Developer Links:
 * `Facebook Application Management <http://www.facebook.com/developers/#!/developers/apps.php>`_
 * `Create new Facebook Application <http://www.facebook.com/developers/createapp.php>`_
 
-YAML Parameters
----------------
+Settings
+--------
 
-API Key
-    Facebook API key
-Application Secret
+velruse.facebook.app_id
+    Facebook App Id
+velruse.facebook.app_secret
     Facebook secret
-Application ID
-    Facebook Application ID
+velruse.facebook.scope
+    Optional comma-separated list of extended permissions.
 
-All of these parameters are necessary. The Facebook Connect URL registered with Facebook must match the domain that the velruse application is served from.
+All of these parameters are necessary. The Facebook Connect URL
+registered with Facebook must match the domain that the velruse
+application is served from.
 
 POST parameters
 ---------------
 
-In addition to the standard :term:`end_point`, the Facebook provider accepts a scope argument, which is used in the authenticating request to access additional Facebook properties known as `Extended Permissions <http://developers.facebook.com/docs/authentication/permissions>`_. These should be a comma separated string, for example:
+In addition to the standard :term:`end_point`, the Facebook provider
+accepts a scope argument, which is used in the authenticating request
+to access additional Facebook properties known as `Extended Permissions
+<http://developers.facebook.com/docs/authentication/permissions>`_.
+These should be a comma separated string, for example:
 
 .. code-block:: html
     

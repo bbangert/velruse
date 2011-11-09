@@ -105,8 +105,6 @@ def make_velruse_app(global_conf, **settings):
         velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_secret = eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
 
-        velruse.session_factory = pyramid_beaker
-
         beaker.session.data_dir = %(here)s/data/sdata
         beaker.session.lock_dir = %(here)s/data/slock
         beaker.session.key = velruse
