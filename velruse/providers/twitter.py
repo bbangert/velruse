@@ -5,6 +5,8 @@ from pyramid.httpexceptions import HTTPFound
 import oauth2 as oauth
 import requests
 
+from pyramid.settings import asbool
+
 from velruse.api import TwitterAuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
@@ -45,7 +47,7 @@ def twitter_login(request):
     request.session['token'] = r.content
 
     # Send the user to twitter now for authorization
-    if config.get('velruse.twitter.authorize', '').lower() in ['true']:
+    if asbool(config.get('velruse.twitter.authorize', '')):
         req_url = 'https://api.twitter.com/oauth/authorize'
     else:
         req_url = 'https://api.twitter.com/oauth/authenticate'

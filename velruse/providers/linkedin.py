@@ -6,6 +6,8 @@ from pyramid.httpexceptions import HTTPFound
 import oauth2 as oauth
 import requests
 
+from pyramid.settings import asbool
+
 from velruse.api import LinkedInAuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
@@ -46,7 +48,7 @@ def linkedin_login(request):
     request.session['token'] = r.content
 
     # Send the user to linkedin now for authorization
-    if config.get('velruse.linkedin.authorize', '').lower() in ['true']:
+    if asbool(config.get('velruse.linkedin.authorize', '')):
         req_url = 'https://api.linkedin.com/uas/oauth/authorize'
     else:
         req_url = 'https://api.linkedin.com/uas/oauth/authenticate'

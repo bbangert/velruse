@@ -1,7 +1,6 @@
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
-#from pyramid.settings import asbool
 from pyramid.view import view_config
 
 from velruse.utils import generate_token
