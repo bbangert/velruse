@@ -36,22 +36,35 @@ def auth_denied_view(context, request):
     return Response(body=form)
 
 
+def default_setup(config):
+    from pyramid_beaker import session_factory_from_settings
+    settings = config.registry.settings
+    factory = session_factory_from_settings(settings)
+    config.set_session_factory(factory)
+
+
 def make_app(**settings):
     config = Configurator(settings=settings)
-    config.include('pyramid_beaker')
 
+    # setup application
+    setup = settings.get('velruse.setup', default_setup)
+    config.include(setup)
+
+    # setup backing storage
     store = settings.get('velruse.store')
     try:
         config.include(store)
     except ImportError:
         raise ConfigurationError('invalid velruse store: {0}'.format(store))
 
+    # include providers
     providers = settings.get('velruse.providers', '')
     providers = splitlines(providers)
 
     for provider in providers:
         config.include(provider)
 
+    # add the error views
     config.scan(__name__)
     return config.make_wsgi_app()
 
@@ -91,6 +104,8 @@ def make_velruse_app(global_conf, **settings):
         velruse.facebook.app_id = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_secret = eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
+
+        velruse.session_factory = pyramid_beaker
 
         beaker.session.data_dir = %(here)s/data/sdata
         beaker.session.lock_dir = %(here)s/data/slock
