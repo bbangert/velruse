@@ -1,11 +1,13 @@
 """Velruse Exceptions"""
+
+
 class VelruseException(Exception):
     """Base Velruse Exception"""
 
 
 class MissingParameter(VelruseException):
-	"""Raised when the login process is missing some parameters needed to
-	continue"""
+    """Raised when the login process is missing some parameters needed to
+    continue"""
 
 
 class ThirdPartyFailure(VelruseException):
@@ -20,4 +22,3 @@ class AuthenticationDenied(VelruseException):
 
 class CSRFError(VelruseException):
     """Raised when CSRF validation fails"""
-

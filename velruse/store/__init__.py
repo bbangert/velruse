@@ -24,4 +24,4 @@ try:
     from velruse.store.sqlstore import SQLStore
     __all__.append('SQLStore')
 except ImportError, e:
-    pass    
+    pass

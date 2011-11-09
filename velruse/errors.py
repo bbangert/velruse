@@ -8,9 +8,10 @@ ERROR_CODES = {
     4: 'Application verification failed',
 }
 
+
 def error_dict(error_code):
     """Generates an Error dict suitable for storing in a key/value store."""
     err = {'status': 'fail'}
-    err['reason'] = {'code': error_code, 
+    err['reason'] = {'code': error_code,
                      'description': ERROR_CODES[error_code]}
     return err

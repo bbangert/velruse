@@ -1,13 +1,14 @@
 """Google Responder
 
-A Google responder that authenticates against Google using OpenID, or optionally
-can use OpenId+OAuth hybrid protocol to request access to Google Apps using OAuth2.
+A Google responder that authenticates against Google using OpenID, or
+optionally can use OpenId+OAuth hybrid protocol to request access to
+Google Apps using OAuth2.
 
 """
 try:
-     from urlparse import parse_qs
+    from urlparse import parse_qs
 except ImportError:
-     from cgi import parse_qs
+    from cgi import parse_qs
 
 
 from openid.extensions import ax
@@ -18,8 +19,6 @@ import oauth2 as oauth
 from velruse.api import GoogleAuthenticationComplete
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
-from velruse.providers.openidconsumer import ax_attributes
-from velruse.providers.openidconsumer import alternate_ax_attributes
 from velruse.providers.openidconsumer import attributes
 from velruse.providers.openidconsumer import OpenIDConsumer
 
@@ -37,12 +36,14 @@ def includeme(config):
         store = dotted_resolver.resolve(settings['velruse.openid.store'])()
         config.registry['velruse.openid_store'] = store
     realm = settings['velruse.openid.realm']
-    consumer = GoogleConsumer(storage=store, realm=realm,
-                              process_url='google_process',
-                              oauth_key=settings.get('velruse.google.consumer_key'),
-                              oauth_secret=settings.get('velruse.google.consumer_secret'),
-                              request_attributes=settings.get('request_attributes')
-                              )
+    consumer = GoogleConsumer(
+        storage=store,
+        realm=realm,
+        process_url='google_process',
+        oauth_key=settings.get('velruse.google.consumer_key'),
+        oauth_secret=settings.get('velruse.google.consumer_secret'),
+        request_attributes=settings.get('request_attributes')
+    )
     config.add_route("google_login", "/google/login")
     config.add_route("google_process", "/google/process",
                      use_global_views=True,
@@ -54,10 +55,10 @@ class GoogleConsumer(OpenIDConsumer):
     def __init__(self, oauth_key=None, oauth_secret=None,
                  request_attributes=None, *args, **kwargs):
         """Handle Google Auth
-        
+
         This also handles making an OAuth request during the OpenID
         authentication.
-        
+
         """
         super(GoogleConsumer, self).__init__(*args, **kwargs)
         self.oauth_key = oauth_key
@@ -66,19 +67,20 @@ class GoogleConsumer(OpenIDConsumer):
         if request_attributes:
             self.request_attributes = request_attributes.split(",")
         else:
-            self.request_attributes = ['country', 'email', 'first_name', 'last_name', 'language']
-    
+            self.request_attributes = ['country', 'email', 'first_name',
+                                       'last_name', 'language']
+
     def _lookup_identifier(self, request, identifier):
         """Return the Google OpenID directed endpoint"""
         return "https://www.google.com/accounts/o8/id"
-    
+
     def _update_authrequest(self, request, authrequest):
         """Update the authrequest with Attribute Exchange and optionally OAuth
-        
-        To optionally request OAuth, the request POST must include an 
+
+        To optionally request OAuth, the request POST must include an
         ``oauth_scope`` parameter that indicates what Google Apps should have
         access requested.
-        
+
         """
         settings = request.registry.settings
 
@@ -86,7 +88,7 @@ class GoogleConsumer(OpenIDConsumer):
         for attr in self.request_attributes:
             ax_request.add(ax.AttrInfo(attributes[attr], required=True))
         authrequest.addExtension(ax_request)
-        
+
         # Add OAuth request?
         oauth_scope = None
         if 'oauth_scope' in request.POST:
@@ -105,13 +107,13 @@ class GoogleConsumer(OpenIDConsumer):
             ui_request = UIRequest(**kw_args)
             authrequest.addExtension(ui_request)
         return None
-    
+
     def _update_profile_data(self, request, profile, credentials):
         """Update the user data with profile information from Google Contacts
 
         This only works if the oauth_scope included access to Google Contacts
         i.e. the scope needs::
-            
+
             http://www-opensocial.googleusercontent.com/api/people
 
         """
@@ -127,7 +129,8 @@ class GoogleConsumer(OpenIDConsumer):
         token = oauth.Token(key=credentials['oauthAccessToken'],
                             secret=credentials['oauthAccessTokenSecret'])
         client = oauth.Client(consumer, token)
-        profile_url = 'https://www-opensocial.googleusercontent.com/api/people/@me/@self'
+        profile_url = \
+            'https://www-opensocial.googleusercontent.com/api/people/@me/@self'
         resp, content = client.request(profile_url)
         if resp['status'] != '200':
             return
@@ -143,8 +146,10 @@ class GoogleConsumer(OpenIDConsumer):
         resp, content = client.request(GOOGLE_OAUTH, "POST")
         if resp['status'] != '200':
             return None
-        
+
         access_token = dict(parse_qs(content))
-        
-        return {'oauthAccessToken': access_token['oauth_token'][0], 
-                'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
+
+        return {
+            'oauthAccessToken': access_token['oauth_token'][0],
+            'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]
+        }

@@ -2,6 +2,7 @@
 
 ALPHABET = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
 
+
 def base_encode(num, alphabet=ALPHABET):
     """Encode a number in Base X
 
@@ -19,6 +20,7 @@ def base_encode(num, alphabet=ALPHABET):
     arr.reverse()
     return ''.join(arr)
 
+
 def base_n_decoder(alphabet=ALPHABET):
     """Decode a Base X encoded string into the number
 
@@ -28,6 +30,7 @@ def base_n_decoder(alphabet=ALPHABET):
     """
     base = len(alphabet)
     char_value = dict(((c, v) for v, c in enumerate(alphabet)))
+
     def f(string):
         num = 0
         try:

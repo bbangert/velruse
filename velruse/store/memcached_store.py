@@ -36,7 +36,7 @@ class MemcachedStore(UserStore):
     def __init__(self, servers=None, key_prefix='velruse_ustore'):
         self.key_prefix = key_prefix
         self.servers = servers or ['localhost:11211']
-    
+
     @cached_property
     def _conn(self):
         """The Memcached connection, cached for this call"""
@@ -44,19 +44,20 @@ class MemcachedStore(UserStore):
 
     def _key(self, key):
         return str('%s:%s' % (self.key_prefix, key))
-    
+
     def retrieve(self, key):
         return self._conn.get(self._key(key))
-    
+
     def store(self, key, value, expires=None):
-        log.debug('Servers %s storing %s=%s' % (`self.servers`, `self._key(key)`, `value`))
-        
+        log.debug('Servers %s storing %s=%s' % (
+            self.servers, self._key(key), value))
+
         self._conn.set(self._key(key), value, expires or 0)
         return True
-    
+
     def delete(self, key):
-        log.debug('Deleting %s', `key`)
+        log.debug('Deleting %s', key)
         self._conn.delete(self._key(key))
-    
+
     def purge_expired(self):
         pass

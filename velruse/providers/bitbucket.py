@@ -32,7 +32,6 @@ def bitbucket_login(request):
     # Create the consumer and client, make the request
     consumer = oauth.Consumer(config['velruse.bitbucket.consumer_key'],
                               config['velruse.bitbucket.consumer_secret'])
-    client = oauth.Client(consumer)
     params = {'oauth_callback': request.route_url('bitbucket_process')}
 
     # We go through some shennanigans here to specify a callback url
@@ -49,7 +48,7 @@ def bitbucket_login(request):
 
     # Send the user to bitbucket now for authorization
     # there doesnt seem to be separate url for this on BB
-    if config.get('velruse.bitbucket.authorize', '').lower() in ['true']: 
+    if config.get('velruse.bitbucket.authorize', '').lower() in ['true']:
         req_url = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
     else:
         req_url = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
@@ -67,7 +66,7 @@ def bitbucket_process(request):
     request_token = oauth.Token.from_string(request.session['token'])
     verifier = request.GET.get('oauth_verifier')
     if not verifier:
-        raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
+        raise ThirdPartyFailure("No oauth_verifier returned")
     request_token.set_verifier(verifier)
 
     # Create the consumer and client, make the request
@@ -79,14 +78,14 @@ def bitbucket_process(request):
     if resp['status'] != '200':
         raise ThirdPartyFailure("Status %s: %s" % (resp['status'], content))
     access_token = dict(parse_qs(content))
-    
+
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
-    
+
     # Make a request with the data for more user info
     token = oauth.Token(key=cred['oauthAccessToken'],
                         secret=cred['oauthAccessTokenSecret'])
-    
+
     client = oauth.Client(consumer, token)
     resp, content = client.request(USER_URL)
     user_data = json.loads(content)
@@ -95,9 +94,11 @@ def bitbucket_process(request):
     profile = {}
     profile['providerName'] = 'bitbucket'
     profile['displayName'] = data['username']
-    profile['identifier'] = 'https://api.bitbucket.org/1.0/users/%s/' % data['username']
+    profile['identifier'] = 'https://api.bitbucket.org/1.0/users/%s/' % \
+        data['username']
     profile['name'] = {
-                       'formatted': '%s %s' % (data['firstName'], data['lastName']),
+                       'formatted': '%s %s' % (data['firstName'],
+                                               data['lastName']),
                        'givenName': data['first_name'],
                        'familyName': data['last_name']
                        }

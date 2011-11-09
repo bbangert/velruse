@@ -30,7 +30,6 @@ def linkedin_login(request):
     # Create the consumer and client, make the request
     consumer = oauth.Consumer(config['velruse.linkedin.consumer_key'],
                               config['velruse.linkedin.consumer_secret'])
-    client = oauth.Client(consumer)
     sigmethod = oauth.SignatureMethod_HMAC_SHA1()
     params = {'oauth_callback': request.route_url('linkedin_process')}
 
@@ -65,7 +64,7 @@ def linkedin_process(request):
     request_token = oauth.Token.from_string(request.session['token'])
     verifier = request.GET.get('oauth_verifier')
     if not verifier:
-        raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
+        raise ThirdPartyFailure("Oauth verifier not returned")
     request_token.set_verifier(verifier)
 
     # Create the consumer and client, make the request
@@ -80,7 +79,7 @@ def linkedin_process(request):
 
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
-    
+
     # Make a request with the data for more user info
     token = oauth.Token(key=cred['oauthAccessToken'],
                         secret=cred['oauthAccessTokenSecret'])

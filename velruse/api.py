@@ -1,4 +1,6 @@
 """Velruse Authentication API"""
+
+
 class AuthenticationComplete(object):
     """An AuthenticationComplete context object
 

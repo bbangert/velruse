@@ -29,7 +29,6 @@ def twitter_login(request):
     # Create the consumer and client, make the request
     consumer = oauth.Consumer(config['velruse.twitter.consumer_key'],
                               config['velruse.twitter.consumer_secret'])
-    client = oauth.Client(consumer)
     sigmethod = oauth.SignatureMethod_HMAC_SHA1()
     params = {'oauth_callback': request.route_url('twitter_process')}
 
@@ -64,7 +63,7 @@ def twitter_process(request):
     request_token = oauth.Token.from_string(request.session['token'])
     verifier = request.GET.get('oauth_verifier')
     if not verifier:
-        raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
+        raise ThirdPartyFailure("Oauth verifier not returned")
     request_token.set_verifier(verifier)
 
     # Create the consumer and client, make the request
@@ -76,13 +75,14 @@ def twitter_process(request):
     if resp['status'] != '200':
         raise ThirdPartyFailure("Status %s: %s" % (resp['status'], content))
     access_token = dict(parse_qs(content))
-    
+
     # Setup the normalized contact info
     profile = {}
     profile['providerName'] = 'Twitter'
     profile['displayName'] = access_token['screen_name'][0]
-    profile['identifier'] = 'http://twitter.com/?id=%s' % access_token['user_id'][0]
-    
+    profile['identifier'] = 'http://twitter.com/?id=%s' % \
+        access_token['user_id'][0]
+
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
     return TwitterAuthenticationComplete(profile=profile,

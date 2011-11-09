@@ -48,7 +48,6 @@ def github_process(request):
     if r.status_code != 200:
         raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
     access_token = parse_qs(r.content)['access_token'][0]
-    c = r.content
 
     # Retrieve profile data
     graph_url = flat_url('https://github.com/api/v2/json/user/show',
