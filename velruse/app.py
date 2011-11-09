@@ -41,7 +41,7 @@ def make_app(**settings):
     config = Configurator(settings=settings)
     config.include('pyramid_beaker')
 
-    store = settings.get('velruse.store', '')
+    store = settings.get('velruse.store')
     try:
         config.include(store)
     except ImportError:
@@ -52,10 +52,6 @@ def make_app(**settings):
 
     for provider in providers:
         config.include(provider)
-
-    #debug = asbool(settings.get('debug', False))
-    #if debug:
-    #    config.include(debug_views)
 
     config.scan(__name__)
     return config.make_wsgi_app()
