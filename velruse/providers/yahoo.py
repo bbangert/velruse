@@ -7,7 +7,6 @@ except ImportError:
 
 
 from openid.extensions import ax
-from pyramid.util import DottedNameResolver
 import oauth2 as oauth
 
 from velruse.providers.oid_extensions import OAuthRequest
@@ -16,8 +15,6 @@ from velruse.providers.openidconsumer import OpenIDConsumer
 
 YAHOO_OAUTH = 'https://api.login.yahoo.com/oauth/v2/get_token'
 log = logging.getLogger(__name__)
-
-dotted_resolver = DottedNameResolver(None)
 
 
 class YahooAuthenticationComplete(OpenIDAuthenticationComplete):
@@ -30,7 +27,7 @@ def includeme(config):
     if not store and 'velruse.openid.store' not in settings:
         raise Exception("Missing 'velruse.openid.store' in config settings.")
     if not store:
-        store = dotted_resolver.resolve(settings['velruse.openid.store'])()
+        store = config.maybe_dotted(settings['velruse.openid.store'])()
         config.registry['velruse.openid_store'] = store
     realm = settings['velruse.openid.realm']
     consumer = YahooConsumer(

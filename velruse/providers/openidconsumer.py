@@ -6,14 +6,11 @@ from openid.extensions import ax
 from openid.extensions import sreg
 from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
-from pyramid.util import DottedNameResolver
 
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import MissingParameter
 from velruse.exceptions import ThirdPartyFailure
-
-dotted_resolver = DottedNameResolver(None)
 
 log = logging.getLogger(__name__)
 
@@ -184,7 +181,7 @@ def includeme(config):
     if not store and 'velruse.openid.store' not in settings:
         raise Exception("Missing 'velruse.openid.store' in config settings.")
     if not store:
-        store = dotted_resolver.resolve(settings['velruse.openid.store'])()
+        store = config.maybe_dotted(settings['velruse.openid.store'])()
         config.registry['velruse.openid_store'] = store
     realm = settings['velruse.openid.realm']
     oid_consumer = OpenIDConsumer(storage=store, realm=realm,

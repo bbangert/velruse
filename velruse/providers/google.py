@@ -12,7 +12,6 @@ except ImportError:
 
 
 from openid.extensions import ax
-from pyramid.util import DottedNameResolver
 from simplejson import loads
 import oauth2 as oauth
 
@@ -23,8 +22,6 @@ from velruse.providers.openidconsumer import OpenIDAuthenticationComplete
 from velruse.providers.openidconsumer import OpenIDConsumer
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
-
-dotted_resolver = DottedNameResolver(None)
 
 
 class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
@@ -37,7 +34,7 @@ def includeme(config):
     if not store and 'velruse.openid.store' not in settings:
         raise Exception("Missing 'velruse.openid.store' in config settings.")
     if not store:
-        store = dotted_resolver.resolve(settings['velruse.openid.store'])()
+        store = config.maybe_dotted(settings['velruse.openid.store'])()
         config.registry['velruse.openid_store'] = store
     realm = settings['velruse.openid.realm']
     consumer = GoogleConsumer(
