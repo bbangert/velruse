@@ -16,15 +16,19 @@ from pyramid.util import DottedNameResolver
 from simplejson import loads
 import oauth2 as oauth
 
-from velruse.api import GoogleAuthenticationComplete
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
 from velruse.providers.openidconsumer import attributes
+from velruse.providers.openidconsumer import OpenIDAuthenticationComplete
 from velruse.providers.openidconsumer import OpenIDConsumer
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 
 dotted_resolver = DottedNameResolver(None)
+
+
+class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
+    """Google auth complete"""
 
 
 def includeme(config):

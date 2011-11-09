@@ -8,7 +8,7 @@ from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.util import DottedNameResolver
 
-from velruse.api import OpenIDAuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import MissingParameter
 from velruse.exceptions import ThirdPartyFailure
@@ -172,6 +172,10 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
             del ud[k]
 
     return ud
+
+
+class OpenIDAuthenticationComplete(AuthenticationComplete):
+    """OpenID auth complete"""
 
 
 def includeme(config):

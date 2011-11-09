@@ -7,12 +7,16 @@ from pyramid.httpexceptions import HTTPFound
 from simplejson import loads
 import requests
 
-from velruse.api import FacebookAuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
 from velruse.parsers import extract_fb_data
 from velruse.utils import flat_url
+
+
+class FacebookAuthenticationComplete(AuthenticationComplete):
+    """Facebook auth complete"""
 
 
 def includeme(config):

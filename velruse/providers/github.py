@@ -5,10 +5,14 @@ from pyramid.httpexceptions import HTTPFound
 from simplejson import loads
 import requests
 
-from velruse.api import GithubAuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
+
+
+class GithubAuthenticationComplete(AuthenticationComplete):
+    """Github auth complete"""
 
 
 def includeme(config):

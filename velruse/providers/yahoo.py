@@ -10,14 +10,18 @@ from openid.extensions import ax
 from pyramid.util import DottedNameResolver
 import oauth2 as oauth
 
-from velruse.api import YahooAuthenticationComplete
 from velruse.providers.oid_extensions import OAuthRequest
+from velruse.providers.openidconsumer import OpenIDAuthenticationComplete
 from velruse.providers.openidconsumer import OpenIDConsumer
 
 YAHOO_OAUTH = 'https://api.login.yahoo.com/oauth/v2/get_token'
 log = logging.getLogger(__name__)
 
 dotted_resolver = DottedNameResolver(None)
+
+
+class YahooAuthenticationComplete(OpenIDAuthenticationComplete):
+    """Yahoo auth complete"""
 
 
 def includeme(config):

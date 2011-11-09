@@ -9,39 +9,3 @@ class AuthenticationComplete(object):
         """Create an AuthenticationComplete object with user data"""
         self.profile = profile
         self.credentials = credentials
-
-
-class BitbucketAuthenticationComplete(AuthenticationComplete):
-    """Bitbucket auth complete"""
-
-
-class FacebookAuthenticationComplete(AuthenticationComplete):
-    """Facebook auth complete"""
-
-
-class LiveAuthenticationComplete(AuthenticationComplete):
-    """Live Connect auth complete"""
-
-
-class GithubAuthenticationComplete(AuthenticationComplete):
-    """Github auth complete"""
-
-
-class LinkedInAuthenticationComplete(AuthenticationComplete):
-    """LinkedIn auth complete"""
-
-
-class TwitterAuthenticationComplete(AuthenticationComplete):
-    """Twitter auth complete"""
-
-
-class OpenIDAuthenticationComplete(AuthenticationComplete):
-    """OpenID auth complete"""
-
-
-class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
-    """Google auth complete"""
-
-
-class YahooAuthenticationComplete(OpenIDAuthenticationComplete):
-    """Yahoo auth complete"""

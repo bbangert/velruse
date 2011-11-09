@@ -8,13 +8,17 @@ import requests
 
 from pyramid.settings import asbool
 
-from velruse.api import LinkedInAuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 
 
 REQUEST_URL = 'https://api.linkedin.com/uas/oauth/requestToken'
 ACCESS_URL = 'https://api.linkedin.com/uas/oauth/accessToken'
+
+
+class LinkedInAuthenticationComplete(AuthenticationComplete):
+    """LinkedIn auth complete"""
 
 
 def includeme(config):
@@ -48,7 +52,7 @@ def linkedin_login(request):
     request.session['token'] = r.content
 
     # Send the user to linkedin now for authorization
-    if asbool(config.get('velruse.linkedin.authorize', '')):
+    if asbool(config.get('velruse.linkedin.authorize')):
         req_url = 'https://api.linkedin.com/uas/oauth/authorize'
     else:
         req_url = 'https://api.linkedin.com/uas/oauth/authenticate'

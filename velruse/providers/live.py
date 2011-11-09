@@ -1,15 +1,17 @@
 """Live Authentication Views"""
-import uuid
-
 from pyramid.httpexceptions import HTTPFound
 from simplejson import loads
 import requests
 
-from velruse.api import LiveAuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 from velruse.parsers import extract_live_data
 from velruse.utils import flat_url
+
+
+class LiveAuthenticationComplete(AuthenticationComplete):
+    """Live Connect auth complete"""
 
 
 def includeme(config):

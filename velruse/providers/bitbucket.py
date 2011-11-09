@@ -6,7 +6,9 @@ import oauth2 as oauth
 import requests
 import json
 
-from velruse.api import BitbucketAuthenticationComplete
+from pyramid.settings import asbool
+
+from velruse.providers import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 
@@ -15,6 +17,11 @@ REQUEST_URL = 'https://bitbucket.org/api/1.0/oauth/request_token/'
 ACCESS_URL = 'https://bitbucket.org/api/1.0/oauth/access_token/'
 USER_URL = 'https://bitbucket.org/api/1.0/user'
 SIGMETHOD = oauth.SignatureMethod_HMAC_SHA1()
+
+
+class BitbucketAuthenticationComplete(AuthenticationComplete):
+    """Bitbucket auth complete"""
+    provider = 'bitbucket'
 
 
 def includeme(config):
@@ -48,7 +55,7 @@ def bitbucket_login(request):
 
     # Send the user to bitbucket now for authorization
     # there doesnt seem to be separate url for this on BB
-    if config.get('velruse.bitbucket.authorize', '').lower() in ['true']:
+    if asbool(config.get('velruse.bitbucket.authorize')):
         req_url = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
     else:
         req_url = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
