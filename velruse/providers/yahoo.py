@@ -1,10 +1,5 @@
 import logging
-
-try:
-    from urlparse import parse_qs
-except ImportError:
-    from cgi import parse_qs
-
+from urlparse import parse_qs
 
 from openid.extensions import ax
 import oauth2 as oauth
