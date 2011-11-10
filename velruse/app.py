@@ -36,6 +36,13 @@ def auth_denied_view(context, request):
     return Response(body=form)
 
 
+@view_config(name='auth_info', request_param='format=json', renderer='json')
+def auth_info_view(request):
+    token = request.GET['token']
+    data = request.registry.velruse_store.retrieve(token)
+    return data
+
+
 def default_setup(config):
     from pyramid_beaker import session_factory_from_settings
     settings = config.registry.settings
