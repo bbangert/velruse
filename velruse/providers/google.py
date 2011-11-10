@@ -18,6 +18,7 @@ import oauth2 as oauth
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
 from velruse.providers.openidconsumer import attributes
+from velruse.providers.openidconsumer import setup_openid
 from velruse.providers.openidconsumer import OpenIDAuthenticationComplete
 from velruse.providers.openidconsumer import OpenIDConsumer
 
@@ -30,13 +31,7 @@ class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
 
 def includeme(config):
     settings = config.registry.settings
-    store = config.registry.get('velruse.openid_store')
-    if not store and 'velruse.openid.store' not in settings:
-        raise Exception("Missing 'velruse.openid.store' in config settings.")
-    if not store:
-        store = config.maybe_dotted(settings['velruse.openid.store'])()
-        config.registry['velruse.openid_store'] = store
-    realm = settings['velruse.openid.realm']
+    store, realm = setup_openid(config)
     consumer = GoogleConsumer(
         storage=store,
         realm=realm,

@@ -175,7 +175,8 @@ class OpenIDAuthenticationComplete(AuthenticationComplete):
     """OpenID auth complete"""
 
 
-def includeme(config):
+def setup_openid(config):
+    """ """
     settings = config.registry.settings
     store = config.registry.get('velruse.openid_store')
     if not store and 'velruse.openid.store' not in settings:
@@ -184,6 +185,11 @@ def includeme(config):
         store = config.maybe_dotted(settings['velruse.openid.store'])()
         config.registry['velruse.openid_store'] = store
     realm = settings['velruse.openid.realm']
+    return store, realm
+
+
+def includeme(config):
+    store, realm = setup_openid(config)
     oid_consumer = OpenIDConsumer(storage=store, realm=realm,
                                   process_url='openid_process')
     config.add_route("openid_login", "/openid/login")
