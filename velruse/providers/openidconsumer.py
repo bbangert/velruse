@@ -4,6 +4,7 @@ import logging
 from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
+
 from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
 

@@ -1,11 +1,11 @@
 """Facebook Authentication Views"""
 import uuid
-
+from json import loads
 from urlparse import parse_qs
 
-from pyramid.httpexceptions import HTTPFound
-from simplejson import loads
 import requests
+
+from pyramid.httpexceptions import HTTPFound
 
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied

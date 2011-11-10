@@ -5,15 +5,11 @@ optionally can use OpenId+OAuth hybrid protocol to request access to
 Google Apps using OAuth2.
 
 """
-try:
-    from urlparse import parse_qs
-except ImportError:
-    from cgi import parse_qs
+from json import loads
+from urlparse import parse_qs
 
-
-from openid.extensions import ax
-from simplejson import loads
 import oauth2 as oauth
+from openid.extensions import ax
 
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
@@ -21,6 +17,7 @@ from velruse.providers.openidconsumer import attributes
 from velruse.providers.openidconsumer import setup_openid
 from velruse.providers.openidconsumer import OpenIDAuthenticationComplete
 from velruse.providers.openidconsumer import OpenIDConsumer
+
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 

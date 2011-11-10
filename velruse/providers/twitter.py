@@ -1,10 +1,10 @@
 """Twitter Authentication Views"""
 from urlparse import parse_qs
 
-from pyramid.httpexceptions import HTTPFound
 import oauth2 as oauth
 import requests
 
+from pyramid.httpexceptions import HTTPFound
 from pyramid.settings import asbool
 
 from velruse.api import AuthenticationComplete

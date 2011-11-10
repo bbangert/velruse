@@ -9,8 +9,10 @@ from velruse.providers.openidconsumer import setup_openid
 from velruse.providers.openidconsumer import OpenIDAuthenticationComplete
 from velruse.providers.openidconsumer import OpenIDConsumer
 
-YAHOO_OAUTH = 'https://api.login.yahoo.com/oauth/v2/get_token'
+
 log = logging.getLogger(__name__)
+
+YAHOO_OAUTH = 'https://api.login.yahoo.com/oauth/v2/get_token'
 
 
 class YahooAuthenticationComplete(OpenIDAuthenticationComplete):

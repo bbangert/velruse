@@ -1,11 +1,11 @@
 """Bitbucket Authentication Views"""
+import json
 from urlparse import parse_qs
 
-from pyramid.httpexceptions import HTTPFound
 import oauth2 as oauth
 import requests
-import json
 
+from pyramid.httpexceptions import HTTPFound
 from pyramid.settings import asbool
 
 from velruse.providers import AuthenticationComplete

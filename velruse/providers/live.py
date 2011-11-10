@@ -1,7 +1,9 @@
 """Live Authentication Views"""
-from pyramid.httpexceptions import HTTPFound
-from simplejson import loads
+from json import loads
+
 import requests
+
+from pyramid.httpexceptions import HTTPFound
 
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
