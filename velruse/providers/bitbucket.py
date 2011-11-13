@@ -8,7 +8,7 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.settings import asbool
 
-from velruse.providers import AuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 
