@@ -8,7 +8,7 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.settings import asbool
 
-from velruse.providers import AuthenticationComplete
+from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 
@@ -104,8 +104,8 @@ def bitbucket_process(request):
     profile['identifier'] = 'https://api.bitbucket.org/1.0/users/%s/' % \
         data['username']
     profile['name'] = {
-                       'formatted': '%s %s' % (data['firstName'],
-                                               data['lastName']),
+                       'formatted': '%s %s' % (data['first_name'],
+                                               data['last_name']),
                        'givenName': data['first_name'],
                        'familyName': data['last_name']
                        }
