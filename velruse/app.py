@@ -1,3 +1,6 @@
+import logging
+import os
+
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
@@ -6,6 +9,9 @@ from pyramid.view import view_config
 from velruse.utils import generate_token
 from velruse.utils import redirect_form
 from velruse.utils import splitlines
+
+
+log = logging.getLogger(__name__)
 
 
 @view_config(context='velruse.exceptions.AuthenticationComplete')
@@ -44,9 +50,20 @@ def auth_info_view(request):
 
 
 def default_setup(config):
-    from pyramid_beaker import session_factory_from_settings
+    from pyramid.session import UnencryptedCookieSessionFactoryConfig
+
+    log.info('Using an unencrypted cookie-based session. This can be '
+             'changed by pointing the "velruse.setup" setting at a different'
+             'function for configuring the session factory.')
+
     settings = config.registry.settings
-    factory = session_factory_from_settings(settings)
+    secret = settings.get('cookie.secret')
+    if secret is None:
+        log.warn('Configuring unencrypted cookie-based session with a '
+                 'random secret which will invalidate old cookies when '
+                 'restarting the app.')
+        secret = ''.join('%02x' % ord(x) for x in os.urandom(16))
+    factory = UnencryptedCookieSessionFactoryConfig(secret)
     config.set_session_factory(factory)
 
 
