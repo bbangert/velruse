@@ -99,15 +99,16 @@ def bitbucket_process(request):
     data = user_data['user']
     # Setup the normalized contact info
     profile = {}
-    profile['providerName'] = 'bitbucket'
-    profile['displayName'] = data['username']
-    profile['identifier'] = 'https://api.bitbucket.org/1.0/users/%s/' % \
-        data['username']
+    profile['accounts'] = [
+                           {'domain':'bitbucket.com',
+                            'username':data['username']}
+                           ]
+    profile['preferredUsername'] = data['username']
     profile['name'] = {
-                       'formatted': '%s %s' % (data['first_name'],
-                                               data['last_name']),
+                       'formatted': '%s %s' % (data['first_name'], data['last_name']),
                        'givenName': data['first_name'],
                        'familyName': data['last_name']
                        }
+    profile['displayName'] = profile['name']['formatted']
     return BitbucketAuthenticationComplete(profile=profile,
                                            credentials=cred)

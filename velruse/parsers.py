@@ -15,14 +15,15 @@ def extract_fb_data(data):
             nick = last
 
     profile = {
-        'providerName': 'Facebook',
-        'identifier': 'https://graph.facebook.com/%s' % data['id'],
+        'accounts':[{'domain':'facebook.com','userid':data['id']}],                               
         'displayName': data['name'],
-        'emails': [data.get('email')],
         'verifiedEmail': data.get('email') if data.get('verified') else False,
         'gender': data.get('gender'),
         'preferredUsername': nick or data['name'],
     }
+    if data.get('email'):
+        profile['emails'] = [{'value':data.get('email')}]
+    
     tz = data.get('timezone')
     if tz:
         parts = str(tz).split(':')
@@ -61,8 +62,7 @@ def extract_live_data(data):
     """Extract and normalize Windows Live Connect data"""
     emails = data.get('emails', {})
     profile = {
-        'providerName': 'Live',
-        'identifier': data['id'],
+        'accounts':[{'domain':'live.com', 'userid':data['id']}],
         'gender': data.get('gender'),
         'verifiedEmail': emails.get('preferred'),
         'updated': data.get('updated_time'),
@@ -74,6 +74,7 @@ def extract_live_data(data):
         'emails': [],
         'urls': [],
     }
+    
     if emails.get('personal'):
         profile['emails'].append(
             {'type': 'personal', 'value': emails['personal']})
