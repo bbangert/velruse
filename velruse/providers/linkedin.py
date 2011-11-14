@@ -101,13 +101,16 @@ def linkedin_process(request):
 
     # Setup the normalized contact info
     profile = {}
-    profile['providerName'] = 'LinkedIn'
     profile['displayName'] = data['firstName'] + data['lastName']
     profile['name'] = {
         'givenName': data['firstName'],
         'familyName': data['lastName'],
         'formatted': '%s %s' % (data['firstName'], data['lastName'])
     }
-    profile['identifier'] = data['id']
+    profile['accounts'] = [
+                           {'domain':'linkedin.com',
+                            'userid':data['id']
+                            }
+                           ]
     return LinkedInAuthenticationComplete(profile=profile,
                                           credentials=cred)

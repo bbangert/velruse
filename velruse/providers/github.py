@@ -63,14 +63,19 @@ def github_process(request):
     data = loads(r.content)['user']
 
     profile = {}
-    profile['providerName'] = 'GitHub'
+    profile['accounts'] = [
+                           {'domain':'github.com',
+                            'username':data['login'],
+                            'userid':data['id']
+                            }
+                           ]
     profile['displayName'] = data['name']
-    profile['identifier'] = profile['preferredUsername'] = data['login']
+    profile['preferredUsername'] = data['login']
 
     # We don't add this to verifiedEmail because ppl can change email addresses
     # without verifying them
     if 'email' in data:
-        profile['emails'] = [data['email']]
+        profile['emails'] = [{'value':data['email']}]
 
     cred = {'oauthAccessToken': access_token}
     return GithubAuthenticationComplete(profile=profile,
