@@ -84,11 +84,10 @@ def twitter_process(request):
 
     # Setup the normalized contact info
     profile = {}
-    profile['accounts'] = [
-                           {'domain':'twitter.com',
-                            'userid':access_token['user_id'][0]
-                            }
-                           ]
+    profile['accounts'] = [{
+        'domain':'twitter.com',
+        'userid':access_token['user_id'][0]
+    }]
     profile['displayName'] = access_token['screen_name'][0]
 
     cred = {'oauthAccessToken': access_token['oauth_token'][0],

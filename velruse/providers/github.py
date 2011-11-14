@@ -63,12 +63,11 @@ def github_process(request):
     data = loads(r.content)['user']
 
     profile = {}
-    profile['accounts'] = [
-                           {'domain':'github.com',
-                            'username':data['login'],
-                            'userid':data['id']
-                            }
-                           ]
+    profile['accounts'] = [{
+        'domain':'github.com',
+        'username':data['login'],
+        'userid':data['id']
+    }]
     profile['displayName'] = data['name']
     profile['preferredUsername'] = data['login']
 

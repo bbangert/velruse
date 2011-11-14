@@ -99,18 +99,22 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     """
     attribs = AttribAccess(sreg_resp, ax_resp)
 
-    ud = {'identifier': identifier}
+    account = {}
+    accounts = [account]
+
+    ud = {'accounts': accounts}
     if 'google.com' in identifier:
-        ud['providerName'] = 'Google'
+        account['domain'] = 'google.com'
     elif 'yahoo.com' in identifier:
-        ud['providerName'] = 'Yahoo'
+        account['domain'] = 'yahoo.com'
     elif 'aol.com' in identifier:
-        ud['providerName'] = 'AOL'
+        account['domain'] = 'aol.com'
     else:
-        ud['providerName'] = 'OpenID'
+        account['domain'] = 'openid.net'
+    account['username'] = identifier
 
     # Sort out the display name and preferred username
-    if ud['providerName'] == 'Google':
+    if account['domain'] == 'google.com':
         # Extract the first bit as the username since Google doesn't return
         # any usable nickname info
         email = attribs.get('email')
@@ -120,7 +124,7 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
         ud['preferredUsername'] = attribs.get('nickname')
 
     # We trust that Google and Yahoo both verify their email addresses
-    if ud['providerName'] in ['Google', 'Yahoo']:
+    if account['domain'] in ['google.com', 'yahoo.com']:
         ud['verifiedEmail'] = attribs.get('email', ax_only=True)
     else:
         ud['emails'] = [attribs.get('email')]

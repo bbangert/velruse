@@ -131,6 +131,9 @@ class GoogleConsumer(OpenIDConsumer):
         if 'entry' in data:
             profile.update(data['entry'])
 
+            # Strip out the id and add it as the user id
+            profile['accounts'][0]['userid'] = profile.pop('id', None)
+
     def _get_access_token(self, request_token):
         """Retrieve the access token if OAuth hybrid was used"""
         consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)

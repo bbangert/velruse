@@ -99,10 +99,10 @@ def bitbucket_process(request):
     data = user_data['user']
     # Setup the normalized contact info
     profile = {}
-    profile['accounts'] = [
-                           {'domain':'bitbucket.com',
-                            'username':data['username']}
-                           ]
+    profile['accounts'] = [{
+        'domain':'bitbucket.com',
+        'username':data['username']
+    }]
     profile['preferredUsername'] = data['username']
     profile['name'] = {
                        'formatted': '%s %s' % (data['first_name'], data['last_name']),
