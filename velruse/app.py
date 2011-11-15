@@ -44,9 +44,9 @@ def auth_denied_view(context, request):
 
 @view_config(name='auth_info', request_param='format=json', renderer='json')
 def auth_info_view(request):
+    storage = request.registry.velruse_store
     token = request.GET['token']
-    data = request.registry.velruse_store.retrieve(token)
-    return data
+    return storage.retrieve(token)
 
 
 def default_setup(config):
@@ -57,7 +57,7 @@ def default_setup(config):
              'function for configuring the session factory.')
 
     settings = config.registry.settings
-    secret = settings.get('cookie.secret')
+    secret = settings.get('velruse.session.secret')
     if secret is None:
         log.warn('Configuring unencrypted cookie-based session with a '
                  'random secret which will invalidate old cookies when '
@@ -128,14 +128,6 @@ def make_velruse_app(global_conf, **settings):
         velruse.facebook.app_id = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_secret = eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
-
-        beaker.session.data_dir = %(here)s/data/sdata
-        beaker.session.lock_dir = %(here)s/data/slock
-        beaker.session.key = velruse
-        beaker.session.secret = somesecret
-        beaker.session.type = cookie
-        beaker.session.validate_key = STRONG_KEY_HERE
-        beaker.session.cookie_domain = .yourdomain.com
 
         [app:YOURAPP]
         use = egg:YOURAPP
