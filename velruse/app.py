@@ -14,7 +14,7 @@ from velruse.utils import splitlines
 log = logging.getLogger(__name__)
 
 
-@view_config(context='velruse.exceptions.AuthenticationComplete')
+@view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
     end_point = request.session['end_point']
     token = generate_token()
