@@ -1,3 +1,6 @@
+import logging
+import os
+
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
@@ -8,9 +11,12 @@ from velruse.utils import redirect_form
 from velruse.utils import splitlines
 
 
-@view_config(context='velruse.exceptions.AuthenticationComplete')
+log = logging.getLogger(__name__)
+
+
+@view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
-    end_point = request.session['end_point']
+    end_point = request.settings.get('velruse.end_point')
     token = generate_token()
     storage = request.registry.velruse_store
     result_data = {
@@ -24,7 +30,7 @@ def auth_complete_view(context, request):
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
-    end_point = request.session['end_point']
+    end_point = request.settings.get('velruse.end_point')
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
@@ -38,15 +44,26 @@ def auth_denied_view(context, request):
 
 @view_config(name='auth_info', request_param='format=json', renderer='json')
 def auth_info_view(request):
+    storage = request.registry.velruse_store
     token = request.GET['token']
-    data = request.registry.velruse_store.retrieve(token)
-    return data
+    return storage.retrieve(token)
 
 
 def default_setup(config):
-    from pyramid_beaker import session_factory_from_settings
+    from pyramid.session import UnencryptedCookieSessionFactoryConfig
+
+    log.info('Using an unencrypted cookie-based session. This can be '
+             'changed by pointing the "velruse.setup" setting at a different'
+             'function for configuring the session factory.')
+
     settings = config.registry.settings
-    factory = session_factory_from_settings(settings)
+    secret = settings.get('velruse.session.secret')
+    if secret is None:
+        log.warn('Configuring unencrypted cookie-based session with a '
+                 'random secret which will invalidate old cookies when '
+                 'restarting the app.')
+        secret = ''.join('%02x' % ord(x) for x in os.urandom(16))
+    factory = UnencryptedCookieSessionFactoryConfig(secret)
     config.set_session_factory(factory)
 
 
@@ -57,12 +74,16 @@ def make_app(**settings):
     setup = settings.get('velruse.setup', default_setup)
     config.include(setup)
 
+    if not settings.get('velruse.end_point'):
+        raise ConfigurationError(
+            'missing required setting "velruse.end_point"')
+
     # setup backing storage
     store = settings.get('velruse.store')
-    try:
-        config.include(store)
-    except ImportError:
-        raise ConfigurationError('invalid velruse store: {0}'.format(store))
+    if store is None:
+        raise ConfigurationError(
+            'invalid setting velruse.store: {0}'.format(store))
+    config.include(store)
 
     # include providers
     providers = settings.get('velruse.providers', '')
@@ -96,6 +117,8 @@ def make_velruse_app(global_conf, **settings):
         [app:velruse]
         use = egg:velruse
 
+        velruse.end_point = http://example.com/logged_in
+
         velruse.store = velruse.store.redis
         velruse.store.host = localhost
         velruse.store.port = 6379
@@ -111,14 +134,6 @@ def make_velruse_app(global_conf, **settings):
         velruse.facebook.app_id = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_secret = eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
-
-        beaker.session.data_dir = %(here)s/data/sdata
-        beaker.session.lock_dir = %(here)s/data/slock
-        beaker.session.key = velruse
-        beaker.session.secret = somesecret
-        beaker.session.type = cookie
-        beaker.session.validate_key = STRONG_KEY_HERE
-        beaker.session.cookie_domain = .yourdomain.com
 
         [app:YOURAPP]
         use = egg:YOURAPP
