@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 @view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
-    end_point = request.session['end_point']
+    end_point = request.settings.get('velruse.end_point')
     token = generate_token()
     storage = request.registry.velruse_store
     result_data = {
@@ -30,7 +30,7 @@ def auth_complete_view(context, request):
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
-    end_point = request.session['end_point']
+    end_point = request.settings.get('velruse.end_point')
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
@@ -74,12 +74,16 @@ def make_app(**settings):
     setup = settings.get('velruse.setup', default_setup)
     config.include(setup)
 
+    if not settings.get('velruse.end_point'):
+        raise ConfigurationError(
+            'missing required setting "velruse.end_point"')
+
     # setup backing storage
     store = settings.get('velruse.store')
-    try:
-        config.include(store)
-    except ImportError:
-        raise ConfigurationError('invalid velruse store: {0}'.format(store))
+    if store is None:
+        raise ConfigurationError(
+            'invalid setting velruse.store: {0}'.format(store))
+    config.include(store)
 
     # include providers
     providers = settings.get('velruse.providers', '')
@@ -112,6 +116,8 @@ def make_velruse_app(global_conf, **settings):
 
         [app:velruse]
         use = egg:velruse
+
+        velruse.end_point = http://example.com/logged_in
 
         velruse.store = velruse.store.redis
         velruse.store.host = localhost
