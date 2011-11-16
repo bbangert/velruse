@@ -30,11 +30,11 @@ def includeme(config):
 
 def twitter_login(request):
     """Initiate a Twitter login"""
-    config = request.registry.settings
+    settings = request.registry.settings
 
     # Create the consumer and client, make the request
-    consumer = oauth.Consumer(config['velruse.twitter.consumer_key'],
-                              config['velruse.twitter.consumer_secret'])
+    consumer = oauth.Consumer(settings['velruse.twitter.consumer_key'],
+                              settings['velruse.twitter.consumer_secret'])
     sigmethod = oauth.SignatureMethod_HMAC_SHA1()
     params = {'oauth_callback': request.route_url('twitter_process')}
 
@@ -51,7 +51,7 @@ def twitter_login(request):
     request.session['token'] = r.content
 
     # Send the user to twitter now for authorization
-    if asbool(config.get('velruse.twitter.authorize')):
+    if asbool(settings.get('velruse.twitter.authorize')):
         req_url = 'https://api.twitter.com/oauth/authorize'
     else:
         req_url = 'https://api.twitter.com/oauth/authenticate'
@@ -65,7 +65,7 @@ def twitter_process(request):
     if 'denied' in request.GET:
         return AuthenticationDenied("User denied authentication")
 
-    config = request.registry.settings
+    settings = request.registry.settings
     request_token = oauth.Token.from_string(request.session['token'])
     verifier = request.GET.get('oauth_verifier')
     if not verifier:
@@ -73,8 +73,8 @@ def twitter_process(request):
     request_token.set_verifier(verifier)
 
     # Create the consumer and client, make the request
-    consumer = oauth.Consumer(config['velruse.twitter.consumer_key'],
-                              config['velruse.twitter.consumer_secret'])
+    consumer = oauth.Consumer(settings['velruse.twitter.consumer_key'],
+                              settings['velruse.twitter.consumer_secret'])
 
     client = oauth.Client(consumer, request_token)
     resp, content = client.request(ACCESS_URL, "POST")
