@@ -8,12 +8,6 @@ Authentication Providers supply varying levels of information when
 authentication has occurred. Some of them can also provide API access
 tokens in addition to authenticating a user for sign-on.
 
-Default POST Parameters
-=======================
-
-Almost every provider accepts the POST parameter `end_point`, which is
-the URL that the token will be POSTed to when authentication is complete.
-
 Facebook
 ========
 
@@ -50,26 +44,25 @@ application is served from.
 POST parameters
 ---------------
 
-In addition to the standard :term:`end_point`, the Facebook provider
-accepts a scope argument, which is used in the authenticating request
-to access additional Facebook properties known as `Extended Permissions
+The Facebook provider accepts a scope argument, which is used in the
+authenticating request to access additional Facebook properties known
+as `Extended Permissions
 <http://developers.facebook.com/docs/authentication/permissions>`_.
 These should be a comma separated string, for example:
 
 .. code-block:: html
-    
-    <input type="hidden" name="scope" value="publish_stream,create_event" />
 
+    <input type="hidden" name="scope" value="publish_stream,create_event" />
 
 Complete Example:
 
 .. code-block:: html
-    
+
     <form action="/velruse/facebook/auth" method="post">
     <input type="hidden" name="scope" value="publish_stream,create_event" />
     <input type="submit" value="Login with Facebook" />
     </form>
-    
+
 
 OpenID
 ======
@@ -140,47 +133,31 @@ Google Developer Links:
 Settings
 --------
 
+The Google provider requires that an OpenID provider configuration be
+present in your configuration file in order to provide the ``Realm``
+and ``Store`` configuration values.
+
+The following are only required if using the OAuth hybrid:
+
 velruse.google.consumer_key
     The consumer key, e.g. `yourdomain.com`
 velruse.google.consumer_secret
     Consumer secret as specified
 velruse.google.oauth_scope
 
-YAML Parameters
----------------
-
-The Google Provider requires that an OpenID provider configuration be
-present in your configuration file in order to provide the ``Realm``
-and ``Endpoint Regex`` configuration values.
-
-The following are only required if using the OAuth hybrid:
-
-OAuth Consumer Key
-    The consumer key, e.g. `yourdomain.com`
-OAuth Consumer Secret
-    Consumer secret as specified
-
 .. warning::
 
-    When using the OAuth hybrid, the consumer key domain *must* match the 
+    When using the OAuth hybrid, the consumer key domain *must* match the
     OpenID `Realm` domain, otherwise Google will not consider the OAuth to
     be valid. If this domain is *not a valid DNS name*, Google will also
     consider it invalid.
 
-If OAuth is not being used, the value of true by itself must be used instead
-to enable the Google provider, e.g.:
-
-.. code-block:: yaml
-    
-    Google: true
-
 POST Parameters
 ---------------
 
-In addition to the standard :term:`end_point`, the Google provider accepts
-a oauth_scope argument, which is used in the authenticating request to
-access additional Google API's. Each API has an authentication scope,
-defined on the
+The Google provider accepts an oauth_scope argument, which is used in
+the authenticating request to access additional Google API's. Each API
+has an authentication scope, defined on the
 `Google Auth Scopes <http://code.google.com/apis/gdata/faq.html#AuthScopes>`_
 page. These should be a *space* separated string, for example to request
 access to Google Contacts:
@@ -188,7 +165,7 @@ access to Google Contacts:
 Using the `oauth_scope` parameter requires a registered Google application.
 
 .. code-block:: html
-    
+
     <input type="hidden" name="oauth_scope" value="http://www.google.com/m8/feeds/" />
 
 Google Provider also accepts a `popup_mode` argument which can be either
@@ -199,7 +176,7 @@ The OpenID POST param `openid_identifier` is not required.
 Complete Example:
 
 .. code-block:: html
-    
+
     <form action="/velruse/google/auth" method="post">
     <input type="hidden" name="popup_mode" value="popup" />
     <input type="hidden" name="oauth_scope" value="http://www.google.com/m8/feeds/" />
@@ -223,33 +200,25 @@ Yahoo Developer Links:
 * `Yahoo OpenID + OAuth Guide
   <http://developer.yahoo.com/oauth/guide/openid-oauth-guide.html>`_
 
-YAML Parameters
----------------
+Settings
+--------
 
-Like Google, the Yahoo Provider requires that an OpenID provider
+Like Google, the Yahoo provider requires that an OpenID provider
 configuration be present in your configuration file in order to provide
-the ``Realm`` and ``Endpoint Regex`` configuration values.
+the ``Realm`` and ``Store`` configuration values.
 
 .. warning::
 
-    Both the ``Realm`` and ``Endpoint Regex`` must point to valid DNS
-    names that are resolvable by Yahoo's authentication servers. If this
-    is not the case, Yahoo will consider the authentication invalid and
-    display an error message.
+    The ``Realm`` must point to a valid DNS name that is resolvable by
+    Yahoo's authentication servers. If this is not the case, Yahoo will
+    consider the authentication invalid and display an error message.
 
 The following parameters are only required if using the OAuth hybrid:
 
-Consumer Key
+velruse.yahoo.consumer_key
     Yahoo consumer key
-Consumer Secret
+velruse.yahoo.consumer_secret
     Yahoo secret
-
-If OAuth is not being used, the value of true by itself must be used instead
-to enable the Google provider, e.g.:
-
-.. code-block:: yaml
-
-    Yahoo: true
 
 POST Parameters
 ---------------
@@ -262,7 +231,7 @@ in the YAML as shown above).
 Complete Example:
 
 .. code-block:: html
-    
+
     <form action="/velruse/yahoo/auth" method="post">
     <input type="hidden" name="oauth" value="true" />
     <input type="submit" value="Login with Yahoo" />
@@ -281,23 +250,22 @@ Twitter Developer Links:
 * `Register a New Twitter Application <http://dev.twitter.com/apps/new>`_
 * `Twitter OAuth API <http://dev.twitter.com/doc>`_
 
-YAML Parameters
----------------
+Settings
+--------
 
-Consumer Key
+velruse.twitter.consumer_key
     Twitter application consumer key
-Consumer Secret
+velruse.twitter.consumer_secret
     Twitter application secret
+velruse.twitter.authorize
 
 POST Parameters
 ---------------
 
-Only the default `end_point` parameter is used.
-
 Complete Example:
 
 .. code-block:: html
-    
+
     <form action="/velruse/twitter/auth" method="post">
     <input type="submit" value="Login with Twitter" />
     </form>
@@ -312,7 +280,7 @@ a Live Services Component to be registered
 `per the 'Registering Your Application' documentation
 <http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_.
 
-Delegated authentication will only be performed if the `Offers` YAML
+Delegated authentication will only be performed if the `offers` YAML
 parameter is set.
 
 Login Authentication provides a single unique identifier, while
@@ -344,6 +312,13 @@ Windows Live Developer Links:
 * `Live Services Management Page
   <http://go.microsoft.com/fwlink/?LinkID=144070>`_
 
+Settings
+--------
+
+velruse.live.client_id =
+velruse.live.client_secret =
+velruse.live.scope =
+
 YAML Parameters
 ---------------
 
@@ -366,8 +341,6 @@ The `Offers` parameter is optional to invoke Delegated Authentication.
 
 POST Parameters
 ---------------
-
-Only the default `end_point` parameter is used.
 
 Complete Example:
 
