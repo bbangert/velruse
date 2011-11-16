@@ -315,9 +315,11 @@ Windows Live Developer Links:
 Settings
 --------
 
-velruse.live.client_id =
-velruse.live.client_secret =
-velruse.live.scope =
+velruse.live.client_id
+
+velruse.live.client_secret
+
+velruse.live.scope
 
 YAML Parameters
 ---------------
