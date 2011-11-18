@@ -86,13 +86,12 @@ def providers_lookup(config):
         for provider in providers:
             config.include(provider)
 
-
-def make_app(**settings):
-    config = Configurator(settings=settings)
-
+def includeme(config, do_setup=True):
+    settings = config.registry.settings
     # setup application
     setup = settings.get('velruse.setup', default_setup)
-    config.include(setup)
+    if do_setup:
+        config.include(setup)
 
     if not settings.get('velruse.end_point'):
         raise ConfigurationError(
@@ -108,9 +107,14 @@ def make_app(**settings):
     # include providers
     providers_lookup(config)
 
-
     # add the error views
     config.scan(__name__)
+    """Configuration function to make a pyramid app a velruse one."""
+
+
+def make_app(**settings):
+    config = Configurator(settings=settings)
+    includeme(config)
     return config.make_wsgi_app()
 
 
