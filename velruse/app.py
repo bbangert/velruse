@@ -26,6 +26,7 @@ def auth_complete_view(context, request):
     }
     storage.store(token, result_data, expires=300)
     form = redirect_form(end_point, token)
+    import pdb;pdb.set_trace()  ## Breakpoint ##
     return Response(body=form)
 
 
@@ -80,11 +81,10 @@ def providers_lookup(config):
     if providers_hook:
         providers_hook = config.maybe_dotted(providers_hook)
         providers_hook(config)
-    else:
-        providers = settings.get('velruse.providers', '')
-        providers = splitlines(providers)
-        for provider in providers:
-            config.include(provider)
+    providers = settings.get('velruse.providers', '')
+    providers = splitlines(providers)
+    for provider in providers:
+        config.include(provider)
 
 def includeme(config, do_setup=True):
     settings = config.registry.settings
