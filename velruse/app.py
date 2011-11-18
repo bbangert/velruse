@@ -1,3 +1,4 @@
+
 import logging
 import os
 
@@ -67,6 +68,25 @@ def default_setup(config):
     config.set_session_factory(factory)
 
 
+def providers_lookup(config):
+    """Lookup for the providers to activate
+    Can be overridden by settings
+    velruse.providers_lookup = mymodule.hook
+    This can be useful for example if your authentication information
+    is stored on a relational database.
+    """
+    settings = config.registry.settings
+    providers_hook = settings.get('velruse.providers_hook', '')
+    if providers_hook:
+        providers_hook = config.maybe_dotted(providers_hook)
+        providers_hook(config)
+    else:
+        providers = settings.get('velruse.providers', '')
+        providers = splitlines(providers)
+        for provider in providers:
+            config.include(provider)
+
+
 def make_app(**settings):
     config = Configurator(settings=settings)
 
@@ -86,11 +106,8 @@ def make_app(**settings):
     config.include(store)
 
     # include providers
-    providers = settings.get('velruse.providers', '')
-    providers = splitlines(providers)
+    providers_lookup(config)
 
-    for provider in providers:
-        config.include(provider)
 
     # add the error views
     config.scan(__name__)
