@@ -17,7 +17,8 @@ log = logging.getLogger(__name__)
 
 @view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
-    end_point = request.registry.settings.get('velruse.end_point')
+    end_point = context.profile.get('end_point',
+                                    request.registry.settings.get('velruse.end_point'))
     token = generate_token()
     storage = request.registry.velruse_store
     result_data = {
@@ -26,7 +27,6 @@ def auth_complete_view(context, request):
     }
     storage.store(token, result_data, expires=300)
     form = redirect_form(end_point, token)
-    import pdb;pdb.set_trace()  ## Breakpoint ##
     return Response(body=form)
 
 

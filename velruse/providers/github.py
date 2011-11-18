@@ -1,6 +1,7 @@
 """Github Authentication Views"""
 from json import loads
 from urlparse import parse_qs
+from urllib import quote
 
 import requests
 
@@ -27,11 +28,15 @@ def includeme(config):
 def github_login(request):
     """Initiate a github login"""
     config = request.registry.settings
+    came_from = request.POST.get('end_point', '')
+    redirect_uri = request.route_url('github_process')
+    if came_from:
+        redirect_uri += '?end_point=%s' % quote(came_from)
     scope = config.get('velruse.github.scope',
                        request.POST.get('scope', ''))
     gh_url = flat_url('https://github.com/login/oauth/authorize', scope=scope,
                       client_id=config['velruse.github.app_id'],
-                      redirect_uri=request.route_url('github_process'))
+                      redirect_uri=redirect_uri)
     return HTTPFound(location=gh_url)
 
 
@@ -69,6 +74,7 @@ def github_process(request):
         'userid':data['id']
     }]
     profile['displayName'] = data['name']
+    profile['end_point'] = request.POST.get('end_point', request.GET.get('end_point', ''))
     profile['preferredUsername'] = data['login']
 
     # We don't add this to verifiedEmail because ppl can change email addresses
