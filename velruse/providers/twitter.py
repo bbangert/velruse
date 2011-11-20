@@ -26,6 +26,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=twitter_process)
     config.add_view(twitter_login, route_name="twitter_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.twitter']['login'] =   'twitter_login'
+    settings['velruse.providers_infos']['velruse.providers.twitter']['process'] = 'twitter_process' 
 
 
 def twitter_login(request):
