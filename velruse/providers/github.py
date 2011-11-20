@@ -23,6 +23,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=github_process)
     config.add_view(github_login, route_name="github_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.github']['login'] =   'github_login'
+    settings['velruse.providers_infos']['velruse.providers.github']['process'] = 'github_process'
 
 
 def github_login(request):
@@ -32,10 +35,11 @@ def github_login(request):
     redirect_uri = request.route_url('github_process')
     if came_from:
         redirect_uri += '?end_point=%s' % quote(came_from)
-    scope = config.get('velruse.github.scope',
+    scope = config.get('velruse.github.authorize',
                        request.POST.get('scope', ''))
-    gh_url = flat_url('https://github.com/login/oauth/authorize', scope=scope,
-                      client_id=config['velruse.github.app_id'],
+    gh_url = flat_url('https://github.com/login/oauth/authorize', 
+                      scope=scope,
+                      client_id=config['velruse.github.consumer_key'],
                       redirect_uri=redirect_uri)
     return HTTPFound(location=gh_url)
 
@@ -50,8 +54,8 @@ def github_process(request):
 
     # Now retrieve the access token with the code
     access_url = flat_url('https://github.com/login/oauth/access_token',
-                          client_id=config['velruse.github.app_id'],
-                          client_secret=config['velruse.github.app_secret'],
+                          client_id=config['velruse.github.consumer_key'],
+                          client_secret=config['velruse.github.consumer_secret'],
                           redirect_uri=request.route_url('github_process'),
                           code=code)
     r = requests.get(access_url)
