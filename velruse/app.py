@@ -19,15 +19,18 @@ log = logging.getLogger(__name__)
 re_flags = re.U|re.X|re.S
 
 def auth_providers_list(request):
-    """Return a JSON mapping of the velruse offered providers
-    to be used inside velruse front ends:
-        Something like :
+    """Return a JSON mapping of the velruse offered providers.
+    This is to be used inside velruse front ends:
+    Something like ::
+
         {
             'velruse.providers.github': {
                       'login'   : 'http://velrusehost/velruse/github/login',
                       'process' : 'http://velrusehost/velruse/github/process',
             },
         }
+
+
     """
     settings = request.registry.settings
     ifs = copy.deepcopy(
