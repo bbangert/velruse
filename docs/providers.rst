@@ -30,9 +30,9 @@ Facebook Developer Links:
 Settings
 --------
 
-velruse.facebook.app_id
+velruse.facebook.consumer_key
     Facebook App Id
-velruse.facebook.app_secret
+velruse.facebook.consumer_secret
     Facebook secret
 velruse.facebook.scope
     Optional comma-separated list of extended permissions.
@@ -59,8 +59,8 @@ Complete Example:
 .. code-block:: html
 
     <form action="/velruse/facebook/auth" method="post">
-    <input type="hidden" name="scope" value="publish_stream,create_event" />
-    <input type="submit" value="Login with Facebook" />
+        <input type="hidden" name="scope" value="publish_stream,create_event" />
+        <input type="submit" value="Login with Facebook" />
     </form>
 
 
@@ -257,7 +257,8 @@ velruse.twitter.consumer_key
     Twitter application consumer key
 velruse.twitter.consumer_secret
     Twitter application secret
-velruse.twitter.authorize
+velruse.twitter.authorization
+    github application scope
 
 POST Parameters
 ---------------
@@ -269,6 +270,38 @@ Complete Example:
     <form action="/velruse/twitter/auth" method="post">
     <input type="submit" value="Login with Twitter" />
     </form>
+
+Github
+========
+
+The Github provider combines authentication with OAuth authorization.
+It requires a Github Application to have been created to use.
+
+github Links:
+
+* `Register a New Github Application <https://github.com/account/applications/new>`_
+* `Github OAuth API <http://develop.github.com/p/oauth.html>`_
+
+Settings
+--------
+
+velruse.github.consumer_key
+    github application consumer key
+velruse.github.consumer_secret
+    github application secret
+velruse.github.scope
+    github application scope
+
+POST Parameters
+---------------
+
+Complete Example:
+
+.. code-block:: html
+
+    <form action="/velruse/github/auth" method="post">
+    <input type="submit" value="Login with Twitter" />
+    </form> 
 
 
 Windows Live
@@ -316,30 +349,30 @@ Settings
 --------
 
 velruse.live.client_id
+    Component Application ID
 
 velruse.live.client_secret
+    Component Secret Key
 
 velruse.live.scope
+    Delegated auth Offers, e.g. `Contacts.View`
+    The `Offers` parameter is optional to invoke Delegated Authentication.
 
 YAML Parameters
 ---------------
 
 Application ID
-    Component Application ID
 Secret Key
-    Component Secret Key
 Policy URL
     Site's Privacy Policy URL, overrides the url specified during registration
     of your application with Live Services.
 Return URL
-    Site's Return URL, overrides the url specified during registration of 
+    Site's Return URL, overrides the url specified during registration of
     your application with Live Services. This is not *YOUR* applicaton's end
     point!  This should only be overriden if your registration url is not
     the velruse url.  For example http://YOURDOMAIN.COM/velruse/live/process.
 Offers
-    Delegated auth Offers, e.g. `Contacts.View`
 
-The `Offers` parameter is optional to invoke Delegated Authentication.
 
 POST Parameters
 ---------------
@@ -347,7 +380,7 @@ POST Parameters
 Complete Example:
 
 .. code-block:: html
-    
+
     <form action="/velruse/live/auth" method="post">
     <input type="submit" value="Login with Windows Live" />
     </form>
