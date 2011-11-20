@@ -1,6 +1,8 @@
 
+import copy
 import logging
 import os
+import re
 
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
@@ -14,9 +16,34 @@ from velruse.utils import splitlines
 
 log = logging.getLogger(__name__)
 
+re_flags = re.U|re.X|re.S
+
+def auth_providers_list(request):
+    """Return a JSON mapping of the velruse offered providers
+    to be used inside velruse front ends:
+        Something like :
+        {
+            'velruse.providers.github': {
+                      'login'   : 'http://velrusehost/velruse/github/login',
+                      'process' : 'http://velrusehost/velruse/github/process',
+            },
+        }
+    """
+    settings = request.registry.settings
+    ifs = copy.deepcopy(
+        settings['velruse.providers_infos']
+    )
+    url_keys = ['login', 'process']
+    for item in ifs:
+        for key in ifs[item]:
+            for pattern in url_keys:
+                if re.compile(pattern, re_flags).search(key):
+                    ifs[item][pattern] = request.route_url(ifs[item][key])
+    return ifs
+
 
 @view_config(context='velruse.api.AuthenticationComplete')
-def auth_complete_view(context, request):
+def auth_complete_list(context, request):
     end_point = context.profile.get('end_point',
                                     request.registry.settings.get('velruse.end_point'))
     token = generate_token()
@@ -81,12 +108,15 @@ def providers_lookup(config):
     if providers_hook:
         providers_hook = config.maybe_dotted(providers_hook)
         providers_hook(config)
-    providers = settings.get('velruse.providers', '')
-    providers = splitlines(providers)
-    for provider in providers:
-        config.include(provider)
+    providers = dict([(a, {})
+                 for a in splitlines(
+                     settings.get('velruse.providers', '')
+                 )])
+    settings['velruse.providers_infos'] = providers
+    return providers
 
 def includeme(config, do_setup=True):
+    """Configuration function to make a pyramid app a velruse one."""
     settings = config.registry.settings
     # setup application
     setup = settings.get('velruse.setup', default_setup)
@@ -105,11 +135,14 @@ def includeme(config, do_setup=True):
     config.include(store)
 
     # include providers
-    providers_lookup(config)
+    providers = providers_lookup(config)
+    for provider in providers:
+        config.include(provider)
 
     # add the error views
     config.scan(__name__)
-    """Configuration function to make a pyramid app a velruse one."""
+    config.add_route("auth_providers_list", "/auth_providers_list")
+    config.add_view(auth_providers_list, route_name="auth_providers_list", renderer='json')
 
 
 def make_app(**settings):
