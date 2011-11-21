@@ -4,6 +4,11 @@ import uuid
 
 from velruse.baseconvert import base_encode
 
+def get_came_from(request):
+    came_from = request.POST.get('return_to', request.GET.get('return_to',
+                request.POST.get('redirect_to', request.GET.get('redirect_to',
+                request.POST.get('end_point', request.GET.get('end_point', ''))))))
+    return came_from
 
 def flat_url(url, **kw):
     """Creates a URL with the query param encoded"""
