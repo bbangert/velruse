@@ -43,8 +43,8 @@ def includeme(config):
                      factory=consumer.process)
     config.add_view(consumer.login, route_name="google_login")
     settings = config.registry.settings
-    settings['velruse.providers_infos']['velruse.providers.google']['login'] =  '/google/login'
-    settings['velruse.providers_infos']['velruse.providers.google']['process'] = '/google/process' 
+    settings['velruse.providers_infos']['velruse.providers.google']['login'] =   'google_login'
+    settings['velruse.providers_infos']['velruse.providers.google']['process'] = 'google_process'
 
 
 class GoogleConsumer(OpenIDConsumer):
@@ -89,8 +89,10 @@ class GoogleConsumer(OpenIDConsumer):
         oauth_scope = None
         if 'oauth_scope' in request.POST:
             oauth_scope = request.POST['oauth_scope']
-        elif 'velruse.google.oauth_scope' in settings:
-            oauth_scope = settings['velruse.google.oauth_scope']
+        else:
+            oauth_scope = settings.get(
+                'velruse.google.authorize',
+                settings.get('velruse.google.oauth_scope', ''))
         if oauth_scope:
             oauth_request = OAuthRequest(consumer=self.oauth_key,
                                          scope=oauth_scope)
