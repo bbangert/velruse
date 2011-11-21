@@ -1,6 +1,8 @@
 import re
 import logging
 
+from urllib import urlencode
+
 from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
@@ -12,6 +14,8 @@ from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import MissingParameter
 from velruse.exceptions import ThirdPartyFailure
+
+from velruse.utils import get_came_from
 
 log = logging.getLogger(__name__)
 
@@ -62,6 +66,7 @@ trans_dict = dict(
 )
 
 attributes = ax_attributes
+
 
 
 class AttribAccess(object):
@@ -187,9 +192,9 @@ def setup_openid(config):
     if not store and 'velruse.openid.store' not in settings:
         raise Exception("Missing 'velruse.openid.store' in config settings.")
     if not store:
-        store = config.maybe_dotted(settings['velruse.openid.store'])()
+        store = config.maybe_dotted(settings['velruse.openid.store'])(settings)
         config.registry['velruse.openid_store'] = store
-    realm = settings['velruse.openid.realm']
+    realm = settings.get('velruse.openid.realm', None)
     return store, realm
 
 
@@ -296,13 +301,19 @@ class OpenIDConsumer(object):
         self._update_authrequest(request, authrequest)
 
         return_to = request.route_url(self.process_url)
+        came_from = get_came_from(request)
+        if came_from:
+            qs = urlencode({'return_to':came_from })
+            if not '?' in return_to:
+                return_to += '?'
+            return_to += qs
 
         # OpenID 2.0 lets Providers request POST instead of redirect, this
         # checks for such a request.
         if authrequest.shouldSendRedirect():
             if log_debug:
                 log.debug('About to initiate OpenID redirect')
-            redirect_url = authrequest.redirectURL(realm=self.realm,
+            redirect_url = authrequest.redirectURL(realm=return_to,
                                                    return_to=return_to,
                                                    immediate=False)
             request.session['openid_session'] = openid_session
@@ -311,7 +322,12 @@ class OpenIDConsumer(object):
             if log_debug:
                 log.debug('About to initiate OpenID POST')
             html = authrequest.htmlMarkup(
-                realm=self.realm, return_to=return_to, immediate=False)
+                realm=return_to,
+                return_to=return_to,
+                immediate=False,
+                form_tag_attrs = {"claimed_id": "http://specs.openid.net/auth/2.0/identifier_select",
+                                  "identity" :"http://specs.openid.net/auth/2.0/identifier_select",}
+            )
             request.session['openid_session'] = openid_session
             return Response(body=html)
 
@@ -346,8 +362,10 @@ class OpenIDConsumer(object):
             user_data = extract_openid_data(
                 identifier=openid_identity,
                 sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
-                ax_resp=ax.FetchResponse.fromSuccessResponse(info)
+                ax_resp=ax.FetchResponse.fromSuccessResponse(info),
             )
+
+            user_data['end_point'] = get_came_from(request)
             # Did we get any OAuth info?
             oauth = info.extensionResponse(
                 'http://specs.openid.net/extensions/oauth/1.0', False
