@@ -46,7 +46,7 @@ def auth_providers_list(request):
 
 
 @view_config(context='velruse.api.AuthenticationComplete')
-def auth_complete_list(context, request):
+def auth_complete_view(context, request):
     end_point = context.profile.get('end_point',
                                     request.registry.settings.get('velruse.end_point'))
     token = generate_token()
@@ -57,7 +57,7 @@ def auth_complete_list(context, request):
     }
     storage.store(token, result_data, expires=300)
     form = redirect_form(end_point, token)
-    return Response(body=form)
+    return Response(form)
 
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')

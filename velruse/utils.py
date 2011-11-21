@@ -12,14 +12,24 @@ def flat_url(url, **kw):
 
 
 def redirect_form(end_point, token):
-    """Generate a redirect form for POSTing"""
+    """Generate a redirect form for POSTing; autosubmitting itself"""
     return """
-<form action="%s" method="post" accept-charset="UTF-8"
- enctype="application/x-www-form-urlencoded">
-<input type="hidden" name="token" value="%s" />
-<input type="submit" value="Continue"/></form>
+<head>
+    <title>OpenID transaction in progress</title>
+</head>
+<body onload="document.forms[0].submit();">
+    <form action="%s" method="post" accept-charset="UTF-8"
+     enctype="application/x-www-form-urlencoded">
+    <input type="hidden" name="token" value="%s" />
+    <input type="submit" value="Continue"/></form>
+    <script>
+        var elements = document.forms[0].elements;
+        for (var i = 0; i < elements.length; i++) {
+            elements[i].style.display = "none";
+        }
+    </script>
+</body>
 """ % (end_point, token)
-
 
 def generate_token():
     """Generate a random token"""
