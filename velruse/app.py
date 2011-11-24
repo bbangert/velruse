@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 @view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
-    end_point = request.settings.get('velruse.end_point')
+    end_point = request.registry.settings.get('velruse.end_point')
     token = generate_token()
     storage = request.registry.velruse_store
     result_data = {
@@ -30,7 +30,7 @@ def auth_complete_view(context, request):
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
-    end_point = request.settings.get('velruse.end_point')
+    end_point = request.registry.settings.get('velruse.end_point')
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
@@ -53,7 +53,7 @@ def default_setup(config):
     from pyramid.session import UnencryptedCookieSessionFactoryConfig
 
     log.info('Using an unencrypted cookie-based session. This can be '
-             'changed by pointing the "velruse.setup" setting at a different'
+             'changed by pointing the "velruse.setup" setting at a different '
              'function for configuring the session factory.')
 
     settings = config.registry.settings
