@@ -129,7 +129,6 @@ def make_velruse_app(global_conf, **settings):
             velruse.providers.facebook
             velruse.providers.twitter
 
-        velruse.facebook.api_key = eb7cf817bab6e28d3b941811cf1b014e
         velruse.facebook.app_secret = KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
         velruse.facebook.app_id = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
