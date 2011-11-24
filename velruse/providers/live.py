@@ -8,7 +8,6 @@ from pyramid.httpexceptions import HTTPFound
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
-from velruse.parsers import extract_live_data
 from velruse.utils import flat_url
 
 
@@ -73,3 +72,43 @@ def live_process(request):
         cred['oauthRefreshToken'] = data['refresh_token']
     return LiveAuthenticationComplete(profile=profile,
                                       credentials=cred)
+
+
+def extract_live_data(data):
+    """Extract and normalize Windows Live Connect data"""
+    emails = data.get('emails', {})
+    profile = {
+        'accounts': [{'domain':'live.com', 'userid':data['id']}],
+        'gender': data.get('gender'),
+        'verifiedEmail': emails.get('preferred'),
+        'updated': data.get('updated_time'),
+        'name': {
+            'formatted': data.get('name'),
+            'familyName': data.get('last_name'),
+            'givenName': data.get('first_name'),
+        },
+        'emails': [],
+        'urls': [],
+    }
+
+    if emails.get('personal'):
+        profile['emails'].append(
+            {'type': 'personal', 'value': emails['personal']})
+    if emails.get('business'):
+        profile['emails'].append(
+            {'type': 'business', 'value': emails['business']})
+    if emails.get('preferred'):
+        profile['emails'].append(
+            {'type': 'preferred', 'value': emails['preferred'],
+             'primary': True})
+    if emails.get('account'):
+        profile['emails'].append(
+            {'type': 'account', 'value': emails['account']})
+    if 'link' in data:
+        profile['urls'].append(
+            {'type': 'profile', 'value': data['link']})
+    if 'birth_day' in data:
+        profile['birthday'] = '%s-%s-%s' % (data['birth_year'],
+                                            data['birth_month'],
+                                            data['birth_day'])
+    return profile
