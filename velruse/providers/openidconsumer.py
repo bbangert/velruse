@@ -325,9 +325,10 @@ class OpenIDConsumer(object):
             log.debug('Handling processing of response from server')
 
         openid_session = request.session.get('openid_session', None)
-        del request.session['openid_session']
         if not openid_session:
             raise ThirdPartyFailure("No OpenID Session has begun.")
+        else:
+            del request.session['openid_session']
 
         # Setup the consumer and parse the information coming back
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
