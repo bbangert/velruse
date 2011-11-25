@@ -8,8 +8,8 @@ Authentication Providers supply varying levels of information when
 authentication has occurred. Some of them can also provide API access
 tokens in addition to authenticating a user for sign-on.
 
-Facebook
-========
+Facebook (velruse.providers.facebook)
+=====================================
 
 The Facebook provider authenticates using the latest Facebook OAuth 2.0
 API with the Social Graph API to obtain additional profile information
@@ -64,8 +64,8 @@ Complete Example:
     </form>
 
 
-OpenID
-======
+OpenID (velruse.providers.openid)
+==================================
 
 The OpenID provider does standard OpenID authentication, using both the
 `Simple Registration Extension
@@ -110,8 +110,8 @@ Complete Example:
     </form>
 
 
-Google
-======
+Google (velruse.providers.google)
+==================================
 
 Google provides both basic OpenID using Attribute Exchange 2.0, as well
 as a OpenID+OAuth hybrid that authenticates a user and completes OAuth
@@ -184,8 +184,8 @@ Complete Example:
     </form>
 
 
-Yahoo
-=====
+Yahoo (velruse.providers.yahoo)
+=================================
 
 Like Google, Yahoo offers either plain OpenID for authentication or an
 OpenID+OAuth hybrid authentication granting access to Yahoo applications
@@ -237,8 +237,8 @@ Complete Example:
     <input type="submit" value="Login with Yahoo" />
     </form>
 
-Twitter
-=======
+Twitter (velruse.providers.twitter)
+==========================================
 
 The Twitter provider combines authentication with OAuth authorization.
 It requires a Twitter Application to have been created to use. Twitter
@@ -271,8 +271,37 @@ Complete Example:
     <input type="submit" value="Login with Twitter" />
     </form>
 
-Github
-========
+
+
+LDAP (velruse.providers.ldap)
+=========================================
+
+LDAP provider just check bind to an LDAP Server.
+It requires python-ldap.
+
+Settings
+--------
+
+velruse.provider.ldapprovider.urls:
+    A list of ldap servers to try to bind to
+velruse.provider.ldapprovider.basedn:
+    An url with a %LOGIN% placeholder to put the login posted username::
+
+POST Parameters
+---------------
+
+Complete Example:
+
+.. code-block:: html
+
+    <form action="/velruse/ldap/login" method="post">
+        <input type="submit" value="Login with LDAP" />
+        <input type="text"     name="ldap_username" />
+        <input type="password" name="ldap_password" />
+    </form>
+
+Github (velruse.providers.github)
+==================================
 
 The Github provider combines authentication with OAuth authorization.
 It requires a Github Application to have been created to use.
@@ -299,13 +328,13 @@ Complete Example:
 
 .. code-block:: html
 
-    <form action="/velruse/github/auth" method="post">
+    <form action="/velruse/github/login" method="post">
     <input type="submit" value="Login with Twitter" />
-    </form> 
+    </form>
 
 
-Windows Live
-============
+Windows Live (velruse.providers.github)
+========================================================
 
 The Windows Live Provider handles Windows Live Web Authentication and
 Delegated Authentication. Both of these methods of authentication require

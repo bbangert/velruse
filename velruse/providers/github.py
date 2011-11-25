@@ -16,7 +16,6 @@ from velruse.utils import flat_url, get_came_from
 class GithubAuthenticationComplete(AuthenticationComplete):
     """Github auth complete"""
 
-
 def includeme(config):
     config.add_route("github_login", "/github/login")
     config.add_route("github_process", "/github/process",
@@ -81,6 +80,7 @@ def github_process(request):
         'userid':data['id']
     }]
     profile['displayName'] = data['name']
+    profile['preferredUsername'] = data['login']
     profile['end_point'] = get_came_from(request)
 
     # We don't add this to verifiedEmail because ppl can change email addresses
