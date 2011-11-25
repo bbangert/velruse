@@ -15,7 +15,6 @@ from velruse.utils import splitlines
 
 
 log = logging.getLogger(__name__)
-
 re_flags = re.U|re.X|re.S
 
 def auth_providers_list(request):
@@ -44,7 +43,6 @@ def auth_providers_list(request):
                     ifs[item][pattern] = request.route_url(ifs[item][key])
     return ifs
 
-
 @view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
     end_point = context.profile.get('end_point',
@@ -62,12 +60,16 @@ def auth_complete_view(context, request):
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
-    end_point = request.registry.settings.get('velruse.end_point')
+    end_point = request.POST.get('end_point',
+                 request.GET.get('end_point',
+                  request.GET.get('return_to',
+                   request.registry.settings.get('velruse.end_point'))))
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
-        'code': context.code,
-        'description': context.description,
+        'code': getattr(context, 'code', None),
+        'description': getattr(context, 'description', 
+                               getattr(context, 'message', '')),
     }
     storage.store(token, error_dict, expires=300)
     form = redirect_form(end_point, token)
@@ -98,7 +100,6 @@ def default_setup(config):
     factory = UnencryptedCookieSessionFactoryConfig(secret)
     config.set_session_factory(factory)
 
-
 def providers_lookup(config):
     """Lookup for the providers to activate
     Can be overridden by settings
@@ -111,11 +112,12 @@ def providers_lookup(config):
     if providers_hook:
         providers_hook = config.maybe_dotted(providers_hook)
         providers_hook(config)
-    providers = dict([(a, {})
-                 for a in splitlines(
-                     settings.get('velruse.providers', '')
-                 )])
-    settings['velruse.providers_infos'] = providers
+    providers = []
+    for a in splitlines(
+        settings.get('velruse.providers', '')
+    ):
+        providers.append(a)
+        settings['velruse.providers_infos'][a] = {}
     return providers
 
 def includeme(config, do_setup=True):
@@ -138,6 +140,8 @@ def includeme(config, do_setup=True):
     config.include(store)
 
     # include providers
+    if not 'velruse.providers_infos' in settings:
+        settings['velruse.providers_infos'] = {}
     providers = providers_lookup(config)
     for provider in providers:
         config.include(provider)
