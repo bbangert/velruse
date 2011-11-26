@@ -19,62 +19,93 @@ class FacebookAuthenticationComplete(AuthenticationComplete):
 
 
 def includeme(config):
+    settings = config.registry.settings
+    app_id = settings['velruse.facebook.app_id']
+    app_secret = settings['velruse.facebook.app_secret']
+    scope = settings.get('velruse.facebook.scope', None)
+
+    provider = FacebookProvider(app_id, app_secret, scope=scope)
+
     config.add_route("facebook_login", "/facebook/login")
     config.add_route("facebook_process", "/facebook/process",
                      use_global_views=True,
-                     factory=facebook_process)
-    config.add_view(facebook_login, route_name="facebook_login")
+                     factory=provider.process)
+    config.add_view(provider.login, route_name="facebook_login")
 
 
-def facebook_login(request):
-    """Initiate a facebook login"""
-    config = request.registry.settings
-    scope = config.get('velruse.facebook.scope',
-                       request.POST.get('scope', ''))
-    request.session['state'] = state = uuid.uuid4().hex
-    fb_url = flat_url('https://www.facebook.com/dialog/oauth/', scope=scope,
-                      client_id=config['velruse.facebook.app_id'],
-                      redirect_uri=request.route_url('facebook_process'),
-                      state=state)
-    return HTTPFound(location=fb_url)
+class FacebookProvider(object):
+    requests = requests # testing
 
+    def __init__(self, app_id, app_secret, scope=None):
+        self.app_id = app_id
+        self.app_secret = app_secret
+        self.scope = scope
 
-def facebook_process(request):
-    """Process the facebook redirect"""
-    if request.GET.get('state') != request.session.get('state'):
-        raise CSRFError("CSRF Validation check failed. Request state %s is "
-                        "not the same as session state %s" % (
-                        request.GET.get('state'), request.session.get('state')
-                        ))
-    config = request.registry.settings
-    code = request.GET.get('code')
-    if not code:
-        reason = request.GET.get('error_reason', 'No reason provided.')
-        return AuthenticationDenied(reason)
+    def login(self, request):
+        """Initiate a facebook login"""
+        scope = self.scope or request.POST.get('scope', '')
+        request.session['state'] = state = uuid.uuid4().hex
+        fb_url = self.oauth_url(
+            redirect_uri=request.route_url('facebook_process'),
+            state=state,
+            scope=scope)
+        return HTTPFound(location=fb_url)
 
-    # Now retrieve the access token with the code
-    access_url = flat_url('https://graph.facebook.com/oauth/access_token',
-                          client_id=config['velruse.facebook.app_id'],
-                          client_secret=config['velruse.facebook.app_secret'],
-                          redirect_uri=request.route_url('facebook_process'),
-                          code=code)
-    r = requests.get(access_url)
-    if r.status_code != 200:
-        raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
-    access_token = parse_qs(r.content)['access_token'][0]
+    def process(self, request):
+        """Process the facebook redirect"""
+        state = request.session.get('state')
+        if request.GET.get('state') != state or state is None:
+            raise CSRFError("CSRF Validation check failed. Request state "
+                            "%s is not the same as session state %s" % (
+                                request.GET.get('state'), state))
+        code = request.GET.get('code')
+        if not code:
+            reason = request.GET.get('error_reason', 'No reason provided.')
+            return AuthenticationDenied(reason)
 
-    # Retrieve profile data
-    graph_url = flat_url('https://graph.facebook.com/me',
-                         access_token=access_token)
-    r = requests.get(graph_url)
-    if r.status_code != 200:
-        raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
-    fb_profile = loads(r.content)
-    profile = extract_fb_data(fb_profile)
+        # Now retrieve the access token with the code
+        access_url = self.access_url(
+            redirect_uri=request.route_url('facebook_process'),
+            code=code)
+        r = self.requests.get(access_url)
+        if r.status_code != 200:
+            raise ThirdPartyFailure(
+                "Status %s: %s" % (r.status_code, r.content))
+        access_token = parse_qs(r.content)['access_token'][0]
 
-    cred = {'oauthAccessToken': access_token}
-    return FacebookAuthenticationComplete(profile=profile,
-                                          credentials=cred)
+        # Retrieve profile data
+        graph_url = self.graph_url(access_token=access_token)
+        r = self.requests.get(graph_url)
+        if r.status_code != 200:
+            raise ThirdPartyFailure(
+                "Status %s: %s" % (r.status_code, r.content))
+        fb_profile = loads(r.content)
+        profile = extract_fb_data(fb_profile)
+
+        cred = {'oauthAccessToken': access_token}
+        return FacebookAuthenticationComplete(profile=profile,
+                                              credentials=cred)
+
+    def oauth_url(self, redirect_uri, state, scope):
+        return flat_url(
+            'https://www.facebook.com/dialog/oauth/',
+            scope=scope,
+            client_id=self.app_id,
+            redirect_uri=redirect_uri,
+            state=state)
+
+    def access_url(self, redirect_uri, code):
+        return flat_url(
+            'https://graph.facebook.com/oauth/access_token',
+            client_id=self.app_id,
+            client_secret=self.app_secret,
+            redirect_uri=redirect_uri,
+            code=code)
+
+    def graph_url(self, access_token):
+        return flat_url(
+            'https://graph.facebook.com/me',
+            access_token=access_token)
 
 
 def extract_fb_data(data):

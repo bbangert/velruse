@@ -21,9 +21,9 @@ def redirect_form(end_point, token):
 """ % (end_point, token)
 
 
-def generate_token():
+def generate_token(rnd=uuid.uuid4):
     """Generate a random token"""
-    return base_encode(uuid.uuid4().int)
+    return base_encode(rnd().int)
 
 
 def splitlines(s):

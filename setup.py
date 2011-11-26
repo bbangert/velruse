@@ -14,22 +14,19 @@ setup(name='velruse',
       author_email='ben@groovie.org',
       url='',
       license='',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      packages=['velruse'],
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          "python-openid>=2.2.4",
-          "nose>=0.11",
-          "oauth2>=1.1.3",
-          "pyramid>=1.2",
-          "requests>=0.6.6",
-          "simplejson>=2.2.1",
+          'python-openid>=2.2.4',
+          'oauth2>=1.1.3',
+          'pyramid>=1.2',
+          'requests>=0.6.6',
       ],
       tests_require = [
-        'lettuce>=0.1.21',
-        'lettuce_webdriver>=0.1.2',
-        'selenium'
+        'nose>=0.11',
       ],
+      test_suite='nose.collector',
       entry_points="""
       [paste.app_factory]
       main = velruse.app:make_velruse_app
