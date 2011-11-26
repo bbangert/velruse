@@ -83,7 +83,6 @@ class YahooConsumer(OpenIDConsumer):
             return None
 
         access_token = dict(parse_qs(content))
-        print access_token
 
         return {'oauthAccessToken': access_token['oauth_token'],
                 'oauthAccessTokenSecret': access_token['oauth_token_secret']}
