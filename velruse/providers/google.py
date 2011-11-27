@@ -28,10 +28,10 @@ class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
 
 def includeme(config):
     settings = config.registry.settings
-    store, realm = setup_openid(config)
+    store, _ = setup_openid(config)
     consumer = GoogleConsumer(
         storage=store,
-        realm=realm,
+        realm=None,
         process_url='google_process',
         oauth_key=settings.get('velruse.google.consumer_key'),
         oauth_secret=settings.get('velruse.google.consumer_secret'),

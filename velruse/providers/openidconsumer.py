@@ -207,6 +207,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=oid_consumer.process)
     config.add_view(oid_consumer.login, route_name="openid_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.openidconsumer']['login'] =   'openid_login'
+    settings['velruse.providers_infos']['velruse.providers.openidconsumer']['process'] = 'openid_process'  
 
 
 class OpenIDConsumer(object):
@@ -313,7 +316,10 @@ class OpenIDConsumer(object):
         if authrequest.shouldSendRedirect():
             if log_debug:
                 log.debug('About to initiate OpenID redirect')
-            redirect_url = authrequest.redirectURL(realm=return_to,
+            realm = self.realm
+            if not self.realm:
+                realm = return_to
+            redirect_url = authrequest.redirectURL(realm=realm,
                                                    return_to=return_to,
                                                    immediate=False)
             request.session['openid_session'] = openid_session
