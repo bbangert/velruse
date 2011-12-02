@@ -16,7 +16,7 @@ log = logging.getLogger(__name__)
 
 @view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
-    end_point = request.registry.settings.get('velruse.end_point')
+    endpoint = request.registry.settings.get('velruse.endpoint')
     token = generate_token()
     storage = request.registry.velruse_store
     result_data = {
@@ -24,13 +24,13 @@ def auth_complete_view(context, request):
         'credentials': context.credentials,
     }
     storage.store(token, result_data, expires=300)
-    form = redirect_form(end_point, token)
+    form = redirect_form(endpoint, token)
     return Response(body=form)
 
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
-    end_point = request.registry.settings.get('velruse.end_point')
+    endpoint = request.registry.settings.get('velruse.endpoint')
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
@@ -38,7 +38,7 @@ def auth_denied_view(context, request):
         'description': context.description,
     }
     storage.store(token, error_dict, expires=300)
-    form = redirect_form(end_point, token)
+    form = redirect_form(endpoint, token)
     return Response(body=form)
 
 
@@ -74,9 +74,9 @@ def make_app(**settings):
     setup = settings.get('velruse.setup', default_setup)
     config.include(setup)
 
-    if not settings.get('velruse.end_point'):
+    if not settings.get('velruse.endpoint'):
         raise ConfigurationError(
-            'missing required setting "velruse.end_point"')
+            'missing required setting "velruse.endpoint"')
 
     # setup backing storage
     store = settings.get('velruse.store')
@@ -117,7 +117,7 @@ def make_velruse_app(global_conf, **settings):
         [app:velruse]
         use = egg:velruse
 
-        velruse.end_point = http://example.com/logged_in
+        velruse.endpoint = http://example.com/logged_in
 
         velruse.store = velruse.store.redis
         velruse.store.host = localhost
