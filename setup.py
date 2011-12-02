@@ -24,7 +24,8 @@ setup(name='velruse',
           'requests>=0.6.6',
       ],
       tests_require = [
-        'nose>=0.11',
+          'nose>=0.11',
+          'mock',
       ],
       test_suite='nose.collector',
       entry_points="""

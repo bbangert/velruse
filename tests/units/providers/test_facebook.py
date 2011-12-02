@@ -52,6 +52,9 @@ class TestFacebookProvider(unittest.TestCase):
         config.add_route('facebook_login', '/facebook/login')
         config.add_route('facebook_process', '/facebook/process')
 
+    def tearDown(self):
+        pyramid.testing.tearDown()
+
     def makeOne(self, app_id, app_secret, scope=None):
         from velruse.providers.facebook import FacebookProvider
         provider = FacebookProvider(app_id, app_secret, scope=scope)
@@ -125,8 +128,8 @@ class TestFacebookProvider(unittest.TestCase):
         url = provider.access_url(
             redirect_uri='http://example.com/cb', code='101')
         parts = urlsplit(url)
-        self.assertEqual(parts.netloc, 'graph.facebook.com')
-        self.assertEqual(parts.path, '/oauth/access_token')
+        self.assertEqual(parts.netloc+parts.path,
+                         'graph.facebook.com/oauth/access_token')
         qs = parse_qs(parts.query)
         self.assertEqual(qs['client_id'], ['id'])
         self.assertEqual(qs['client_secret'], ['secret'])
@@ -230,6 +233,7 @@ class TestFacebookProvider(unittest.TestCase):
                 },
                 'preferredUsername': 'homer.simpson',
             })
+
 
 DummyRequest = pyramid.testing.DummyRequest
 
