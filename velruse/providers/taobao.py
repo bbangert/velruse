@@ -74,15 +74,14 @@ def taobao_process(request):
         raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
     data = loads(r.content)
 
-    profile = {}
     username = data['user_get_response']['user']['nick']
-    profile['accounts'] = [{
-        'domain':'taobao.com',
-        'username':username,
-        'userid':data['user_get_response']['user']['user_id'],
-    }]
-    profile['displayName'] = username
-    profile['preferredUsername'] = username
+    userid = data['user_get_response']['user']['user_id'],
+
+    profile = {
+        'accounts': [{'domain':'taobao.com', 'userid':userid}],
+        'displayName': username,
+        'preferredUsername': username,
+    }
 
     cred = {'oauthAccessToken': access_token}
     return TaobaoAuthenticationComplete(profile=profile, credentials=cred)

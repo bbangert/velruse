@@ -71,8 +71,8 @@ def weibo_process(request):
 
     profile = {
         'accounts': [{'domain':'weibo.com', 'userid':data['id']}],
-        'displayName': data['screen_name'],
         'gender': data.get('gender'),
+        'displayName': data['screen_name'],
         'preferredUsername': data['name'],
     }
 

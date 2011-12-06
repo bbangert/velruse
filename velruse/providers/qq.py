@@ -71,15 +71,11 @@ def qq_process(request):
         raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
     data = loads(r.content)
 
-    profile = {}
-    profile['accounts'] = [{
-        'domain':'qq.com',
-        'username':data['nickname'],
-        'userid':openid
-    }]
-    profile['displayName'] = data['nickname']
-    profile['preferredUsername'] = data['nickname']
+    profile = {
+        'accounts': [{'domain':'qq.com', 'userid':openid}],
+        'displayName': data['nickname'],
+        'preferredUsername': data['nickname'],
+    }
 
     cred = {'oauthAccessToken': access_token}
-    return QQAuthenticationComplete(profile=profile,
-                                        credentials=cred)
+    return QQAuthenticationComplete(profile=profile, credentials=cred)
