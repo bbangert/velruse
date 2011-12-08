@@ -43,6 +43,7 @@ def twitter_login(request):
         http_url=REQUEST_URL, parameters=params)
     oauth_request.sign_request(sigmethod, consumer, None)
     r = requests.get(REQUEST_URL, headers=oauth_request.to_header())
+    #print request
 
     if r.status_code != 200:
         raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))

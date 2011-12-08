@@ -19,7 +19,6 @@ setup(name='velruse',
       zip_safe=False,
       install_requires=[
           "python-openid>=2.2.4",
-          "nose>=0.11",
           "oauth2>=1.1.3",
           "pyramid>=1.2",
           "requests>=0.6.6",

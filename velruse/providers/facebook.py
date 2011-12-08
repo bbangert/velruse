@@ -1,4 +1,5 @@
 """Facebook Authentication Views"""
+import datetime
 import uuid
 from json import loads
 from urlparse import parse_qs
@@ -115,7 +116,7 @@ def extract_fb_data(data):
     bday = data.get('birthday')
     if bday:
         mth, day, yr = bday.split('/')
-        profile['birthday'] = '-'.join([yr, mth, day])
+        profile['birthday'] = datetime.date(yr, mth, day)
     name = {}
     pcard_map = {'first_name': 'givenName', 'last_name': 'familyName'}
     for key, val in pcard_map.items():
