@@ -1,3 +1,4 @@
+import datetime
 import re
 import logging
 
@@ -156,12 +157,17 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     if urls:
         ud['urls'] = [urls]
 
-    for k in ['gender', 'birthday']:
-        ud[k] = attribs.get(k)
-        if ud[k] == 'M':
-            ud[k] = 'male'
-        elif ud[k] == 'F':
-            ud[k] = 'female'
+    gender = attribs.get('gender')
+    if gender:
+        ud['gender'] = {'M': 'male', 'F': 'female'}.get(gender)
+
+    birthday = attribs.get('birthday')
+    if birthday:
+        try:
+            ud['birthday'] = datetime.datetime.strptime(
+                    birthday, '%Y-%m-%d').date()
+        except ValueError:
+            pass
 
     thumbnail = attribs.get('thumbnail')
     if thumbnail:

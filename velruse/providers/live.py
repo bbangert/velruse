@@ -1,4 +1,5 @@
 """Live Authentication Views"""
+import datetime
 from json import loads
 
 import requests
@@ -108,7 +109,11 @@ def extract_live_data(data):
         profile['urls'].append(
             {'type': 'profile', 'value': data['link']})
     if 'birth_day' in data:
-        profile['birthday'] = '%s-%s-%s' % (data['birth_year'],
-                                            data['birth_month'],
-                                            data['birth_day'])
+        try:
+            profile['birthday'] = datetime.date(
+                    int(data['birth_year']),
+                    int(data['birth_month']),
+                    int(data['birth_day']))
+        except ValueError:
+            pass
     return profile
