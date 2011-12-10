@@ -8,6 +8,7 @@ Velruse Provider Modules
    :maxdepth: 1
    
    facebook
+   github
    google
    live
    oid_extensions

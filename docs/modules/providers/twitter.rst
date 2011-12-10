@@ -1,10 +1,14 @@
-:mod:`velruse.providers.twitter_` -- Twitter Provider
-=====================================================
+:mod:`velruse.providers.twitter` --  Twitter Provider
+======================================================
 
-.. automodule:: velruse.providers.twitter_
+.. automodule:: velruse.providers.twitter
 
 Module Contents
 ---------------
 
-.. autoclass:: TwitterResponder
-    :members: __init__, parse_config, login, process
+.. autoclass:: TwitterAuthenticationComplete
+.. autofunction:: includeme
+.. autofunction:: twitter_login
+.. autofunction:: twitter_process
+
+ 

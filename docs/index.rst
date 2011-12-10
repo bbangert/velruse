@@ -33,6 +33,7 @@ Contents:
    overview
    architecture
    providers
+   glossary
 
 Indices and tables
 ==================

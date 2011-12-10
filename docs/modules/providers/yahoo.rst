@@ -1,10 +1,15 @@
-:mod:`velruse.providers.yahoo_` -- Yahoo Provider
-=================================================
+:mod:`velruse.providers.yahoo` -- Yahoo Provider
+======================================================
 
-.. automodule:: velruse.providers.yahoo_
+.. automodule:: velruse.providers.yahoo
 
 Module Contents
 ---------------
 
-.. autoclass:: YahooResponder
-    :members: __init__, parse_config, _lookup_identifier, _update_authrequest, _get_access_token
+.. autoclass:: YahooConsumer
+    :members: __init__, _lookup_identifier, _update_authrequest, _get_access_token
+
+.. autofunction:: includeme
+
+ 
+

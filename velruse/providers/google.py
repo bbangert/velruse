@@ -28,10 +28,10 @@ class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
 
 def includeme(config):
     settings = config.registry.settings
-    store, realm = setup_openid(config)
+    store, _ = setup_openid(config)
     consumer = GoogleConsumer(
         storage=store,
-        realm=realm,
+        realm=None,
         process_url='google_process',
         oauth_key=settings.get('velruse.google.consumer_key'),
         oauth_secret=settings.get('velruse.google.consumer_secret'),
@@ -42,6 +42,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=consumer.process)
     config.add_view(consumer.login, route_name="google_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.google']['login'] =   'google_login'
+    settings['velruse.providers_infos']['velruse.providers.google']['process'] = 'google_process'
 
 
 class GoogleConsumer(OpenIDConsumer):
@@ -86,8 +89,10 @@ class GoogleConsumer(OpenIDConsumer):
         oauth_scope = None
         if 'oauth_scope' in request.POST:
             oauth_scope = request.POST['oauth_scope']
-        elif 'velruse.google.oauth_scope' in settings:
-            oauth_scope = settings['velruse.google.oauth_scope']
+        else:
+            oauth_scope = settings.get(
+                'velruse.google.authorize',
+                settings.get('velruse.google.oauth_scope', ''))
         if oauth_scope:
             oauth_request = OAuthRequest(consumer=self.oauth_key,
                                          scope=oauth_scope)
