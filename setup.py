@@ -1,7 +1,15 @@
 from setuptools import setup, find_packages
-import sys, os
 
 version = '0.20a1'
+
+tests_require = [
+        'nose>=0.11',
+        'lettuce>=0.1.21',
+        'lettuce_webdriver>=0.1.2',
+        'selenium',
+        'pymongo',
+        'routes',
+        ]
 
 setup(name='velruse',
       version=version,
@@ -19,17 +27,13 @@ setup(name='velruse',
       zip_safe=False,
       install_requires=[
           "python-openid>=2.2.4",
-          "nose>=0.11",
           "oauth2>=1.1.3",
           "pyramid>=1.2",
           "requests>=0.6.6",
           "simplejson>=2.2.1",
       ],
-      tests_require = [
-        'lettuce>=0.1.21',
-        'lettuce_webdriver>=0.1.2',
-        'selenium'
-      ],
+      tests_require=tests_require,
+      extras_require={'tests': tests_require},
       entry_points="""
       [paste.app_factory]
       main = velruse.app:make_velruse_app
