@@ -75,7 +75,7 @@ def taobao_process(request):
     data = loads(r.content)
 
     username = data['user_get_response']['user']['nick']
-    userid = data['user_get_response']['user']['user_id'],
+    userid = data['user_get_response']['user']['user_id']
 
     profile = {
         'accounts': [{'domain':'taobao.com', 'userid':userid}],
