@@ -71,7 +71,7 @@ def douban_process(request):
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
 
-    douban_user_id = access_token['douban_user_id']
+    douban_user_id = access_token['douban_user_id'][0]
     token = oauth.Token(key=cred['oauthAccessToken'],
                         secret=cred['oauthAccessTokenSecret'])
 
