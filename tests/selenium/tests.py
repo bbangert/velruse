@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import unittest2 as unittest
 from ConfigParser import ConfigParser
@@ -7,7 +6,6 @@ from ConfigParser import ConfigParser
 from selenium import webdriver
 
 
-log = logging.getLogger(__name__)
 config = {}
 browser = None # populated in setUpModule
 
