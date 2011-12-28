@@ -1,22 +1,22 @@
-from nose.tools import eq_, raises
+import unittest2 as unittest
 
-from velruse.baseconvert import base_encode, base_decode
-
-class TestBaseEncoding(object):
+class TestBaseEncoding(unittest.TestCase):
     def test_encode(self):
-        eq_(base_encode(42), 'L')
-        eq_(base_encode(425242), '4rBC')
-        eq_(base_encode(0), '2')
+        from velruse.baseconvert import base_encode
+        self.assertEqual(base_encode(42), 'L')
+        self.assertEqual(base_encode(425242), '4rBC')
+        self.assertEqual(base_encode(0), '2')
     
-    @raises(TypeError)
     def test_bad_encode(self):
-        base_encode('fred')
+        from velruse.baseconvert import base_encode
+        self.assertRaises(TypeError, base_encode, 'fred')
 
     def test_decode(self):
-        eq_(base_decode('L'), 42)
-        eq_(base_decode('4rBC'), 425242)
-        eq_(base_decode('2'), 0)
+        from velruse.baseconvert import base_decode
+        self.assertEqual(base_decode('L'), 42)
+        self.assertEqual(base_decode('4rBC'), 425242)
+        self.assertEqual(base_decode('2'), 0)
 
-    @raises(ValueError)
     def test_bad_decode(self):
-        base_decode('381')
+        from velruse.baseconvert import base_decode
+        self.assertRaises(ValueError, base_decode, '381')

@@ -4,6 +4,8 @@ import os
 import unittest2 as unittest
 from ConfigParser import ConfigParser
 
+from selenium import webdriver
+
 
 log = logging.getLogger(__name__)
 config = {}
@@ -15,7 +17,6 @@ def splitlines(s):
 
 
 def setUpModule():
-    from selenium import webdriver
     global browser, config
 
     inipath = os.environ.get('TEST_INI', 'testing.ini')
