@@ -6,12 +6,12 @@
 </head>
 <body>
 
-<form action="http://localhost:5000/velruse/facebook/login" method="post">
+<form id="facebook" action="http://localhost:5000/velruse/facebook/login" method="post">
 <input type="hidden" name="scope" value="email,publish_stream,read_stream,create_event,offline_access" />
 <input type="submit" value="Login with Facebook" />
 </form>
 
-<form action="http://teaparty.mine.nu:9090/google/auth" method="post">
+<form id="google" action="http://teaparty.mine.nu:9090/google/auth" method="post">
 <input type="hidden" name="use_popup" value="false" />
 <input type="hidden" name="end_point" value="http://teaparty.mine.nu:9090/dest_page" />
 <input type="hidden" name="oauth_scope" value="https://www.google.com/analytics/feeds/" />
@@ -19,19 +19,19 @@
 <input type="submit" value="Login with Google" />
 </form>
 
-<form action="http://localhost:9090/twitter/auth" method="post">
+<form id="twitter" action="http://localhost:9090/twitter/auth" method="post">
 <input type="hidden" name="end_point" value="http://localhost:9090/dest_page" />
 <input type="submit" value="Login with Twitter" />
 </form>
 
-<form action="http://teaparty.mine.nu:9090/yahoo/auth" method="post">
+<form id="yahoo" action="http://teaparty.mine.nu:9090/yahoo/auth" method="post">
 <input type="hidden" name="end_point" value="http://teaparty.mine.nu:9090/dest_page" />
 <input type="hidden" name="openid_identifier" value="yahoo.com" />
 <input type="hidden" name="oauth" value="true" />
 <input type="submit" value="Login with Yahoo" />
 </form>
 
-<form action="http://teaparty.mine.nu/live/auth" method="post">
+<form id="windows_live" action="http://teaparty.mine.nu/live/auth" method="post">
 <input type="hidden" name="end_point" value="http://teaparty.mine.nu/dest_page" />
 <input type="submit" value="Login with Windows Live" />
 </form>
