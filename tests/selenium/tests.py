@@ -1,9 +1,11 @@
 import json
+import logging
 import os
 import unittest2 as unittest
 from ConfigParser import ConfigParser
 
 
+log = logging.getLogger(__name__)
 config = {}
 browser = None # populated in setUpModule
 
@@ -17,17 +19,13 @@ def setUpModule():
     global browser, config
 
     inipath = os.environ.get('TEST_INI', 'testing.ini')
-    if not os.path.isfile(inipath):
-        raise RuntimeError(
-            'No test configuration found. Set the TEST_INI environ '
-            'variable or add a "testing.ini" file to the CWD.')
+    if os.path.isfile(inipath):
+        parser = ConfigParser()
+        parser.read(inipath)
 
-    parser = ConfigParser()
-    parser.read(inipath)
-
-    config = dict(parser.items('testconfig'))
-    config['test_providers'] = splitlines(config['test_providers'])
-    config['base_url'] = 'http://localhost:5000'
+        config = dict(parser.items('testconfig'))
+        config['test_providers'] = splitlines(config['test_providers'])
+        config['base_url'] = 'http://localhost:5000'
 
     driver = config.get('selenium.driver', 'firefox')
     browser = {
@@ -38,7 +36,8 @@ def setUpModule():
 
 
 def tearDownModule():
-    browser.quit()
+    if browser is not None:
+        browser.quit()
 
 
 class ProviderTestCase(unittest.TestCase):
@@ -46,7 +45,7 @@ class ProviderTestCase(unittest.TestCase):
     @classmethod
     def require_provider(cls, name):
         if name not in config.get('test_providers', []):
-            cls.skip('tests not enabled for "%s"' % name)
+            raise unittest.SkipTest('tests not enabled for "%s"' % name)
 
 
 class TestFacebook(ProviderTestCase):
