@@ -29,7 +29,8 @@ def github_login(request):
     config = request.registry.settings
     scope = config.get('velruse.github.scope',
                        request.POST.get('scope', ''))
-    gh_url = flat_url('https://github.com/login/oauth/authorize', scope=scope,
+    gh_url = flat_url('https://github.com/login/oauth/authorize',
+                      scope=scope,
                       client_id=config['velruse.github.app_id'],
                       redirect_uri=request.route_url('github_process'))
     return HTTPFound(location=gh_url)

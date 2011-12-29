@@ -39,7 +39,7 @@ def tearDownModule():
         browser.quit()
 
 
-class ProviderTestCase(unittest.TestCase):
+class ProviderTests(object):
 
     @classmethod
     def require_provider(cls, name):
@@ -47,7 +47,7 @@ class ProviderTestCase(unittest.TestCase):
             raise unittest.SkipTest('tests not enabled for "%s"' % name)
 
 
-class TestFacebook(ProviderTestCase):
+class TestFacebook(ProviderTests, unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         cls.require_provider('facebook')
@@ -62,6 +62,7 @@ class TestFacebook(ProviderTestCase):
         browser.get(config['base_url'] + '/login')
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('facebook').submit()
+        self.assertEqual(browser.title, 'Log In | Facebook')
         form = browser.find_element_by_id('login_form')
         email = form.find_element_by_name('email')
         email.send_keys(self.email)
@@ -75,6 +76,37 @@ class TestFacebook(ProviderTestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('verifiedEmail' in result['profile'])
+        self.assertTrue('accounts' in result['profile'])
+
+
+class TestGithub(ProviderTests, unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('github')
+        cls.username = config['github.username']
+        cls.password = config['github.password']
+
+    def setUp(self):
+        browser.delete_all_cookies()
+
+    def test_it(self):
+        browser.get(config['base_url'] + '/login')
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('github').submit()
+        self.assertEqual(browser.title, 'Log in - GitHub')
+        form = browser.find_element_by_id('login')
+        username = form.find_element_by_name('login')
+        username.send_keys(self.username)
+        passwd = form.find_element_by_name('password')
+        passwd.send_keys(self.password)
+        form.find_element_by_name('commit').submit()
+        self.assertEqual(browser.title, 'Result Page')
+        result = browser.find_element_by_id('result').text
+        result = json.loads(result)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        self.assertTrue('displayName' in result['profile'])
+        self.assertTrue('accounts' in result['profile'])
 
 
 if __name__ == '__main__':
