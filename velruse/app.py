@@ -139,7 +139,8 @@ def make_velruse_app(global_conf, **settings):
         velruse.facebook.app_secret = KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
         velruse.facebook.app_id = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
-        velruse.twitter.consumer_secret = eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
+        velruse.twitter.consumer_secret =
+            eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
 
         [app:YOURAPP]
         use = egg:YOURAPP

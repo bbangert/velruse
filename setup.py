@@ -12,10 +12,11 @@ tests_require = [
 
 setup(name='velruse',
       version=version,
-      description="Simplifying third-party authentication for web applications.",
-      long_description="""\
-""",
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      description=(
+          'Simplifying third-party authentication for web applications.'),
+      long_description='',
+      # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      classifiers=[],
       keywords='',
       author='Ben Bangert',
       author_email='ben@groovie.org',

@@ -13,9 +13,8 @@ setup(name='testapp',
           'velruse',
           'selenium',
       ],
-      entry_points = """\
+      entry_points="""\
       [paste.app_factory]
       main = testapp:main
       """,
       )
-

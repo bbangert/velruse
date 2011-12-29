@@ -38,6 +38,7 @@ def result_view(request):
         'result': json.dumps(result, indent=4),
     }
 
+
 def main(global_conf, **settings):
     session_factory = UnencryptedCookieSessionFactoryConfig('seekrit')
 

@@ -1,12 +1,14 @@
 import unittest2 as unittest
 
+
 class TestBaseEncoding(unittest.TestCase):
+
     def test_encode(self):
         from velruse.baseconvert import base_encode
         self.assertEqual(base_encode(42), 'L')
         self.assertEqual(base_encode(425242), '4rBC')
         self.assertEqual(base_encode(0), '2')
-    
+
     def test_bad_encode(self):
         from velruse.baseconvert import base_encode
         self.assertRaises(TypeError, base_encode, 'fred')

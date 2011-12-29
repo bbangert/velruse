@@ -7,7 +7,7 @@ from selenium import webdriver
 
 
 config = {}
-browser = None # populated in setUpModule
+browser = None  # populated in setUpModule
 
 
 def splitlines(s):
