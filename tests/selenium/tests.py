@@ -48,10 +48,11 @@ class ProviderTests(object):
 
 
 class TestFacebook(ProviderTests, unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.require_provider('facebook')
-        cls.email = config['facebook.email']
+        cls.login = config['facebook.login']
         cls.password = config['facebook.password']
         cls.app = config['facebook.app']
 
@@ -64,10 +65,11 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         browser.find_element_by_id('facebook').submit()
         self.assertEqual(browser.title, 'Log In | Facebook')
         form = browser.find_element_by_id('login_form')
-        email = form.find_element_by_name('email')
-        email.send_keys(self.email)
+        login = form.find_element_by_name('email')
+        login.send_keys(self.login)
         passwd = form.find_element_by_name('pass')
         passwd.send_keys(self.password)
+        self.assertTrue(self.app in form.text)
         form.submit()
         self.assertEqual(browser.title, 'Result Page')
         result = browser.find_element_by_id('result').text
@@ -80,11 +82,13 @@ class TestFacebook(ProviderTests, unittest.TestCase):
 
 
 class TestGithub(ProviderTests, unittest.TestCase):
+
     @classmethod
     def setUpClass(cls):
         cls.require_provider('github')
-        cls.username = config['github.username']
+        cls.login = config['github.login']
         cls.password = config['github.password']
+        cls.app = config['github.app']
 
     def setUp(self):
         browser.delete_all_cookies()
@@ -95,8 +99,8 @@ class TestGithub(ProviderTests, unittest.TestCase):
         browser.find_element_by_id('github').submit()
         self.assertEqual(browser.title, 'Log in - GitHub')
         form = browser.find_element_by_id('login')
-        username = form.find_element_by_name('login')
-        username.send_keys(self.username)
+        login = form.find_element_by_name('login')
+        login.send_keys(self.login)
         passwd = form.find_element_by_name('password')
         passwd.send_keys(self.password)
         form.find_element_by_name('commit').submit()
