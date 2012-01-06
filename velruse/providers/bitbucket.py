@@ -1,4 +1,8 @@
-"""Bitbucket Authentication Views"""
+"""Bitbucket Authentication Views
+
+http://confluence.atlassian.com/display/BITBUCKET/OAuth+on+Bitbucket
+"""
+
 import json
 from urlparse import parse_qs
 

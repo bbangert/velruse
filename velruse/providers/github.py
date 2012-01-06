@@ -1,4 +1,7 @@
-"""Github Authentication Views"""
+"""Github Authentication Views
+
+http://develop.github.com/p/oauth.html
+"""
 from json import loads
 from urlparse import parse_qs
 
