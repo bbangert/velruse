@@ -15,6 +15,10 @@
 <input type="submit" value="Login with GitHub" />
 </form>
 
+<form id="twitter" action="http://localhost:5000/velruse/twitter/login" method="post">
+<input type="submit" value="Login with Twitter" />
+</form>
+
 <!--
 <form id="bitbucket" action="http://teaparty.mine.nu/live/auth" method="post">
 <input type="submit" value="Login with Bitbucket" />
@@ -25,10 +29,6 @@
 <input type="hidden" name="oauth_scope" value="https://www.google.com/analytics/feeds/" />
 <input type="hidden" name="openid_identifier" value="google.com" />
 <input type="submit" value="Login with Google" />
-</form>
-
-<form id="twitter" action="http://localhost:9090/twitter/auth" method="post">
-<input type="submit" value="Login with Twitter" />
 </form>
 
 <form id="yahoo" action="http://teaparty.mine.nu:9090/yahoo/auth" method="post">

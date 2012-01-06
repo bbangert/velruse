@@ -4,6 +4,7 @@ import unittest2 as unittest
 from ConfigParser import ConfigParser
 
 from selenium import webdriver
+from selenium.webdriver.support.ui import WebDriverWait
 
 
 config = {}
@@ -104,6 +105,42 @@ class TestGithub(ProviderTests, unittest.TestCase):
         passwd = form.find_element_by_name('password')
         passwd.send_keys(self.password)
         form.find_element_by_name('commit').submit()
+        self.assertEqual(browser.title, 'Result Page')
+        result = browser.find_element_by_id('result').text
+        result = json.loads(result)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        self.assertTrue('displayName' in result['profile'])
+        self.assertTrue('accounts' in result['profile'])
+
+
+class TestTwitter(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('twitter')
+        cls.login = config['twitter.login']
+        cls.password = config['twitter.password']
+        cls.app = config['twitter.app']
+
+    def setUp(self):
+        browser.delete_all_cookies()
+
+    def test_it(self):
+        browser.get(config['base_url'] + '/login')
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('twitter').submit()
+        self.assertEqual(browser.title, 'Twitter / Authorize an application')
+        app_info = browser.find_elements_by_class_name('app-info')[0]
+        self.assertTrue(self.app in app_info.text)
+        form = browser.find_element_by_id('oauth_form')
+        login = form.find_element_by_id('username_or_email')
+        login.send_keys(self.login)
+        passwd = form.find_element_by_id('password')
+        passwd.send_keys(self.password)
+        form.find_element_by_id('allow').submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_id('result'))
         self.assertEqual(browser.title, 'Result Page')
         result = browser.find_element_by_id('result').text
         result = json.loads(result)
