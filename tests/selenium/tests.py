@@ -49,6 +49,12 @@ class ProviderTests(object):
 
 
 class TestFacebook(ProviderTests, unittest.TestCase):
+    """
+    TODO: look into adding multiple tests using test users with varying
+          levels of functionality.
+
+          http://developers.facebook.com/docs/test_users/
+    """
 
     @classmethod
     def setUpClass(cls):
