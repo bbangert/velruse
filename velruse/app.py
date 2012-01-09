@@ -21,7 +21,7 @@ def auth_complete_view(context, request):
     storage = request.registry.velruse_store
     if 'birthday' in context.profile:
         context.profile['birthday'] = \
-                context.profile['birthday'].strfime('%Y-%m-%d')
+                context.profile['birthday'].strftime('%Y-%m-%d')
     result_data = {
         'profile': context.profile,
         'credentials': context.credentials,
