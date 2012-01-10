@@ -12,9 +12,9 @@ except ImportError:
 #from redis.exceptions import RedisError  #unused afaik -- bayle
 
 from pyramid.exceptions import ConfigurationError
+from pyramid.decorator import reify
 
 from velruse.store.interface import UserStore
-from velruse.utils import cached_property
 from velruse.utils import splitlines
 
 
@@ -37,7 +37,7 @@ class MemcachedStore(UserStore):
         self.key_prefix = key_prefix
         self.servers = servers or ['localhost:11211']
 
-    @cached_property
+    @reify
     def _conn(self):
         """The Memcached connection, cached for this call"""
         return memcache.Client(self.servers)
