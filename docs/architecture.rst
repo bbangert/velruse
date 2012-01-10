@@ -38,7 +38,7 @@ Each :term:`auth provider` must be a callable. It will be called with a
 :class:`webob.Request` instance and must respond with a
 :class:`webob.Response` instance.
 
-The Auth Provider is expected to respond to a POST to `/auth`, and then
+The Auth Provider is expected to respond to a POST to `/login`, and then
 proceed with the necessary calls and/or redirects necessary to complete
 the authentication. The normalized user data should then be written to the
 store, and a token returned to the user.

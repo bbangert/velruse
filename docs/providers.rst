@@ -58,7 +58,7 @@ Complete Example:
 
 .. code-block:: html
 
-    <form action="/velruse/facebook/auth" method="post">
+    <form action="/velruse/facebook/login" method="post">
     <input type="hidden" name="scope" value="publish_stream,create_event" />
     <input type="submit" value="Login with Facebook" />
     </form>
@@ -104,7 +104,7 @@ Complete Example:
 
 .. code-block:: html
 
-    <form action="/velruse/openid/auth" method="post">
+    <form action="/velruse/openid/login" method="post">
     <input type="text" name="openid_identifier" />
     <input type="submit" value="Login with OpenID" />
     </form>
@@ -177,7 +177,7 @@ Complete Example:
 
 .. code-block:: html
 
-    <form action="/velruse/google/auth" method="post">
+    <form action="/velruse/google/login" method="post">
     <input type="hidden" name="popup_mode" value="popup" />
     <input type="hidden" name="oauth_scope" value="http://www.google.com/m8/feeds/" />
     <input type="submit" value="Login with Google" />
@@ -232,7 +232,7 @@ Complete Example:
 
 .. code-block:: html
 
-    <form action="/velruse/yahoo/auth" method="post">
+    <form action="/velruse/yahoo/login" method="post">
     <input type="hidden" name="oauth" value="true" />
     <input type="submit" value="Login with Yahoo" />
     </form>
@@ -266,7 +266,7 @@ Complete Example:
 
 .. code-block:: html
 
-    <form action="/velruse/twitter/auth" method="post">
+    <form action="/velruse/twitter/login" method="post">
     <input type="submit" value="Login with Twitter" />
     </form>
 
@@ -348,6 +348,6 @@ Complete Example:
 
 .. code-block:: html
     
-    <form action="/velruse/live/auth" method="post">
+    <form action="/velruse/live/login" method="post">
     <input type="submit" value="Login with Windows Live" />
     </form>
