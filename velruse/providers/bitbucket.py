@@ -1,5 +1,6 @@
 """Bitbucket Authentication Views"""
 import json
+from urllib import urlencode
 from urlparse import parse_qs
 
 import oauth2 as oauth
@@ -11,6 +12,7 @@ from pyramid.settings import asbool
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
+from velruse.utils import flat_url, get_came_from 
 
 
 REQUEST_URL = 'https://bitbucket.org/api/1.0/oauth/request_token/'
@@ -37,9 +39,16 @@ def bitbucket_login(request):
     config = request.registry.settings
 
     # Create the consumer and client, make the request
+    redirect_uri = request.route_url('bitbucket_process')
+    came_from = get_came_from(request)
+    if came_from:
+        qs = urlencode({'end_point':came_from})
+        if not '?' in redirect_uri:
+            redirect_uri += '?'
+        redirect_uri += qs   
     consumer = oauth.Consumer(config['velruse.bitbucket.consumer_key'],
                               config['velruse.bitbucket.consumer_secret'])
-    params = {'oauth_callback': request.route_url('bitbucket_process')}
+    params = {'oauth_callback': redirect_uri}
 
     # We go through some shennanigans here to specify a callback url
     oauth_request = oauth.Request.from_consumer_and_token(consumer,
@@ -110,5 +119,6 @@ def bitbucket_process(request):
                        'familyName': data['last_name']
                        }
     profile['displayName'] = profile['name']['formatted']
+    profile['end_point'] = get_came_from(request)
     return BitbucketAuthenticationComplete(profile=profile,
                                            credentials=cred)
