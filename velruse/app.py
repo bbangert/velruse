@@ -37,8 +37,8 @@ def auth_denied_view(context, request):
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
-        'code': context.code,
-        'description': context.description,
+        'code': getattr(context, 'code', None), 
+        'description': context.message, 
     }
     storage.store(token, error_dict, expires=300)
     form = redirect_form(endpoint, token)

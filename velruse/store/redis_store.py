@@ -6,10 +6,9 @@ except ImportError:
 
 import redis
 from redis.exceptions import RedisError
+from pyramid.decorator import reify
 
 from velruse.store.interface import UserStore
-from velruse.utils import cached_property
-
 
 def includeme(config):
     settings = config.registry.settings
@@ -32,7 +31,7 @@ class RedisStore(UserStore):
         self.db = db
         self.key_prefix = key_prefix
 
-    @cached_property
+    @reify
     def _conn(self):
         """The Redis connection, cached for this call"""
         return redis.Redis(host=self.host, port=self.port, db=self.db)

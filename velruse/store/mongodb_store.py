@@ -11,10 +11,9 @@ from pymongo.binary import Binary
 from pymongo.errors import OperationFailure
 
 from pyramid.exceptions import ConfigurationError
+from pyramid.decorator import reify
 
 from velruse.store.interface import UserStore
-from velruse.utils import cached_property
-
 
 def includeme(config):
     settings = config.registry.settings
@@ -41,7 +40,7 @@ class MongoDBStore(UserStore):
         self.db = db
         self.collection = collection
 
-    @cached_property  # Fix this later -htormey
+    @reify
     def _conn(self):
         """The MongoDB connection, cached for this call"""
         try:
