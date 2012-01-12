@@ -8,6 +8,19 @@ Authentication Providers supply varying levels of information when
 authentication has occurred. Some of them can also provide API access
 tokens in addition to authenticating a user for sign-on.
 
+Common POST parameters
+=======================
+
+    * end_point
+      A common and not mandatory parameter 'end_point' can be provided in the POST parameters
+      to allow velruse to redirect to this endpoint callback instead of the one given in the configuration.
+
+.. code-block:: html
+
+    <form action="/velruse/yahoo/auth" method="POST">
+        <input type="hidden" name="xend_point" value="http://myapp/signed_in" />
+    </form>
+
 Facebook
 ========
 
@@ -87,7 +100,21 @@ Settings
 velruse.openid.realm
     Domain for your website, e.g. `http://yourdomain.com/`
 velruse.openid.store
-    A class from which the OpenID store will be instantiated.
+    A class or callable factory from which the OpenID store will be instantiated.
+    Tbis class or callable will be given the registry settings as the first constructor/method parameter.
+    We provide a stock sqlstore for you to use: velruse.providers.openidconsumer.get_openid_sqlstore
+
+Example:
+
+    [app:velruse]
+    use=egg:velruse
+    # velruse (§OPENID services authentication configuration)
+    velruse.store=velruse.store.sqlstore
+    velruse.store.url = postgresql+psycopg2://something:secret@localhost:5438/somebase
+    velruse.store.echo = true
+    velruse.store.echo_pool = true
+    velruse.store.pool_recycle = 10
+    velruse.openid.store = velruse.providers.openidconsumer.get_openid_sqlstore
 
 .. note::
 
@@ -332,7 +359,7 @@ Policy URL
     Site's Privacy Policy URL, overrides the url specified during registration
     of your application with Live Services.
 Return URL
-    Site's Return URL, overrides the url specified during registration of 
+    Site's Return URL, overrides the url specified during registration of
     your application with Live Services. This is not *YOUR* applicaton's end
     point!  This should only be overriden if your registration url is not
     the velruse url.  For example http://YOURDOMAIN.COM/velruse/live/process.
@@ -347,7 +374,7 @@ POST Parameters
 Complete Example:
 
 .. code-block:: html
-    
-    <form action="/velruse/live/login" method="post">
+
+    <form action="/velruse/live/auth" method="post">
     <input type="submit" value="Login with Windows Live" />
     </form>

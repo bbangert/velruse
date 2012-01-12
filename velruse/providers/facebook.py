@@ -3,6 +3,7 @@ import datetime
 import uuid
 from json import loads
 from urlparse import parse_qs
+from urllib import urlencode
 
 import requests
 
@@ -12,7 +13,7 @@ from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import flat_url
+from velruse.utils import flat_url, get_came_from
 
 
 class FacebookAuthenticationComplete(AuthenticationComplete):
@@ -33,9 +34,16 @@ def facebook_login(request):
     scope = config.get('velruse.facebook.scope',
                        request.POST.get('scope', ''))
     request.session['state'] = state = uuid.uuid4().hex
+    redirect_uri = request.route_url('facebook_process')
+    came_from = get_came_from(request)
+    if came_from:
+        qs = urlencode({'end_point':came_from })
+        if not '?' in redirect_uri:
+            redirect_uri += '?'
+        redirect_uri += qs   
     fb_url = flat_url('https://www.facebook.com/dialog/oauth/', scope=scope,
                       client_id=config['velruse.facebook.app_id'],
-                      redirect_uri=request.route_url('facebook_process'),
+                      redirect_uri=redirect_uri,
                       state=state)
     return HTTPFound(location=fb_url)
 
@@ -54,10 +62,17 @@ def facebook_process(request):
         return AuthenticationDenied(reason)
 
     # Now retrieve the access token with the code
+    redirect_uri = request.route_url('facebook_process')
+    came_from = get_came_from(request)
+    if came_from:
+        qs = urlencode({'end_point':came_from })
+        if not '?' in redirect_uri:
+            redirect_uri += '?'
+        redirect_uri += qs    
     access_url = flat_url('https://graph.facebook.com/oauth/access_token',
                           client_id=config['velruse.facebook.app_id'],
                           client_secret=config['velruse.facebook.app_secret'],
-                          redirect_uri=request.route_url('facebook_process'),
+                          redirect_uri=redirect_uri,
                           code=code)
     r = requests.get(access_url)
     if r.status_code != 200:
@@ -74,6 +89,7 @@ def facebook_process(request):
     profile = extract_fb_data(fb_profile)
 
     cred = {'oauthAccessToken': access_token}
+    profile['end_point'] = get_came_from(request)
     return FacebookAuthenticationComplete(profile=profile,
                                           credentials=cred)
 

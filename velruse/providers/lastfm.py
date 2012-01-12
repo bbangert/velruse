@@ -1,5 +1,6 @@
 """Last.fm Authentication Views"""
 from hashlib import md5
+from urllib import urlencode
 from json import loads
 
 import requests
@@ -9,7 +10,7 @@ from pyramid.httpexceptions import HTTPFound
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import flat_url
+from velruse.utils import flat_url, get_came_from 
 
 API_BASE = 'https://ws.audioscrobbler.com/2.0/'
 
@@ -37,8 +38,14 @@ def sign_call(params, secret):
 def lastfm_login(request):
     """Initiate a LastFM login"""
     config = request.registry.settings
-    fb_url = flat_url('https://www.last.fm/api/auth/',
-                      api_key=config['velruse.lastfm.api_key'])
+    redirect_uri = request.route_url('lastfm_process')
+    came_from = get_came_from(request)
+    if came_from:
+        qs = urlencode({'end_point':came_from })
+        if not '?' in redirect_uri:
+            redirect_uri += '?'
+        redirect_uri += qs  
+    fb_url = flat_url('https://www.last.fm/api/auth/', api_key=config['velruse.lastfm.api_key'], cb=redirect_uri)
     return HTTPFound(location=fb_url)
 
 
@@ -105,5 +112,6 @@ def lastfm_process(request):
     larger = images.get('extralarge', images.get('large'))
     if larger:
         profile['photos'].append({'type': '', 'value': larger})
+    profile['end_point'] = get_came_from(request)
     return LastFMAuthenticationComplete(profile=profile,
                                         credentials=cred)
