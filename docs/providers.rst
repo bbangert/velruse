@@ -366,8 +366,7 @@ POST Parameters
 Complete Example:
 
 .. code-block:: html
-    
-    <form action="/velruse/live/login" method="post">
 
+    <form action="/velruse/live/auth" method="post">
     <input type="submit" value="Login with Windows Live" />
     </form>
