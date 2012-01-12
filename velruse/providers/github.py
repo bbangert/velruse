@@ -1,5 +1,6 @@
 """Github Authentication Views"""
 from json import loads
+from urllib import urlencode
 from urlparse import parse_qs
 
 import requests
@@ -9,7 +10,7 @@ from pyramid.httpexceptions import HTTPFound
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import flat_url
+from velruse.utils import flat_url, get_came_from 
 
 
 class GithubAuthenticationComplete(AuthenticationComplete):
@@ -27,11 +28,19 @@ def includeme(config):
 def github_login(request):
     """Initiate a github login"""
     config = request.registry.settings
-    scope = config.get('velruse.github.scope',
-                       request.POST.get('scope', ''))
-    gh_url = flat_url('https://github.com/login/oauth/authorize', scope=scope,
+    redirect_uri = request.route_url('github_process')
+    came_from = get_came_from(request)
+    if came_from:
+        qs = urlencode({'end_point':came_from })
+        if not '?' in redirect_uri:
+            redirect_uri += '?'
+        redirect_uri += qs  
+    scope = config.get('velruse.github.authorize',
+                        request.POST.get('scope', ''))
+    gh_url = flat_url('https://github.com/login/oauth/authorize',
+                      scope=scope,
                       client_id=config['velruse.github.app_id'],
-                      redirect_uri=request.route_url('github_process'))
+                      redirect_uri=redirect_uri)
     return HTTPFound(location=gh_url)
 
 
@@ -70,6 +79,7 @@ def github_process(request):
     }]
     profile['displayName'] = data['name']
     profile['preferredUsername'] = data['login']
+    profile['end_point'] = get_came_from(request)
 
     # We don't add this to verifiedEmail because ppl can change email addresses
     # without verifying them

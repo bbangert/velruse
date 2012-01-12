@@ -8,6 +8,19 @@ Authentication Providers supply varying levels of information when
 authentication has occurred. Some of them can also provide API access
 tokens in addition to authenticating a user for sign-on.
 
+Common POST parameters
+=======================
+
+    * end_point
+      A common and not mandatory parameter 'end_point' can be provided in the POST parameters
+      to allow velruse to redirect to this endpoint callback instead of the one given in the configuration.
+
+.. code-block:: html
+
+    <form action="/velruse/yahoo/auth" method="POST">
+        <input type="hidden" name="xend_point" value="http://myapp/signed_in" />
+    </form>
+
 Facebook
 ========
 
