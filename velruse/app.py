@@ -70,12 +70,17 @@ def default_setup(config):
     config.set_session_factory(factory)
 
 
-def make_app(**settings):
+def includeme(config, do_setup=True):
+    """Configuration function to make a pyramid app a velruse one."""
+    settings = config.registry.settings
     config = Configurator(settings=settings)
+    # settings were just deepcopied, reget the right reference
+    settings = config.registry.settings
 
     # setup application
     setup = settings.get('velruse.setup', default_setup)
-    config.include(setup)
+    if do_setup:
+        config.include(setup)
 
     if not settings.get('velruse.endpoint'):
         raise ConfigurationError(
@@ -97,6 +102,10 @@ def make_app(**settings):
 
     # add the error views
     config.scan(__name__)
+
+def make_app(**settings):
+    config = Configurator(settings=settings)
+    includeme(config)
     return config.make_wsgi_app()
 
 
