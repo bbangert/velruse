@@ -25,6 +25,10 @@ def includeme(config):
                      use_global_views=True,
                      factory=douban_process)
     config.add_view(douban_login, route_name="douban_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.douban']['login'] =   'douban_login'
+    settings['velruse.providers_infos']['velruse.providers.douban']['process'] = 'douban_process'
+
 
 
 def douban_login(request):

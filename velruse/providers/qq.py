@@ -19,6 +19,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=qq_process)
     config.add_view(qq_login, route_name="qq_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.qq']['login'] =   'qq_login'
+    settings['velruse.providers_infos']['velruse.providers.qq']['process'] = 'qq_process'
 
 
 def qq_login(request):

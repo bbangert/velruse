@@ -42,6 +42,8 @@ def includeme(config):
                      use_global_views=True,
                      factory=consumer.process)
     config.add_view(consumer.login, route_name="google_login")
+    settings['velruse.providers_infos']['velruse.providers.google']['login'] =   'google_login'
+    settings['velruse.providers_infos']['velruse.providers.google']['process'] = 'google_process' 
 
 
 class GoogleConsumer(OpenIDConsumer):

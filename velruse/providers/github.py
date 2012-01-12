@@ -22,6 +22,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=github_process)
     config.add_view(github_login, route_name="github_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.github']['login'] =   'github_login'
+    settings['velruse.providers_infos']['velruse.providers.github']['process'] = 'github_process'
 
 
 def github_login(request):

@@ -18,6 +18,10 @@ def includeme(config):
                      use_global_views=True,
                      factory=renren_process)
     config.add_view(renren_login, route_name="renren_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.renren']['login'] =   'renren_login'
+    settings['velruse.providers_infos']['velruse.providers.renren']['process'] = 'renren_process'
+
 
 
 def renren_login(request):

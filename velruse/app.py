@@ -159,7 +159,9 @@ def includeme(config, do_setup=True):
     providers = providers_lookup(config)
 
     for provider in providers:
+        print provider
         config.include(provider)
+
 
     # add the error views
     config.scan(__name__)

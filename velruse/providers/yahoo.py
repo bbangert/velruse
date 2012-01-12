@@ -34,6 +34,8 @@ def includeme(config):
                      use_global_views=True,
                      factory=consumer.process)
     config.add_view(consumer.login, route_name="yahoo_login")
+    settings['velruse.providers_infos']['velruse.providers.yahoo']['login'] =   'yahoo_login'
+    settings['velruse.providers_infos']['velruse.providers.yahoo']['process'] = 'yahoo_process'
 
 
 class YahooConsumer(OpenIDConsumer):

@@ -25,6 +25,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=facebook_process)
     config.add_view(facebook_login, route_name="facebook_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.facebook']['login'] =   'facebook_login'
+    settings['velruse.providers_infos']['velruse.providers.facebook']['process'] = 'facebook_process'
 
 
 def facebook_login(request):

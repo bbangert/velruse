@@ -27,6 +27,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=linkedin_process)
     config.add_view(linkedin_login, route_name="linkedin_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.linkedin']['login'] =  '/linkedin/login'
+    settings['velruse.providers_infos']['velruse.providers.linkedin']['process'] = '/linkedin/process'
 
 
 def linkedin_login(request):

@@ -24,6 +24,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=lastfm_process)
     config.add_view(lastfm_login, route_name="lastfm_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.lastfm']['login'] =  '/lastfm/login'
+    settings['velruse.providers_infos']['velruse.providers.lastfm']['process'] = '/lastfm/process'
 
 
 def sign_call(params, secret):

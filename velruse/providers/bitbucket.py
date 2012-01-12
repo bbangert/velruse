@@ -30,6 +30,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=bitbucket_process)
     config.add_view(bitbucket_login, route_name="bitbucket_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.bitbucket']['login'] =   'bitbucket_login'
+    settings['velruse.providers_infos']['velruse.providers.bitbucket']['process'] = 'bitbucket_process'
 
 
 def bitbucket_login(request):
