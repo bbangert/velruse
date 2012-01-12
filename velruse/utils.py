@@ -41,3 +41,13 @@ def generate_token():
 
 def splitlines(s):
     return filter(None, [x.strip() for x in s.splitlines()])
+
+def get_came_from(request):
+    """Look in the params for somewhere to return to."""
+    came_from = request.POST.get('return_to',   request.GET.get('return_to',
+                request.POST.get('redirect_to', request.GET.get('redirect_to',
+                request.POST.get('end_point',   request.GET.get('end_point',
+                request.POST.get('endpoint',    request.GET.get('endpoint',
+    ''))))))))
+    return came_from
+ 

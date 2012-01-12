@@ -4,20 +4,23 @@ from sqlalchemy import engine_from_config
 from sqlalchemy.sql import select, delete
 from sqlalchemy.ext.declarative import declarative_base, Column
 from sqlalchemy import String, Text, DateTime
+from sqlalchemy.orm import scoped_session, sessionmaker
 from velruse.store.interface import UserStore
 try:
     import simplejson as json
 except ImportError:
     import json
 
-
 SQLBase = declarative_base()
-
+DBSession = scoped_session(sessionmaker())
 
 def includeme(config):
     settings = config.registry.settings
     engine = engine_from_config(settings, 'velruse.store.')
     store = SQLStore(engine)
+    DBSession.configure(bind=engine)
+    SQLBase.metadata.bind = engine
+    SQLBase.metadata.create_all(engine)
     config.registry.velruse_store = store
 
 
@@ -66,3 +69,4 @@ class SQLStore(UserStore):
             delete(KeyStorage,
                    KeyStorage.__table__.c.expires < datetime.now()))
         return True
+

@@ -11,13 +11,13 @@ be used individually for the authentication style desired.
 Provider HTML Examples
 ======================
 
-Every authentication provider that is available comes with a basic HTML 
-example illustrating the parameters it requires. The template generally 
+Every authentication provider that is available comes with a basic HTML
+example illustrating the parameters it requires. The template generally
 includes a logo when its a third party :term:`identity provider` to help
 a website user find the preferred authentication option.
 
 .. note::
-    
+
     While most websites will redirect to Velruse to handle the authentication
     for a user to login or register, the authentication can be done anytime
     for 'linking' an account to another provider as well.
@@ -46,6 +46,13 @@ store, and a token returned to the user.
 Auth Provider's are usually setup under the :class:`~velruse.app.VelruseApp`
 WSGI app, which is a minimal WSGI application that can dispatch to several
 configured Auth Provider's based on a YAML configuration file.
+
+Velruse webservices
+=====================
+
+velruse has some webservices to be queried to know its actual set of providers:
+
+    - /auth_providers_list : JSON mapping of providers and their relative login & process urls
 
 
 UserStore Backends

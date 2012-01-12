@@ -1,5 +1,7 @@
+import copy
 import logging
 import os
+import re
 
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
@@ -13,10 +15,42 @@ from velruse.utils import splitlines
 
 log = logging.getLogger(__name__)
 
+re_flags = re.U|re.X|re.S
+
+def auth_providers_list(request):
+    """Return a JSON mapping of the velruse offered providers.
+    This is to be used inside velruse front ends:
+    Something like ::
+
+        {
+            'velruse.providers.github': {
+                      'login'   : 'http://velrusehost/velruse/github/login',
+                      'process' : 'http://velrusehost/velruse/github/process',
+            },
+        }
+
+
+    """
+    settings = request.registry.settings
+    ifs = copy.deepcopy(
+        settings['velruse.providers_infos']
+    )
+    url_keys = ['login', 'process']
+    for item in ifs:
+        for key in ifs[item]:
+            for pattern in url_keys:
+                if re.compile(pattern, re_flags).search(key):
+                    ifs[item][pattern] = request.route_url(ifs[item][key])
+    return ifs
+
 
 @view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
-    endpoint = request.registry.settings.get('velruse.endpoint')
+    # if we have a thirdparty software behind velruse, it can also process in turn
+    # the authentication request and so have specified a callback to return to
+    # We may have this information in the context profile. 
+    endpoint = context.profile.get('end_point',
+                                   request.registry.settings.get('velruse.endpoint'))  
     token = generate_token()
     storage = request.registry.velruse_store
     if 'birthday' in context.profile:
@@ -33,12 +67,19 @@ def auth_complete_view(context, request):
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
-    endpoint = request.registry.settings.get('velruse.endpoint')
+    # if we have a thirdparty software behind velruse, it can also process in turn
+    # the authentication request and so have specified a callback to return to
+    # We may have this information in the request parameters from POST to GET.
+    endpoint = request.POST.get('end_point',
+                 request.GET.get('end_point',
+                  request.GET.get('return_to',
+                   request.registry.settings.get('velruse.end_point')))) 
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
-        'code': getattr(context, 'code', None), 
-        'description': context.message, 
+        'code': getattr(context, 'code', None),
+        'description': getattr(context, 'description', 
+                               getattr(context, 'message', '')),
     }
     storage.store(token, error_dict, expires=300)
     form = redirect_form(endpoint, token)
@@ -69,6 +110,36 @@ def default_setup(config):
     factory = UnencryptedCookieSessionFactoryConfig(secret)
     config.set_session_factory(factory)
 
+def providers_lookup(config):
+    """Lookup for the providers to activate
+    Can be overridden by settings
+    velruse.providers_lookup = mymodule.hook
+    This can be useful for example if your authentication information
+    is stored on a relational database.
+    EG:
+    toto.py:
+        def cfg(config):
+            settings = config.registry.settings
+            settings['velruse.providers']='velruse.providers.foo'
+            settings['velruse.providers.foo.id'] = 'foo'
+            settings['velruse.providers.foo.secret'] = 'bar'
+
+    and in velruse deployment config:
+
+        velruse.providers_hook = toto.cfg
+    """
+    settings = config.registry.settings
+    providers_hook = settings.get('velruse.providers_hook', '')
+    if providers_hook:
+        providers_hook = config.maybe_dotted(providers_hook)
+        providers_hook(config)
+    providers = []
+    for a in splitlines(
+        settings.get('velruse.providers', '')
+    ):
+        providers.append(a)
+        settings['velruse.providers_infos'][a] = {}
+    return providers
 
 def includeme(config, do_setup=True):
     """Configuration function to make a pyramid app a velruse one."""
@@ -94,14 +165,17 @@ def includeme(config, do_setup=True):
     config.include(store)
 
     # include providers
-    providers = settings.get('velruse.providers', '')
-    providers = splitlines(providers)
+    if not 'velruse.providers_infos' in settings:
+        settings['velruse.providers_infos'] = {}
+    providers = providers_lookup(config)
 
     for provider in providers:
         config.include(provider)
 
     # add the error views
     config.scan(__name__)
+    config.add_route("auth_providers_list", "/auth_providers_list")
+    config.add_view(auth_providers_list, route_name="auth_providers_list", renderer='json')
 
 def make_app(**settings):
     config = Configurator(settings=settings)
