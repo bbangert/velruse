@@ -378,3 +378,34 @@ Complete Example:
     <form action="/velruse/live/login" method="post">
     <input type="submit" value="Login with Windows Live" />
     </form>
+
+
+
+LDAP (velruse.providers.ldap)
+=========================================
+
+LDAP provider just check bind to an LDAP Server.
+It requires python-ldap.
+
+Settings
+--------
+
+velruse.provider.ldapprovider.urls:
+    A list of ldap servers to try to bind to
+velruse.provider.ldapprovider.basedn:
+    An url with a %LOGIN% placeholder to put the login posted username::
+
+POST Parameters
+---------------
+
+Complete Example:
+
+.. code-block:: html
+
+    <form action="/velruse/ldap/login" method="post">
+        <input type="submit" value="Login with LDAP" />
+        <input type="text"     name="ldap_username" />
+        <input type="password" name="ldap_password" />
+    </form>
+
+
