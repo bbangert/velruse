@@ -8,6 +8,25 @@ Authentication Providers supply varying levels of information when
 authentication has occurred. Some of them can also provide API access
 tokens in addition to authenticating a user for sign-on.
 
+Configuration hook
+===================
+You can integrate a python callable at the velruse initialization to configure dynamicly the providers.
+For thus, make a toto python module containing your configuration stuff, for example ::
+
+
+    toto.py:
+        def cfg(config):
+            settings = config.registry.settings
+            settings['velruse.providers']='velruse.providers.foo'
+            settings['velruse.providers.foo.id'] = 'foo'
+            settings['velruse.providers.foo.secret'] = 'bar'
+
+
+In velruse deployment config, add::
+
+        velruse.providers_hook = toto.callable
+
+
 Facebook
 ========
 
@@ -332,7 +351,7 @@ Policy URL
     Site's Privacy Policy URL, overrides the url specified during registration
     of your application with Live Services.
 Return URL
-    Site's Return URL, overrides the url specified during registration of 
+    Site's Return URL, overrides the url specified during registration of
     your application with Live Services. This is not *YOUR* applicaton's end
     point!  This should only be overriden if your registration url is not
     the velruse url.  For example http://YOURDOMAIN.COM/velruse/live/process.
@@ -347,7 +366,7 @@ POST Parameters
 Complete Example:
 
 .. code-block:: html
-    
-    <form action="/velruse/live/login" method="post">
+
+    <form action="/velruse/live/auth" method="post">
     <input type="submit" value="Login with Windows Live" />
     </form>
