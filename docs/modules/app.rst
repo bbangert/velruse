@@ -6,10 +6,8 @@
 Module Contents
 ---------------
 
-.. autofunction:: parse_config_file
-.. autofunction:: parse_session_options
-.. autoclass:: VelruseResponder
-.. autoclass:: VelruseApp
+.. autofunction :: auth_providers_list
+.. autofunction :: providers_lookup 
 
 Application Constructors
 ************************

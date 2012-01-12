@@ -1,11 +1,18 @@
 :mod:`velruse.providers.facebook_` -- Facebook Provider
 =======================================================
 
-.. automodule:: velruse.providers.facebook_
 
 Module Contents
 ---------------
 
-.. autofunction:: extract_fb_data
-.. autoclass:: FacebookResponder
-    :members:
+.. automodule:: velruse.providers.facebook
+
+Module Contents
+---------------
+
+.. autoclass:: FacebookAuthenticationComplete
+.. autofunction:: includeme
+.. autofunction:: facebook_login
+.. autofunction:: facebook_process
+
+ 
