@@ -20,6 +20,8 @@ def includeme(config):
     config.add_route("ldap_process", "/ldap/process", use_global_views=True, factory=ldap_process)
     config.add_view(ldap_login, route_name="ldap_login")
     settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.ldapprovider']['login'] =   'ldap_login'
+    settings['velruse.providers_infos']['velruse.providers.ldapprovider']['process'] = 'ldap_process' 
 
 
 
