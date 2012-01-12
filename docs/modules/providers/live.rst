@@ -1,10 +1,14 @@
 :mod:`velruse.providers.live_` -- Window Live Provider
 ======================================================
 
-.. automodule:: velruse.providers.live_
+.. automodule:: velruse.providers.live
 
 Module Contents
 ---------------
 
-.. autoclass:: LiveResponder
-    :members: __init__, parse_config, _create_wll, login, process
+.. autoclass:: LiveAuthenticationComplete
+.. autofunction:: includeme
+.. autofunction:: live_login
+.. autofunction:: live_process
+
+
