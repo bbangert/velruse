@@ -21,6 +21,25 @@ Common POST parameters
         <input type="hidden" name="xend_point" value="http://myapp/signed_in" />
     </form>
 
+Configuration hook
+===================
+You can integrate a python callable at the velruse initialization to configure dynamicly the providers.
+For thus, make a toto python module containing your configuration stuff, for example ::
+
+
+    toto.py:
+        def cfg(config):
+            settings = config.registry.settings
+            settings['velruse.providers']='velruse.providers.foo'
+            settings['velruse.providers.foo.id'] = 'foo'
+            settings['velruse.providers.foo.secret'] = 'bar'
+
+
+In velruse deployment config, add::
+
+        velruse.providers_hook = toto.callable
+
+
 Facebook
 ========
 

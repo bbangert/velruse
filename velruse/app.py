@@ -80,6 +80,35 @@ def default_setup(config):
     factory = UnencryptedCookieSessionFactoryConfig(secret)
     config.set_session_factory(factory)
 
+def providers_lookup(config):
+    """Lookup for the providers to activate
+    Can be overridden by settings
+    velruse.providers_lookup = mymodule.hook
+    This can be useful for example if your authentication information
+    is stored on a relational database.
+    EG:
+    toto.py:
+        def cfg(config):
+            settings = config.registry.settings
+            settings['velruse.providers']='velruse.providers.foo'
+            settings['velruse.providers.foo.id'] = 'foo'
+            settings['velruse.providers.foo.secret'] = 'bar'
+
+    and in velruse deployment config:
+
+        velruse.providers_hook = toto.cfg
+    """
+    settings = config.registry.settings
+    providers_hook = settings.get('velruse.providers_hook', '')
+    if providers_hook:
+        providers_hook = config.maybe_dotted(providers_hook)
+        providers_hook(config)
+    providers = []
+    for a in splitlines(
+        settings.get('velruse.providers', '')
+    ):
+        providers.append(a)
+    return providers
 
 def includeme(config, do_setup=True):
     """Configuration function to make a pyramid app a velruse one."""
@@ -105,8 +134,7 @@ def includeme(config, do_setup=True):
     config.include(store)
 
     # include providers
-    providers = settings.get('velruse.providers', '')
-    providers = splitlines(providers)
+    providers = providers_lookup(config)
 
     for provider in providers:
         config.include(provider)
