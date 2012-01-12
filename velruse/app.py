@@ -1,5 +1,7 @@
+import copy
 import logging
 import os
+import re
 
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
@@ -12,6 +14,34 @@ from velruse.utils import splitlines
 
 
 log = logging.getLogger(__name__)
+
+re_flags = re.U|re.X|re.S
+
+def auth_providers_list(request):
+    """Return a JSON mapping of the velruse offered providers.
+    This is to be used inside velruse front ends:
+    Something like ::
+
+        {
+            'velruse.providers.github': {
+                      'login'   : 'http://velrusehost/velruse/github/login',
+                      'process' : 'http://velrusehost/velruse/github/process',
+            },
+        }
+
+
+    """
+    settings = request.registry.settings
+    ifs = copy.deepcopy(
+        settings['velruse.providers_infos']
+    )
+    url_keys = ['login', 'process']
+    for item in ifs:
+        for key in ifs[item]:
+            for pattern in url_keys:
+                if re.compile(pattern, re_flags).search(key):
+                    ifs[item][pattern] = request.route_url(ifs[item][key])
+    return ifs
 
 
 @view_config(context='velruse.api.AuthenticationComplete')
@@ -108,6 +138,7 @@ def providers_lookup(config):
         settings.get('velruse.providers', '')
     ):
         providers.append(a)
+        settings['velruse.providers_infos'][a] = {}
     return providers
 
 def includeme(config, do_setup=True):
@@ -134,6 +165,8 @@ def includeme(config, do_setup=True):
     config.include(store)
 
     # include providers
+    if not 'velruse.providers_infos' in settings:
+        settings['velruse.providers_infos'] = {}
     providers = providers_lookup(config)
 
     for provider in providers:
@@ -141,6 +174,8 @@ def includeme(config, do_setup=True):
 
     # add the error views
     config.scan(__name__)
+    config.add_route("auth_providers_list", "/auth_providers_list")
+    config.add_view(auth_providers_list, route_name="auth_providers_list", renderer='json')
 
 def make_app(**settings):
     config = Configurator(settings=settings)
