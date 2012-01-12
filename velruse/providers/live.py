@@ -22,6 +22,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=live_process)
     config.add_view(live_login, route_name="live_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.live']['login'] =   'live_login'
+    settings['velruse.providers_infos']['velruse.providers.live']['process'] = 'live_process'
 
 
 def live_login(request):

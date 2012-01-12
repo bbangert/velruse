@@ -20,6 +20,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=weibo_process)
     config.add_view(weibo_login, route_name="weibo_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.weibo']['login'] =   'weibo_login'
+    settings['velruse.providers_infos']['velruse.providers.weibo']['process'] = 'weibo_process'
 
 
 def weibo_login(request):

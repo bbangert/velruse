@@ -20,6 +20,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=taobao_process)
     config.add_view(taobao_login, route_name="taobao_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.taobao']['login'] =   'taobao_login'
+    settings['velruse.providers_infos']['velruse.providers.taobao']['process'] = 'taobao_process'
 
 
 def taobao_login(request):

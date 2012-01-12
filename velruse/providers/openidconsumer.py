@@ -208,6 +208,9 @@ def includeme(config):
                      use_global_views=True,
                      factory=oid_consumer.process)
     config.add_view(oid_consumer.login, route_name="openid_login")
+    settings = config.registry.settings
+    settings['velruse.providers_infos']['velruse.providers.openidconsumer']['login'] =   'openid_login'
+    settings['velruse.providers_infos']['velruse.providers.openidconsumer']['process'] = 'openid_process'
 
 
 class OpenIDConsumer(object):
