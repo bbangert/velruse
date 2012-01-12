@@ -2,9 +2,11 @@ import datetime
 import re
 import logging
 
+
 from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
+from openid.store import sqlstore
 
 from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
@@ -193,7 +195,7 @@ def setup_openid(config):
     if not store and 'velruse.openid.store' not in settings:
         raise Exception("Missing 'velruse.openid.store' in config settings.")
     if not store:
-        store = config.maybe_dotted(settings['velruse.openid.store'])()
+        store = config.maybe_dotted(settings['velruse.openid.store'])(settings)
         config.registry['velruse.openid_store'] = store
     realm = settings['velruse.openid.realm']
     return store, realm
@@ -373,3 +375,49 @@ class OpenIDConsumer(object):
                 profile=user_data, credentials=cred)
         else:
             raise ThirdPartyFailure("OpenID failed.")
+
+def get_openid_sqlstore(settings):
+    """Get an OpenId Storage stored stored in an SQL database along the velruse tables"""
+    from sqlalchemy import engine_from_config
+    table_prefix = 'velruse_openidstore_'
+    # Possible side-effect: create a database connection if one isn't
+    # already open.
+    engine = engine_from_config(settings, 'velruse.store.')
+    connection = engine.raw_connection()
+    connection.cursor()
+    # Create table names to specify for SQL-backed stores.
+    tablenames = {
+        'associations_table': table_prefix + 'openid_associations',
+        'nonces_table': table_prefix + 'openid_nonces',
+    }
+    types = {
+        'postgresql': sqlstore.PostgreSQLStore,
+        'postgresql+psycopg2': sqlstore.PostgreSQLStore,
+        'mysql': sqlstore.MySQLStore,
+        'sqlite3': sqlstore.SQLiteStore,
+    }
+    url = settings.get('velruse.store.url')
+    utype = url.split('://')[0]
+    try:
+        s = types[utype](connection.connection,
+                         **tablenames)
+    except KeyError:
+        raise Exception(
+              "Database engine %s not supported by OpenID library" %
+              (settings.DATABASE_ENGINE,)
+        )
+    try:
+        s.createTables()
+    except (SystemExit, KeyboardInterrupt, MemoryError), e:
+        raise
+    except:
+        # XXX This is not the Right Way to do this, but because the
+        # underlying database implementation might differ in behavior
+        # at this point, we can't reliably catch the right
+        # exception(s) here. Ideally, the SQL store in the OpenID
+        # library would catch exceptions that it expects and fail
+        # silently, but that could be bad, too. More ideally, the SQL
+        # store would not attempt to create tables it knows already
+        # exists.
+        pass
+    return s
