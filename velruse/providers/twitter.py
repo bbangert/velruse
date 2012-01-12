@@ -1,5 +1,6 @@
 """Twitter Authentication Views"""
 from urlparse import parse_qs
+from urllib import urlencode
 
 import oauth2 as oauth
 import requests
@@ -10,6 +11,7 @@ from pyramid.settings import asbool
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
+from velruse.utils import get_came_from
 
 
 REQUEST_URL = 'https://api.twitter.com/oauth/request_token'
@@ -35,8 +37,15 @@ def twitter_login(request):
     # Create the consumer and client, make the request
     consumer = oauth.Consumer(settings['velruse.twitter.consumer_key'],
                               settings['velruse.twitter.consumer_secret'])
+    came_from = get_came_from(request)
+    redirect_uri = request.route_url('twitter_process')
+    if came_from:
+        qs = urlencode({'end_point':came_from })
+        if not '?' in redirect_uri:
+            redirect_uri += '?'
+        redirect_uri += qs 
     sigmethod = oauth.SignatureMethod_HMAC_SHA1()
-    params = {'oauth_callback': request.route_url('twitter_process')}
+    params = {'oauth_callback': redirect_uri}
 
     # We go through some shennanigans here to specify a callback url
     oauth_request = oauth.Request.from_consumer_and_token(consumer,
@@ -89,6 +98,7 @@ def twitter_process(request):
         'userid':access_token['user_id'][0]
     }]
     profile['displayName'] = access_token['screen_name'][0]
+    profile['end_point'] = get_came_from(request)
 
     cred = {'oauthAccessToken': access_token['oauth_token'][0],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}

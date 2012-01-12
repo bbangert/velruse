@@ -1,5 +1,6 @@
 """LinkedIn Authentication Views"""
 from json import loads
+from urllib import urlencode
 from urlparse import parse_qs
 
 import oauth2 as oauth
@@ -11,6 +12,7 @@ from pyramid.settings import asbool
 from velruse.api import AuthenticationComplete
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
+from velruse.utils import get_came_from
 
 
 REQUEST_URL = 'https://api.linkedin.com/uas/oauth/requestToken'
@@ -37,7 +39,14 @@ def linkedin_login(request):
     consumer = oauth.Consumer(config['velruse.linkedin.consumer_key'],
                               config['velruse.linkedin.consumer_secret'])
     sigmethod = oauth.SignatureMethod_HMAC_SHA1()
-    params = {'oauth_callback': request.route_url('linkedin_process')}
+    redirect_uri = request.route_url('linkedin_process')
+    came_from = get_came_from(request)
+    if came_from:
+        qs = urlencode({'end_point':came_from })
+        if not '?' in redirect_uri:
+            redirect_uri += '?'
+        redirect_uri += qs  
+    params = {'oauth_callback': redirect_uri}
 
     # We go through some shennanigans here to specify a callback url
     oauth_request = oauth.Request.from_consumer_and_token(consumer,
@@ -111,5 +120,6 @@ def linkedin_process(request):
         'domain':'linkedin.com',
         'userid':data['id']
     }]
+    profile['end_point'] = get_came_from(request)
     return LinkedInAuthenticationComplete(profile=profile,
                                           credentials=cred)

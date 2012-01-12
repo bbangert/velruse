@@ -16,7 +16,11 @@ log = logging.getLogger(__name__)
 
 @view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
-    endpoint = request.registry.settings.get('velruse.endpoint')
+    # if we have a thirdparty software behind velruse, it can also process in turn
+    # the authentication request and so have specified a callback to return to
+    # We may have this information in the context profile. 
+    endpoint = context.profile.get('end_point',
+                                   request.registry.settings.get('velruse.endpoint'))  
     token = generate_token()
     storage = request.registry.velruse_store
     if 'birthday' in context.profile:
@@ -33,12 +37,19 @@ def auth_complete_view(context, request):
 
 @view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
-    endpoint = request.registry.settings.get('velruse.endpoint')
+    # if we have a thirdparty software behind velruse, it can also process in turn
+    # the authentication request and so have specified a callback to return to
+    # We may have this information in the request parameters from POST to GET.
+    endpoint = request.POST.get('end_point',
+                 request.GET.get('end_point',
+                  request.GET.get('return_to',
+                   request.registry.settings.get('velruse.end_point')))) 
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
-        'code': getattr(context, 'code', None), 
-        'description': context.message, 
+        'code': getattr(context, 'code', None),
+        'description': getattr(context, 'description', 
+                               getattr(context, 'message', '')),
     }
     storage.store(token, error_dict, expires=300)
     form = redirect_form(endpoint, token)
