@@ -232,5 +232,45 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         self.assertTrue('accounts' in result['profile'])
 
 
+class TestYahoo(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('yahoo')
+        cls.login = config['yahoo.login']
+        cls.password = config['yahoo.password']
+
+    def setUp(self):
+        browser.delete_all_cookies()
+
+    def test_it(self):
+        browser.get(config['base_url'] + '/login')
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('yahoo').submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_id('username'))
+        self.assertEqual(browser.title, 'Sign in to Yahoo!')
+        login = browser.find_element_by_id('username')
+        login.send_keys(self.login)
+        passwd = browser.find_element_by_id('passwd')
+        passwd.send_keys(self.password)
+        passwd.submit()
+        def _wait_for_alert(driver):
+            alert = browser.switch_to_alert()
+            try:
+                alert.accept()
+            except:
+                pass
+            return driver.find_element_by_id('result')
+        WebDriverWait(browser, 10).until(_wait_for_alert)
+        self.assertEqual(browser.title, 'Result Page')
+        result = browser.find_element_by_id('result').text
+        result = json.loads(result)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        self.assertTrue('displayName' in result['profile'])
+        self.assertTrue('accounts' in result['profile'])
+
+
 if __name__ == '__main__':
     unittest.main()

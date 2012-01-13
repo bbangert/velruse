@@ -30,13 +30,13 @@
 <input type="submit" value="Login with Google" />
 </form>
 
-<!--
-<form id="yahoo" action="http://teaparty.mine.nu:9090/yahoo/auth" method="post">
+<form id="yahoo" action="http://testing.velruse.merickel.org:5000/velruse/yahoo/login" method="post">
 <input type="hidden" name="openid_identifier" value="yahoo.com" />
 <input type="hidden" name="oauth" value="true" />
 <input type="submit" value="Login with Yahoo" />
 </form>
 
+<!--
 <form id="windows_live" action="http://teaparty.mine.nu/live/auth" method="post">
 <input type="submit" value="Login with Windows Live" />
 </form>
