@@ -74,16 +74,13 @@ def default_setup(config):
     config.set_session_factory(factory)
 
 
-def includeme(config, do_setup=True):
+def includeme(config):
     """Configuration function to make a pyramid app a velruse one."""
-    settings = config.registry.settings
-    config = Configurator(settings=settings)
-    # settings were just deepcopied, reget the right reference
     settings = config.registry.settings
 
     # setup application
     setup = settings.get('velruse.setup', default_setup)
-    if do_setup:
+    if setup:
         config.include(setup)
 
     if not settings.get('velruse.end_point'):
@@ -109,7 +106,7 @@ def includeme(config, do_setup=True):
 
 def make_app(**settings):
     config = Configurator(settings=settings)
-    includeme(config)
+    config.include(includeme)
     return config.make_wsgi_app()
 
 
