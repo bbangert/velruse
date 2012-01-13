@@ -8,6 +8,10 @@ Module Contents
 
 
 .. autoclass:: AttribAccess
+
 .. autofunction:: extract_openid_data
-.. autoclass:: OpenIDResponder
-    :members: __init__, parse_config, _lookup_identifier, _update_authrequest, _get_access_token, login, process
+.. autofunction:: setup_openid
+.. autofunction:: includeme
+.. autoclass:: OpenIDAuthenticationComplete
+.. autoclass:: OpenIDConsumer
+    :members: __init__, _lookup_identifier, _update_authrequest, _get_access_token, login, _update_profile_data, process
