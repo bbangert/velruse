@@ -23,14 +23,14 @@
 <input type="submit" value="Login with Bitbucket" />
 </form>
 
-<!--
-<form id="google" action="http://teaparty.mine.nu:9090/google/auth" method="post">
+<form id="google" action="http://testing.velruse.merickel.org:5000/velruse/google/login" method="post">
 <input type="hidden" name="use_popup" value="false" />
 <input type="hidden" name="oauth_scope" value="https://www.google.com/analytics/feeds/" />
 <input type="hidden" name="openid_identifier" value="google.com" />
 <input type="submit" value="Login with Google" />
 </form>
 
+<!--
 <form id="yahoo" action="http://teaparty.mine.nu:9090/yahoo/auth" method="post">
 <input type="hidden" name="openid_identifier" value="yahoo.com" />
 <input type="hidden" name="oauth" value="true" />

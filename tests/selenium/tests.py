@@ -78,6 +78,8 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         passwd.send_keys(self.password)
         self.assertTrue(self.app in form.text)
         form.submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_id('result'))
         self.assertEqual(browser.title, 'Result Page')
         result = browser.find_element_by_id('result').text
         result = json.loads(result)
@@ -111,6 +113,8 @@ class TestGithub(ProviderTests, unittest.TestCase):
         passwd = form.find_element_by_name('password')
         passwd.send_keys(self.password)
         form.find_element_by_name('commit').submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_id('result'))
         self.assertEqual(browser.title, 'Result Page')
         result = browser.find_element_by_id('result').text
         result = json.loads(result)
@@ -183,6 +187,42 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         self.assertTrue(self.app in content.text)
         form = content.find_element_by_tag_name('form')
         form.submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_id('result'))
+        self.assertEqual(browser.title, 'Result Page')
+        result = browser.find_element_by_id('result').text
+        result = json.loads(result)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        self.assertTrue('displayName' in result['profile'])
+        self.assertTrue('accounts' in result['profile'])
+
+
+class TestGoogle(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('google')
+        cls.login = config['google.login']
+        cls.password = config['google.password']
+
+    def setUp(self):
+        browser.delete_all_cookies()
+
+    def test_it(self):
+        browser.get(config['base_url'] + '/login')
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('google').submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_id('Email'))
+        self.assertEqual(browser.title, 'Google Accounts')
+        login = browser.find_element_by_id('Email')
+        login.send_keys(self.login)
+        passwd = browser.find_element_by_id('Passwd')
+        passwd.send_keys(self.password)
+        passwd.submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_id('result'))
         self.assertEqual(browser.title, 'Result Page')
         result = browser.find_element_by_id('result').text
         result = json.loads(result)
