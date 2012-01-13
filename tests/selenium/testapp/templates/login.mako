@@ -19,11 +19,11 @@
 <input type="submit" value="Login with Twitter" />
 </form>
 
-<!--
-<form id="bitbucket" action="http://teaparty.mine.nu/live/auth" method="post">
+<form id="bitbucket" action="http://localhost:5000/velruse/bitbucket/login" method="post">
 <input type="submit" value="Login with Bitbucket" />
 </form>
 
+<!--
 <form id="google" action="http://teaparty.mine.nu:9090/google/auth" method="post">
 <input type="hidden" name="use_popup" value="false" />
 <input type="hidden" name="oauth_scope" value="https://www.google.com/analytics/feeds/" />

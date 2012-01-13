@@ -156,5 +156,41 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         self.assertTrue('accounts' in result['profile'])
 
 
+class TestBitbucket(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('bitbucket')
+        cls.login = config['bitbucket.login']
+        cls.password = config['bitbucket.password']
+        cls.app = config['bitbucket.app']
+
+    def setUp(self):
+        browser.delete_all_cookies()
+
+    def test_it(self):
+        browser.get(config['base_url'] + '/login')
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('bitbucket').submit()
+        self.assertEqual(browser.title, 'Log in to your Bitbucket account')
+        login = browser.find_element_by_id('id_username')
+        login.send_keys(self.login)
+        passwd = browser.find_element_by_id('id_password')
+        passwd.send_keys(self.password)
+        passwd.submit()
+        self.assertEqual(browser.title, 'Bitbucket')
+        content = browser.find_element_by_id('content')
+        self.assertTrue(self.app in content.text)
+        form = content.find_element_by_tag_name('form')
+        form.submit()
+        self.assertEqual(browser.title, 'Result Page')
+        result = browser.find_element_by_id('result').text
+        result = json.loads(result)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        self.assertTrue('displayName' in result['profile'])
+        self.assertTrue('accounts' in result['profile'])
+
+
 if __name__ == '__main__':
     unittest.main()
