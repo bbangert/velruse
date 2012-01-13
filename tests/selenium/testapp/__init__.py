@@ -11,7 +11,9 @@ import requests
 @view_config(name='login', request_method='GET',
              renderer='testapp:templates/login.mako')
 def login_view(request):
-    return {}
+    return {
+        'host': request.registry.settings['host'],
+    }
 
 
 @view_config(name='login_endpoint', request_method='POST')
