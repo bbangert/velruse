@@ -271,35 +271,6 @@ Complete Example:
     <input type="submit" value="Login with Twitter" />
     </form>
 
-
-
-LDAP (velruse.providers.ldap)
-=========================================
-
-LDAP provider just check bind to an LDAP Server.
-It requires python-ldap.
-
-Settings
---------
-
-velruse.provider.ldapprovider.urls:
-    A list of ldap servers to try to bind to
-velruse.provider.ldapprovider.basedn:
-    An url with a %LOGIN% placeholder to put the login posted username::
-
-POST Parameters
----------------
-
-Complete Example:
-
-.. code-block:: html
-
-    <form action="/velruse/ldap/login" method="post">
-        <input type="submit" value="Login with LDAP" />
-        <input type="text"     name="ldap_username" />
-        <input type="password" name="ldap_password" />
-    </form>
-
 Github (velruse.providers.github)
 ==================================
 
@@ -308,7 +279,8 @@ It requires a Github Application to have been created to use.
 
 github Links:
 
-* `Register a New Github Application <https://github.com/account/applications/new>`_
+* `Register a New Github Application
+  <https://github.com/account/applications/new>`_
 * `Github OAuth API <http://develop.github.com/p/oauth.html>`_
 
 Settings
@@ -333,27 +305,10 @@ Complete Example:
     </form>
 
 
-Windows Live (velruse.providers.github)
+Windows Live (velruse.providers.live)
 ========================================================
 
-The Windows Live Provider handles Windows Live Web Authentication and
-Delegated Authentication. Both of these methods of authentication require
-a Live Services Component to be registered
-`per the 'Registering Your Application' documentation
-<http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_.
-
-Delegated authentication will only be performed if the `offers` YAML
-parameter is set.
-
-Login Authentication provides a single unique identifier, while
-Delegated Authentication provides the single unique identifier and a
-consent token to use to access Live services.
-
-.. note::
-
-    The Windows Live API requires the Python package
-    `PyCrypto <http://www.dlitz.net/software/pycrypto/>`_ to be
-    installed before using.
+The Windows Live Provider supports the Windows Live OAuth 2.0 API.
 
 .. note::
 
@@ -367,12 +322,9 @@ consent token to use to access Live services.
 
 Windows Live Developer Links:
 
-* `Getting Your Application ID
-  <http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_
-* `Services Available for Delegated Authentication
-  <http://dev.live.com/blogs/liveid/archive/2008/02/25/211.aspx>`_
-* `Live Services Management Page
-  <http://go.microsoft.com/fwlink/?LinkID=144070>`_
+* `Windows Live <http://msdn.microsoft.com/en-us/windowslive/default.aspx>`_
+* `Windows Live OAuth 2.0 SDK
+  <http://msdn.microsoft.com/en-us/library/hh243647.aspx>`_
 
 Settings
 --------
@@ -386,22 +338,6 @@ velruse.live.client_secret
 velruse.live.scope
     Delegated auth Offers, e.g. `Contacts.View`
     The `Offers` parameter is optional to invoke Delegated Authentication.
-
-YAML Parameters
----------------
-
-Application ID
-Secret Key
-Policy URL
-    Site's Privacy Policy URL, overrides the url specified during registration
-    of your application with Live Services.
-Return URL
-    Site's Return URL, overrides the url specified during registration of
-    your application with Live Services. This is not *YOUR* applicaton's end
-    point!  This should only be overriden if your registration url is not
-    the velruse url.  For example http://YOURDOMAIN.COM/velruse/live/process.
-Offers
-
 
 POST Parameters
 ---------------
