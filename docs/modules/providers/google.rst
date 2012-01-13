@@ -1,10 +1,17 @@
 :mod:`velruse.providers.google_` -- Google Provider
 ===================================================
 
-.. automodule:: velruse.providers.google_
+---------------
+.. automodule:: velruse.providers.google
 
 Module Contents
 ---------------
 
-.. autoclass:: GoogleResponder
-    :members: __init__, parse_config, _lookup_identifier, _update_authrequest, _get_access_token
+.. autoclass:: GoogleAuthenticationComplete
+.. autofunction:: includeme
+.. autoclass:: GoogleContainer
+    :members: __init__, _lookup_identifier, _update_authrequest, _update_profile_data, _get_access_token
+
+
+ 
+

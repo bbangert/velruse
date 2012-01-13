@@ -8,8 +8,8 @@ Authentication Providers supply varying levels of information when
 authentication has occurred. Some of them can also provide API access
 tokens in addition to authenticating a user for sign-on.
 
-Facebook
-========
+Facebook (velruse.providers.facebook)
+=====================================
 
 The Facebook provider authenticates using the latest Facebook OAuth 2.0
 API with the Social Graph API to obtain additional profile information
@@ -30,9 +30,9 @@ Facebook Developer Links:
 Settings
 --------
 
-velruse.facebook.app_id
+velruse.facebook.consumer_key
     Facebook App Id
-velruse.facebook.app_secret
+velruse.facebook.consumer_secret
     Facebook secret
 velruse.facebook.scope
     Optional comma-separated list of extended permissions.
@@ -58,14 +58,14 @@ Complete Example:
 
 .. code-block:: html
 
-    <form action="/velruse/facebook/login" method="post">
-    <input type="hidden" name="scope" value="publish_stream,create_event" />
-    <input type="submit" value="Login with Facebook" />
+    <form action="/velruse/facebook/auth" method="post">
+        <input type="hidden" name="scope" value="publish_stream,create_event" />
+        <input type="submit" value="Login with Facebook" />
     </form>
 
 
-OpenID
-======
+OpenID (velruse.providers.openid)
+==================================
 
 The OpenID provider does standard OpenID authentication, using both the
 `Simple Registration Extension
@@ -110,8 +110,8 @@ Complete Example:
     </form>
 
 
-Google
-======
+Google (velruse.providers.google)
+==================================
 
 Google provides both basic OpenID using Attribute Exchange 2.0, as well
 as a OpenID+OAuth hybrid that authenticates a user and completes OAuth
@@ -184,8 +184,8 @@ Complete Example:
     </form>
 
 
-Yahoo
-=====
+Yahoo (velruse.providers.yahoo)
+=================================
 
 Like Google, Yahoo offers either plain OpenID for authentication or an
 OpenID+OAuth hybrid authentication granting access to Yahoo applications
@@ -237,8 +237,8 @@ Complete Example:
     <input type="submit" value="Login with Yahoo" />
     </form>
 
-Twitter
-=======
+Twitter (velruse.providers.twitter)
+==========================================
 
 The Twitter provider combines authentication with OAuth authorization.
 It requires a Twitter Application to have been created to use. Twitter
@@ -257,7 +257,8 @@ velruse.twitter.consumer_key
     Twitter application consumer key
 velruse.twitter.consumer_secret
     Twitter application secret
-velruse.twitter.authorize
+velruse.twitter.authorization
+    github application scope
 
 POST Parameters
 ---------------
@@ -270,28 +271,44 @@ Complete Example:
     <input type="submit" value="Login with Twitter" />
     </form>
 
+Github (velruse.providers.github)
+==================================
 
-Windows Live
-============
+The Github provider combines authentication with OAuth authorization.
+It requires a Github Application to have been created to use.
 
-The Windows Live Provider handles Windows Live Web Authentication and
-Delegated Authentication. Both of these methods of authentication require
-a Live Services Component to be registered
-`per the 'Registering Your Application' documentation
-<http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_.
+github Links:
 
-Delegated authentication will only be performed if the `offers` YAML
-parameter is set.
+* `Register a New Github Application
+  <https://github.com/account/applications/new>`_
+* `Github OAuth API <http://develop.github.com/p/oauth.html>`_
 
-Login Authentication provides a single unique identifier, while
-Delegated Authentication provides the single unique identifier and a
-consent token to use to access Live services.
+Settings
+--------
 
-.. note::
+velruse.github.consumer_key
+    github application consumer key
+velruse.github.consumer_secret
+    github application secret
+velruse.github.scope
+    github application scope
 
-    The Windows Live API requires the Python package
-    `PyCrypto <http://www.dlitz.net/software/pycrypto/>`_ to be
-    installed before using.
+POST Parameters
+---------------
+
+Complete Example:
+
+.. code-block:: html
+
+    <form action="/velruse/github/login" method="post">
+    <input type="submit" value="Login with Twitter" />
+    </form>
+
+
+Windows Live (velruse.providers.live)
+========================================================
+
+The Windows Live Provider supports the Windows Live OAuth 2.0 API.
 
 .. note::
 
@@ -305,41 +322,22 @@ consent token to use to access Live services.
 
 Windows Live Developer Links:
 
-* `Getting Your Application ID
-  <http://msdn.microsoft.com/en-us/library/cc287659(v=MSDN.10).aspx>`_
-* `Services Available for Delegated Authentication
-  <http://dev.live.com/blogs/liveid/archive/2008/02/25/211.aspx>`_
-* `Live Services Management Page
-  <http://go.microsoft.com/fwlink/?LinkID=144070>`_
+* `Windows Live <http://msdn.microsoft.com/en-us/windowslive/default.aspx>`_
+* `Windows Live OAuth 2.0 SDK
+  <http://msdn.microsoft.com/en-us/library/hh243647.aspx>`_
 
 Settings
 --------
 
 velruse.live.client_id
+    Component Application ID
 
 velruse.live.client_secret
+    Component Secret Key
 
 velruse.live.scope
-
-YAML Parameters
----------------
-
-Application ID
-    Component Application ID
-Secret Key
-    Component Secret Key
-Policy URL
-    Site's Privacy Policy URL, overrides the url specified during registration
-    of your application with Live Services.
-Return URL
-    Site's Return URL, overrides the url specified during registration of 
-    your application with Live Services. This is not *YOUR* applicaton's end
-    point!  This should only be overriden if your registration url is not
-    the velruse url.  For example http://YOURDOMAIN.COM/velruse/live/process.
-Offers
     Delegated auth Offers, e.g. `Contacts.View`
-
-The `Offers` parameter is optional to invoke Delegated Authentication.
+    The `Offers` parameter is optional to invoke Delegated Authentication.
 
 POST Parameters
 ---------------
@@ -347,7 +345,7 @@ POST Parameters
 Complete Example:
 
 .. code-block:: html
-    
-    <form action="/velruse/live/login" method="post">
+
+    <form action="/velruse/live/auth" method="post">
     <input type="submit" value="Login with Windows Live" />
     </form>
