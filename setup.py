@@ -3,20 +3,20 @@ from setuptools import setup, find_packages
 version = '0.20a1'
 
 tests_require = [
-        'nose>=0.11',
-        'lettuce>=0.1.21',
-        'lettuce_webdriver>=0.1.2',
-        'selenium',
-        'pymongo',
-        'routes',
-        ]
+    'nose>=0.11',
+    'selenium',
+    'pymongo',
+    'unittest2',
+    'PasteScript',
+]
 
 setup(name='velruse',
       version=version,
-      description="Simplifying third-party authentication for web applications.",
-      long_description="""\
-""",
-      classifiers=[], # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      description=(
+          'Simplifying third-party authentication for web applications.'),
+      long_description='',
+      # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+      classifiers=[],
       keywords='',
       author='Ben Bangert',
       author_email='ben@groovie.org',
@@ -26,11 +26,10 @@ setup(name='velruse',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          "python-openid>=2.2.4",
-          "oauth2>=1.1.3",
-          "pyramid>=1.2",
-          "requests>=0.6.6",
-          "simplejson>=2.2.1",
+          'python-openid>=2.2.4',
+          'oauth2>=1.1.3',
+          'pyramid>=1.2',
+          'requests>=0.6.6',
       ],
       tests_require=tests_require,
       extras_require={'tests': tests_require},

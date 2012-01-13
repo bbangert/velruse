@@ -1,4 +1,8 @@
-"""Github Authentication Views"""
+"""Github Authentication Views
+
+http://develop.github.com/p/oauth.html
+https://github.com/account/applications
+"""
 from json import loads
 from urlparse import parse_qs
 
@@ -29,7 +33,8 @@ def github_login(request):
     config = request.registry.settings
     scope = config.get('velruse.github.scope',
                        request.POST.get('scope', ''))
-    gh_url = flat_url('https://github.com/login/oauth/authorize', scope=scope,
+    gh_url = flat_url('https://github.com/login/oauth/authorize',
+                      scope=scope,
                       client_id=config['velruse.github.app_id'],
                       redirect_uri=request.route_url('github_process'))
     return HTTPFound(location=gh_url)

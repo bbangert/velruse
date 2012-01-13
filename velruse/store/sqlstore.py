@@ -1,14 +1,13 @@
 """In Memory UserStore implementation"""
 from datetime import datetime, timedelta
+import json
+
 from sqlalchemy import engine_from_config
 from sqlalchemy.sql import select, delete
 from sqlalchemy.ext.declarative import declarative_base, Column
 from sqlalchemy import String, Text, DateTime
+
 from velruse.store.interface import UserStore
-try:
-    import simplejson as json
-except ImportError:
-    import json
 
 
 SQLBase = declarative_base()

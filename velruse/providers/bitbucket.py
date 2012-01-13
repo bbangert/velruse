@@ -1,4 +1,8 @@
-"""Bitbucket Authentication Views"""
+"""Bitbucket Authentication Views
+
+http://confluence.atlassian.com/display/BITBUCKET/OAuth+on+Bitbucket
+"""
+
 import json
 from urlparse import parse_qs
 
@@ -105,10 +109,10 @@ def bitbucket_process(request):
     }]
     profile['preferredUsername'] = data['username']
     profile['name'] = {
-                       'formatted': '%s %s' % (data['first_name'], data['last_name']),
-                       'givenName': data['first_name'],
-                       'familyName': data['last_name']
-                       }
+        'formatted': '%s %s' % (data['first_name'], data['last_name']),
+        'givenName': data['first_name'],
+        'familyName': data['last_name'],
+        }
     profile['displayName'] = profile['name']['formatted']
     return BitbucketAuthenticationComplete(profile=profile,
                                            credentials=cred)
