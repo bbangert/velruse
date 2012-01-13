@@ -36,11 +36,9 @@
 <input type="submit" value="Login with Yahoo" />
 </form>
 
-<!--
-<form id="windows_live" action="http://teaparty.mine.nu/live/auth" method="post">
+<form id="live" action="http://testing.velruse.merickel.org:5000/velruse/live/login" method="post">
 <input type="submit" value="Login with Windows Live" />
 </form>
--->
 
 </body>
 </html>

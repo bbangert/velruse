@@ -88,6 +88,7 @@ def extract_live_data(data):
             'familyName': data.get('last_name'),
             'givenName': data.get('first_name'),
         },
+        'displayName': data.get('name'),
         'emails': [],
         'urls': [],
     }

@@ -272,5 +272,39 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         self.assertTrue('accounts' in result['profile'])
 
 
+class TestWindowsLive(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('live')
+        cls.login = config['live.login']
+        cls.password = config['live.password']
+
+    def setUp(self):
+        browser.delete_all_cookies()
+
+    def test_it(self):
+        browser.get(config['base_url'] + '/login')
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('live').submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_name('login'))
+        self.assertEqual(browser.title, 'Welcome to Windows Live')
+        login = browser.find_element_by_name('login')
+        login.send_keys(self.login)
+        passwd = browser.find_element_by_name('passwd')
+        passwd.send_keys(self.password)
+        passwd.submit()
+        WebDriverWait(browser, 10).until(
+            lambda driver: driver.find_element_by_id('result'))
+        self.assertEqual(browser.title, 'Result Page')
+        result = browser.find_element_by_id('result').text
+        result = json.loads(result)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        self.assertTrue('displayName' in result['profile'])
+        self.assertTrue('accounts' in result['profile'])
+
+
 if __name__ == '__main__':
     unittest.main()
