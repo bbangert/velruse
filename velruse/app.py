@@ -79,7 +79,7 @@ def includeme(config):
     settings = config.registry.settings
 
     # setup application
-    setup = settings.get('velruse.setup', default_setup)
+    setup = settings.get('velruse.setup') or default_setup
     if setup:
         config.include(setup)
 
