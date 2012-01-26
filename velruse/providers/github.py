@@ -23,19 +23,20 @@ class GithubAuthenticationComplete(AuthenticationComplete):
 def includeme(config):
     config.add_directive('add_github_login', add_github_login)
 
-def add_github_login(
-    config,
-    consumer_key,
-    consumer_secret,
-    scope=None,
-    entry_path='/github/login',
-    callback_path='/github/login/callback',
-    name='github.login',
-):
+def add_github_login(config,
+                     consumer_key,
+                     consumer_secret,
+                     scope=None,
+                     login_path='/login/github',
+                     callback_path='/login/github/callback',
+                     name='github'):
+    """
+    Add a Github login provider to the application.
+    """
     provider = GithubProvider(name, consumer_key, consumer_secret, scope)
 
-    config.add_route(provider.entry_route, entry_path)
-    config.add_view(provider.login, route_name=provider.entry_route)
+    config.add_route(provider.login_route, login_path)
+    config.add_view(provider.login, route_name=provider.login_route)
 
     config.add_route(provider.callback_route, callback_path,
                      use_global_views=True,
@@ -44,15 +45,14 @@ def add_github_login(
     register_provider(config, name, provider)
 
 class GithubProvider(object):
-
     def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
 
-        self.entry_route = name
-        self.callback_route = '%s-callback' % name
+        self.login_route = 'velruse.%s-login' % name
+        self.callback_route = 'velruse.%s-callback' % name
 
     def login(self, request):
         """Initiate a github login"""

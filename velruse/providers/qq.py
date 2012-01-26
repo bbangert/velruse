@@ -1,9 +1,13 @@
 """QQ Authentication Views"""
 from json import loads
 from urlparse import parse_qs
+
 import requests
+
 from pyramid.httpexceptions import HTTPFound
+
 from velruse.api import AuthenticationComplete
+from velruse.api import register_provider
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
@@ -12,70 +16,97 @@ from velruse.utils import flat_url
 class QQAuthenticationComplete(AuthenticationComplete):
     """QQ auth complete"""
 
-
 def includeme(config):
-    config.add_route("qq_login", "/qq/login")
-    config.add_route("qq_process", "/qq/process",
+    config.add_directive('add_qq_login', add_qq_login)
+
+def add_qq_login(config,
+                 consumer_key,
+                 consumer_secret,
+                 scope=None,
+                 login_path='/login/qq',
+                 callback_path='/login/qq/callback',
+                 name='qq'):
+    """
+    Add a QQ login provider to the application.
+    """
+    provider = QQProvider(name, consumer_key, consumer_secret, scope)
+
+    config.add_route(provider.login_route, login_path)
+    config.add_view(provider.login, route_name=provider.login_route)
+
+    config.add_route(provider.callback_route, callback_path,
                      use_global_views=True,
-                     factory=qq_process)
-    config.add_view(qq_login, route_name="qq_login")
+                     factory=provider.callback)
+
+    register_provider(config, name, provider)
+
+class QQProvider(object):
+    def __init__(self, name, consumer_key, consumer_secret, scope):
+        self.name = name
+        self.consumer_key = consumer_key
+        self.consumer_secret = consumer_secret
+        self.scope = scope
+
+        self.login_route = 'velruse.%s-login' % name
+        self.callback_route = 'velruse.%s-callback' % name
+
+    def login(self, request):
+        """Initiate a qq login"""
+        scope = request.POST.get('scope', self.scope)
+        gh_url = flat_url('https://graph.qq.com/oauth2.0/authorize',
+                          scope=scope,
+                          client_id=self.consumer_key,
+                          response_type='code',
+                          redirect_uri=request.route_url(self.callback_route))
+        return HTTPFound(location=gh_url)
 
 
-def qq_login(request):
-    """Initiate a qq login"""
-    config = request.registry.settings
-    scope = config.get('velruse.qq.scope',
-                       request.POST.get('scope', ''))
-    gh_url = flat_url('https://graph.qq.com/oauth2.0/authorize', scope=scope,
-                      client_id=config['velruse.qq.app_id'],
-                      response_type='code',
-                      redirect_uri=request.route_url('qq_process'))
-    return HTTPFound(location=gh_url)
+    def callback(self, request):
+        """Process the qq redirect"""
+        code = request.GET.get('code')
+        if not code:
+            reason = request.GET.get('error', 'No reason provided.')
+            return AuthenticationDenied(reason)
 
+        # Now retrieve the access token with the code
+        access_url = flat_url(
+            'https://graph.qq.com/oauth2.0/token',
+            client_id=self.consumer_key,
+            client_secret=self.consumer_secret,
+            grant_type='authorization_code',
+            redirect_uri=request.route_url(self.callback_route),
+            code=code)
+        r = requests.get(access_url)
+        if r.status_code != 200:
+            raise ThirdPartyFailure("Status %s: %s" % (
+                r.status_code, r.content))
+        access_token = parse_qs(r.content)['access_token'][0]
 
-def qq_process(request):
-    """Process the qq redirect"""
-    config = request.registry.settings
-    code = request.GET.get('code')
-    if not code:
-        reason = request.GET.get('error', 'No reason provided.')
-        return AuthenticationDenied(reason)
+        # Retrieve profile data
+        graph_url = flat_url('https://graph.qq.com/oauth2.0/me',
+                             access_token=access_token)
+        r = requests.get(graph_url)
+        if r.status_code != 200:
+            raise ThirdPartyFailure("Status %s: %s" % (
+                r.status_code, r.content))
+        data = loads(r.content[10:-3])
+        openid = data.get('openid', '')
 
-    # Now retrieve the access token with the code
-    access_url = flat_url('https://graph.qq.com/oauth2.0/token',
-                          client_id=config['velruse.qq.app_id'],
-                          client_secret=config['velruse.qq.app_secret'],
-                          grant_type='authorization_code',
-                          redirect_uri=request.route_url('qq_process'),
-                          code=code)
-    r = requests.get(access_url)
-    if r.status_code != 200:
-        raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
-    access_token = parse_qs(r.content)['access_token'][0]
+        user_info_url = flat_url('https://graph.qq.com/user/get_user_info',
+                access_token=access_token,
+                oauth_consumer_key=self.consumer_key,
+                openid=openid)
+        r = requests.get(user_info_url)
+        if r.status_code != 200:
+            raise ThirdPartyFailure("Status %s: %s" % (
+                r.status_code, r.content))
+        data = loads(r.content)
 
-    # Retrieve profile data
-    graph_url = flat_url('https://graph.qq.com/oauth2.0/me',
-                         access_token=access_token)
-    r = requests.get(graph_url)
-    if r.status_code != 200:
-        raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
-    data = loads(r.content[10:-3])
-    openid = data.get('openid', '')
+        profile = {
+            'accounts': [{'domain':'qq.com', 'userid':openid}],
+            'displayName': data['nickname'],
+            'preferredUsername': data['nickname'],
+        }
 
-    user_info_url = flat_url('https://graph.qq.com/user/get_user_info',
-            access_token=access_token,
-            oauth_consumer_key=config['velruse.qq.app_id'],
-            openid=openid)
-    r = requests.get(user_info_url)
-    if r.status_code != 200:
-        raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
-    data = loads(r.content)
-
-    profile = {
-        'accounts': [{'domain':'qq.com', 'userid':openid}],
-        'displayName': data['nickname'],
-        'preferredUsername': data['nickname'],
-    }
-
-    cred = {'oauthAccessToken': access_token}
-    return QQAuthenticationComplete(profile=profile, credentials=cred)
+        cred = {'oauthAccessToken': access_token}
+        return QQAuthenticationComplete(profile=profile, credentials=cred)

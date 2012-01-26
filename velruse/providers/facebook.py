@@ -22,22 +22,20 @@ class FacebookAuthenticationComplete(AuthenticationComplete):
 def includeme(config):
     config.add_directive('add_facebook_login', add_facebook_login)
 
-def add_facebook_login(
-    config,
-    consumer_key,
-    consumer_secret,
-    scope=None,
-    entry_path='/facebook/login',
-    callback_path='/facebook/login/callback',
-    name='facebook.login',
-):
+def add_facebook_login(config,
+                       consumer_key,
+                       consumer_secret,
+                       scope=None,
+                       login_path='/login/facebook',
+                       callback_path='/login/facebook/callback',
+                       name='facebook'):
     """
     Add a Facebook login provider to the application.
     """
     provider = FacebookProvider(name, consumer_key, consumer_secret, scope)
 
-    config.add_route(provider.entry_route, entry_path)
-    config.add_view(provider.login, route_name=provider.entry_route)
+    config.add_route(provider.login_route, login_path)
+    config.add_view(provider.login, route_name=provider.login_route)
 
     config.add_route(provider.callback_route, callback_path,
                      use_global_views=True,
@@ -52,8 +50,8 @@ class FacebookProvider(object):
         self.consumer_secret = consumer_secret
         self.scope = scope
 
-        self.entry_route = name
-        self.callback_route = '%s-callback' % name
+        self.login_route = 'velruse.%s-login' % name
+        self.callback_route = 'velruse.%s-callback' % name
 
     def login(self, request):
         """Initiate a facebook login"""
@@ -88,7 +86,8 @@ class FacebookProvider(object):
             code=code)
         r = requests.get(access_url)
         if r.status_code != 200:
-            raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
+            raise ThirdPartyFailure("Status %s: %s" % (
+                r.status_code, r.content))
         access_token = parse_qs(r.content)['access_token'][0]
 
         # Retrieve profile data
@@ -96,7 +95,8 @@ class FacebookProvider(object):
                              access_token=access_token)
         r = requests.get(graph_url)
         if r.status_code != 200:
-            raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
+            raise ThirdPartyFailure("Status %s: %s" % (
+                r.status_code, r.content))
         fb_profile = loads(r.content)
         profile = extract_fb_data(fb_profile)
 

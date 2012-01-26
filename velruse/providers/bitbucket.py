@@ -29,18 +29,19 @@ class BitbucketAuthenticationComplete(AuthenticationComplete):
 def includeme(config):
     config.add_directive('add_bitbucket_login', add_bitbucket_login)
 
-def add_bitbucket_login(
-    config,
-    consumer_key,
-    consumer_secret,
-    entry_path='/bitbucket/login',
-    callback_path='/bitbucket/login/callback',
-    name='bitbucket.login',
-):
+def add_bitbucket_login(config,
+                        consumer_key,
+                        consumer_secret,
+                        login_path='/bitbucket/login',
+                        callback_path='/bitbucket/login/callback',
+                        name='bitbucket'):
+    """
+    Add a Bitbucket login provider to the application.
+    """
     provider = BitbucketProvider(name, consumer_key, consumer_secret)
 
-    config.add_route(provider.entry_route, entry_path)
-    config.add_view(provider.login, route_name=provider.entry_route)
+    config.add_route(provider.login_route, login_path)
+    config.add_view(provider.login, route_name=provider.login_route)
 
     config.add_route(provider.callback_route, callback_path,
                      use_global_views=True,
@@ -54,8 +55,8 @@ class BitbucketProvider(object):
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
 
-        self.entry_route = name
-        self.callback_route = '%s-callback' % name
+        self.login_route = 'velruse.%s-login' % name
+        self.callback_route = 'velruse.%s-callback' % name
 
     def login(self, request):
         """Initiate a bitbucket login"""

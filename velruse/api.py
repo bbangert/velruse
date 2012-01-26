@@ -24,3 +24,11 @@ def register_provider(config, name, provider):
         providers[name] = provider
 
     config.action(('velruse-provider', name), register)
+
+def login_url(request, name):
+    """
+    Generate the login URL for a provider.
+    """
+    registry = request.registry
+    provider = registry.velruse_providers[name]
+    return request.route_url(provider.login_route)

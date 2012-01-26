@@ -11,6 +11,7 @@ from urlparse import parse_qs
 import oauth2 as oauth
 from openid.extensions import ax
 
+from velruse.api import register_provider
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
 from velruse.providers.openidconsumer import attributes
@@ -21,9 +22,44 @@ from velruse.providers.openidconsumer import OpenIDConsumer
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 
-
 class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
     """Google auth complete"""
+
+def includeme(config):
+    config.add_directive('add_google_login', add_google_login)
+
+def add_google_login(config,
+                     consumer_key,
+                     consumer_secret,
+                     scope=None,
+                     login_path='/login/google',
+                     callback_path='/login/google/callback',
+                     name='google'):
+    """
+    Add a Google login provider to the application.
+    """
+    provider = GoogleProvider(name, consumer_key, consumer_secret, scope)
+
+    config.add_route(provider.login_route, login_path)
+    config.add_view(provider.login, route_name=provider.login_route)
+
+    config.add_route(provider.callback_route, callback_path,
+                     use_global_views=True,
+                     factory=provider.callback)
+
+    register_provider(config, name, provider)
+
+class GoogleProvider(object):
+    def __init__(self, name, consumer_key, consumer_secret,
+                 request_attributes, scope):
+        self.name = name
+        self.consumer_key = consumer_key
+        self.consumer_secret = consumer_secret
+        self.request_attributes = request_attributes
+        self.scope = scope
+
+        self.login_route = 'velruse.%s-login' % name
+        self.callback_route = 'velruse.%s-callback' % name
 
 
 def includeme(config):
