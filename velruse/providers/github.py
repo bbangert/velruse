@@ -11,6 +11,7 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 
 from velruse.api import AuthenticationComplete
+from velruse.api import register_provider
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
@@ -20,28 +21,38 @@ class GithubAuthenticationComplete(AuthenticationComplete):
     """Github auth complete"""
 
 def includeme(config):
-    config.add_directive('add_github_login', GithubProvider().setup)
+    config.add_directive('add_github_login', add_github_login)
+
+def add_github_login(
+    config,
+    consumer_key,
+    consumer_secret,
+    scope=None,
+    entry_path='/github/login',
+    callback_path='/github/login/callback',
+    name='github.login',
+):
+    provider = GithubProvider(name, consumer_key, consumer_secret, scope)
+
+    config.add_route(provider.entry_route, entry_path)
+    config.add_view(provider.login, route_name=provider.entry_route)
+
+    config.add_route(provider.callback_route, callback_path,
+                     use_global_views=True,
+                     factory=provider.callback)
+
+    register_provider(config, name, provider)
 
 class GithubProvider(object):
 
-    def setup(
-        self,
-        config,
-        consumer_key,
-        consumer_secret,
-        scope=None,
-        entry_path='/github/login',
-        callback_path='/github/login/callback',
-    ):
+    def __init__(self, name, consumer_key, consumer_secret, scope):
+        self.name = name
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
 
-        config.add_route('github.login', entry_path)
-        config.add_route('github.process', callback_path,
-                         use_global_views=True,
-                         factory=self.process)
-        config.add_view(self.login, route_name='github_login')
+        self.entry_route = name
+        self.callback_route = '%s-callback' % name
 
     def login(self, request):
         """Initiate a github login"""
@@ -50,10 +61,10 @@ class GithubProvider(object):
             'https://github.com/login/oauth/authorize',
             scope=scope,
             client_id=self.consumer_key,
-            redirect_uri=request.route_url('github.process'))
+            redirect_uri=request.route_url(self.callback_route))
         return HTTPFound(location=gh_url)
 
-    def process(self, request):
+    def callback(self, request):
         """Process the github redirect"""
         code = request.GET.get('code')
         if not code:
@@ -65,7 +76,7 @@ class GithubProvider(object):
             'https://github.com/login/oauth/access_token',
             client_id=self.consumer_key,
             client_secret=self.consumer_secret,
-            redirect_uri=request.route_url('github.process'),
+            redirect_uri=request.route_url(self.callback_route),
             code=code)
         r = requests.get(access_url)
         if r.status_code != 200:

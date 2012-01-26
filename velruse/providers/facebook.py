@@ -9,6 +9,7 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 
 from velruse.api import AuthenticationComplete
+from velruse.api import register_provider
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
@@ -19,31 +20,40 @@ class FacebookAuthenticationComplete(AuthenticationComplete):
     """Facebook auth complete"""
 
 def includeme(config):
-    config.add_directive('add_facebook_login', FacebookProvider().setup)
+    config.add_directive('add_facebook_login', add_facebook_login)
+
+def add_facebook_login(
+    config,
+    consumer_key,
+    consumer_secret,
+    scope=None,
+    entry_path='/facebook/login',
+    callback_path='/facebook/login/callback',
+    name='facebook.login',
+):
+    """
+    Add a Facebook login provider to the application.
+    """
+    provider = FacebookProvider(name, consumer_key, consumer_secret, scope)
+
+    config.add_route(provider.entry_route, entry_path)
+    config.add_view(provider.login, route_name=provider.entry_route)
+
+    config.add_route(provider.callback_route, callback_path,
+                     use_global_views=True,
+                     factory=provider.callback)
+
+    register_provider(config, name, provider)
 
 class FacebookProvider(object):
-
-    def setup(
-        self,
-        config,
-        consumer_key,
-        consumer_secret,
-        scope=None,
-        entry_path='/facebook/login',
-        callback_path='/facebook/login/callback',
-    ):
-        """
-        Add a Facebook login provider to the application.
-        """
+    def __init__(self, name, consumer_key, consumer_secret, scope):
+        self.name = name
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
 
-        config.add_route('facebook.login', entry_path)
-        config.add_route('facebook.callback', callback_path,
-                         use_global_views=True,
-                         factory=self.callback)
-        config.add_view(self.login, route_name='facebook.login')
+        self.entry_route = name
+        self.callback_route = '%s-callback' % name
 
     def login(self, request):
         """Initiate a facebook login"""
@@ -53,7 +63,7 @@ class FacebookProvider(object):
             'https://www.facebook.com/dialog/oauth/',
             scope=scope,
             client_id=self.consumer_key,
-            redirect_uri=request.route_url('facebook.callback'),
+            redirect_uri=request.route_url(self.callback_route),
             state=state)
         return HTTPFound(location=fb_url)
 
@@ -74,7 +84,7 @@ class FacebookProvider(object):
             'https://graph.facebook.com/oauth/access_token',
             client_id=self.consumer_key,
             client_secret=self.consumer_secret,
-            redirect_uri=request.route_url('facebook.callback'),
+            redirect_uri=request.route_url(self.callback_route),
             code=code)
         r = requests.get(access_url)
         if r.status_code != 200:
