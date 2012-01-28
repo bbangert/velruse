@@ -5,6 +5,7 @@ import logging
 from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
+from openid.storage.memstore import MemoryStore
 
 from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
@@ -14,6 +15,7 @@ from velruse.api import register_provider
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import MissingParameter
 from velruse.exceptions import ThirdPartyFailure
+
 
 log = logging.getLogger(__name__)
 
@@ -72,14 +74,20 @@ def includeme(config):
     config.add_directive('add_openid_login', add_openid_login)
 
 def add_openid_login(config,
-                     storage,
                      realm,
+                     storage=None,
                      login_path='/login/openid',
                      callback_path='/login/openid/callback',
                      name='openid'):
     """
     Add a OpenID login provider to the application.
+
+    `storage` should be an object conforming to the
+    `openid.store.interface.OpenIDStore` protocol. This will default
+    to `openid.store.memstore.MemoryStore`.
     """
+    if storage is None:
+        storage = MemoryStore()
     provider = OpenIDConsumer(name, storage, realm)
 
     config.add_route(provider.login_route, login_path)
@@ -97,10 +105,11 @@ class OpenIDConsumer(object):
     Providors using specialized OpenID based authentication subclass this.
 
     """
-    def __init__(self, name, storage, realm, context=AuthenticationComplete):
+    def __init__(self, name, realm, storage, context=AuthenticationComplete):
         self.name = name
         self.openid_store = storage
         self.realm = realm
+        self.context = context
 
         self.login_route = 'velruse.%s-url' % name
         self.callback_route = 'velruse.%s-callback' % name
