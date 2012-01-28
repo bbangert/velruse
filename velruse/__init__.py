@@ -5,6 +5,7 @@ def includeme(config):
     config.include('velruse.providers.github')
     config.include('velruse.providers.lastfm')
     config.include('velruse.providers.live')
+    config.include('velruse.providers.openid')
     config.include('velruse.providers.qq')
     config.include('velruse.providers.renren')
     config.include('velruse.providers.taobao')
