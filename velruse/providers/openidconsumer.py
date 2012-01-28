@@ -10,6 +10,7 @@ from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
 
 from velruse.api import AuthenticationComplete
+from velruse.api import register_provider
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import MissingParameter
 from velruse.exceptions import ThirdPartyFailure
@@ -64,6 +65,182 @@ trans_dict = dict(
 
 attributes = ax_attributes
 
+class OpenIDAuthenticationComplete(AuthenticationComplete):
+    """OpenID auth complete"""
+
+def includeme(config):
+    config.add_directive('add_openid_login', add_openid_login)
+
+def add_openid_login(config,
+                     storage,
+                     realm,
+                     login_path='/login/openid',
+                     callback_path='/login/openid/callback',
+                     name='openid'):
+    """
+    Add a OpenID login provider to the application.
+    """
+    provider = OpenIDConsumer(name, storage, realm)
+
+    config.add_route(provider.login_route, login_path)
+    config.add_view(provider.login, route_name=provider.login_route)
+
+    config.add_route(provider.callback_route, callback_path,
+                     use_global_views=True,
+                     factory=provider.callback)
+
+    register_provider(config, name, provider)
+
+class OpenIDConsumer(object):
+    """OpenID Consumer base class
+
+    Providors using specialized OpenID based authentication subclass this.
+
+    """
+    def __init__(self, name, storage, realm, context=AuthenticationComplete):
+        self.name = name
+        self.openid_store = storage
+        self.realm = realm
+
+        self.login_route = 'velruse.%s-url' % name
+        self.callback_route = 'velruse.%s-callback' % name
+
+    def _lookup_identifier(self, request, identifier):
+        """Extension point for inherited classes that want to change or set
+        a default identifier"""
+        return identifier
+
+    def _update_authrequest(self, request, authrequest):
+        """Update the authrequest with the default extensions and attributes
+        we ask for
+
+        This method doesn't need to return anything, since the extensions
+        should be added to the authrequest object itself.
+
+        """
+        # Add on the Attribute Exchange for those that support that
+        ax_request = ax.FetchRequest()
+        for attrib in attributes.values():
+            ax_request.add(ax.AttrInfo(attrib))
+        authrequest.addExtension(ax_request)
+
+        # Form the Simple Reg request
+        sreg_request = sreg.SRegRequest(
+            optional=['nickname', 'email', 'fullname', 'dob', 'gender',
+                      'postcode', 'country', 'language', 'timezone'],
+        )
+        authrequest.addExtension(sreg_request)
+        return None
+
+    def _get_access_token(self, request_token):
+        """Called to exchange a request token for the access token
+
+        This method doesn't by default return anything, other OpenID+Oauth
+        consumers should override it to do the appropriate lookup for the
+        access token, and return the access token.
+
+        """
+        return None
+
+    def login(self, request):
+        log.debug('Handling OpenID login')
+
+        # Load default parameters that all Auth Responders take
+        openid_url = request.params.get('openid_identifier')
+
+        # Let inherited consumers alter the openid identifier if desired
+        openid_url = self._lookup_identifier(request, openid_url)
+
+        if not openid_url:
+            log.error('Velruse: no openid_url')
+            raise MissingParameter('No openid_identifier was found')
+
+        openid_session = {}
+        oidconsumer = consumer.Consumer(openid_session, self.openid_store)
+
+        try:
+            log.debug('About to try OpenID begin')
+            authrequest = oidconsumer.begin(openid_url)
+        except consumer.DiscoveryFailure:
+            log.debug('OpenID begin DiscoveryFailure')
+            raise
+
+        if authrequest is None:
+            log.debug('OpenID begin returned empty')
+            raise ThirdPartyFailure("OpenID begin returned nothing")
+
+        log.debug('Updating authrequest')
+
+        # Update the authrequest
+        self._update_authrequest(request, authrequest)
+
+        return_to = request.route_url(self.callback_url)
+
+        # OpenID 2.0 lets Providers request POST instead of redirect, this
+        # checks for such a request.
+        if authrequest.shouldSendRedirect():
+            log.debug('About to initiate OpenID redirect')
+            redirect_url = authrequest.redirectURL(realm=self.realm,
+                                                   return_to=return_to,
+                                                   immediate=False)
+            request.session['openid_session'] = openid_session
+            return HTTPFound(location=redirect_url)
+        else:
+            log.debug('About to initiate OpenID POST')
+            html = authrequest.htmlMarkup(
+                realm=self.realm, return_to=return_to, immediate=False)
+            request.session['openid_session'] = openid_session
+            return Response(body=html)
+
+    def _update_profile_data(self, request, user_data, credentials):
+        """Update the profile data using an OAuth request to fetch more data"""
+
+    def callback(self, request):
+        """Handle incoming redirect from OpenID Provider"""
+        log.debug('Handling processing of response from server')
+
+        openid_session = request.session.get('openid_session', None)
+        if not openid_session:
+            raise ThirdPartyFailure("No OpenID Session has begun.")
+        else:
+            del request.session['openid_session']
+
+        # Setup the consumer and parse the information coming back
+        oidconsumer = consumer.Consumer(openid_session, self.openid_store)
+        return_to = request.route_url(self.callback_url)
+        info = oidconsumer.complete(request.params, return_to)
+
+        if info.status in [consumer.FAILURE, consumer.CANCEL]:
+            raise AuthenticationDenied("OpenID failure")
+        elif info.status == consumer.SUCCESS:
+            openid_identity = info.identity_url
+            if info.endpoint.canonicalID:
+                # If it's an i-name, use the canonicalID as its secure even if
+                # the old one is compromised
+                openid_identity = info.endpoint.canonicalID
+
+            user_data = extract_openid_data(
+                identifier=openid_identity,
+                sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
+                ax_resp=ax.FetchResponse.fromSuccessResponse(info)
+            )
+            # Did we get any OAuth info?
+            oauth = info.extensionResponse(
+                'http://specs.openid.net/extensions/oauth/1.0', False
+            )
+            cred = {}
+            if oauth and 'request_token' in oauth:
+                access_token = self._get_access_token(oauth['request_token'])
+                if access_token:
+                    cred.update(access_token)
+
+                # See if we need to update our profile data with an OAuth call
+                self._update_profile_data(request, user_data, cred)
+
+            # Delete the temporary token data used for the OpenID auth
+            return self.context(profile=user_data, credentials=cred)
+        else:
+            raise ThirdPartyFailure("OpenID failed.")
 
 class AttribAccess(object):
     """Uniform attribute accessor for Simple Reg and Attribute Exchange
@@ -90,7 +267,6 @@ class AttribAccess(object):
             return None
 
         return self.sreg_resp.get(key)
-
 
 def extract_openid_data(identifier, sreg_resp, ax_resp):
     """Extract the OpenID Data from Simple Reg and AX data
@@ -180,196 +356,3 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
             del ud[k]
 
     return ud
-
-
-class OpenIDAuthenticationComplete(AuthenticationComplete):
-    """OpenID auth complete"""
-
-
-def setup_openid(config):
-    """ """
-    settings = config.registry.settings
-    store = config.registry.get('velruse.openid_store')
-    if not store and 'velruse.openid.store' not in settings:
-        raise Exception("Missing 'velruse.openid.store' in config settings.")
-    if not store:
-        store = config.maybe_dotted(settings['velruse.openid.store'])()
-        config.registry['velruse.openid_store'] = store
-    realm = settings['velruse.openid.realm']
-    return store, realm
-
-
-def includeme(config):
-    store, realm = setup_openid(config)
-    oid_consumer = OpenIDConsumer(storage=store, realm=realm,
-                                  process_url='openid_process')
-    config.add_route("openid_login", "/openid/login")
-    config.add_route("openid_process", "/openid/process",
-                     use_global_views=True,
-                     factory=oid_consumer.process)
-    config.add_view(oid_consumer.login, route_name="openid_login")
-
-
-class OpenIDConsumer(object):
-    """OpenID Consumer base class
-
-    Providors using specialized OpenID based authentication subclass this.
-
-    """
-    def __init__(self, storage, realm, protocol=None, schema=None,
-                 process_url=None):
-        self.openid_store = storage
-        self.protocol = protocol
-        self.schema = schema
-        self.realm = realm
-        self.process_url = process_url
-        self.AuthenticationComplete = OpenIDAuthenticationComplete
-        self.log_debug = logging.DEBUG >= log.getEffectiveLevel()
-
-    def _lookup_identifier(self, request, identifier):
-        """Extension point for inherited classes that want to change or set
-        a default identifier"""
-        return identifier
-
-    def _update_authrequest(self, request, authrequest):
-        """Update the authrequest with the default extensions and attributes
-        we ask for
-
-        This method doesn't need to return anything, since the extensions
-        should be added to the authrequest object itself.
-
-        """
-        # Add on the Attribute Exchange for those that support that
-        ax_request = ax.FetchRequest()
-        for attrib in attributes.values():
-            ax_request.add(ax.AttrInfo(attrib))
-        authrequest.addExtension(ax_request)
-
-        # Form the Simple Reg request
-        sreg_request = sreg.SRegRequest(
-            optional=['nickname', 'email', 'fullname', 'dob', 'gender',
-                      'postcode', 'country', 'language', 'timezone'],
-        )
-        authrequest.addExtension(sreg_request)
-        return None
-
-    def _get_access_token(self, request_token):
-        """Called to exchange a request token for the access token
-
-        This method doesn't by default return anything, other OpenID+Oauth
-        consumers should override it to do the appropriate lookup for the
-        access token, and return the access token.
-
-        """
-        return None
-
-    def login(self, request):
-        log_debug = self.log_debug
-        if log_debug:
-            log.debug('Handling OpenID login')
-
-        # Load default parameters that all Auth Responders take
-        openid_url = request.params.get('openid_identifier')
-
-        # Let inherited consumers alter the openid identifier if desired
-        openid_url = self._lookup_identifier(request, openid_url)
-
-        if not openid_url:
-            log.error('Velruse: no openid_url')
-            raise MissingParameter('No openid_identifier was found')
-
-        openid_session = {}
-        oidconsumer = consumer.Consumer(openid_session, self.openid_store)
-
-        try:
-            if log_debug:
-                log.debug('About to try OpenID begin')
-            authrequest = oidconsumer.begin(openid_url)
-        except consumer.DiscoveryFailure:
-            if log_debug:
-                log.debug('OpenID begin DiscoveryFailure')
-            raise
-
-        if authrequest is None:
-            if log_debug:
-                log.debug('OpenID begin returned empty')
-            raise ThirdPartyFailure("OpenID begin returned nothing")
-
-        if log_debug:
-            log.debug('Updating authrequest')
-
-        # Update the authrequest
-        self._update_authrequest(request, authrequest)
-
-        return_to = request.route_url(self.process_url)
-
-        # OpenID 2.0 lets Providers request POST instead of redirect, this
-        # checks for such a request.
-        if authrequest.shouldSendRedirect():
-            if log_debug:
-                log.debug('About to initiate OpenID redirect')
-            redirect_url = authrequest.redirectURL(realm=self.realm,
-                                                   return_to=return_to,
-                                                   immediate=False)
-            request.session['openid_session'] = openid_session
-            return HTTPFound(location=redirect_url)
-        else:
-            if log_debug:
-                log.debug('About to initiate OpenID POST')
-            html = authrequest.htmlMarkup(
-                realm=self.realm, return_to=return_to, immediate=False)
-            request.session['openid_session'] = openid_session
-            return Response(body=html)
-
-    def _update_profile_data(self, request, user_data, credentials):
-        """Update the profile data using an OAuth request to fetch more data"""
-
-    def process(self, request):
-        """Handle incoming redirect from OpenID Provider"""
-        log_debug = self.log_debug
-        if log_debug:
-            log.debug('Handling processing of response from server')
-
-        openid_session = request.session.get('openid_session', None)
-        if not openid_session:
-            raise ThirdPartyFailure("No OpenID Session has begun.")
-        else:
-            del request.session['openid_session']
-
-        # Setup the consumer and parse the information coming back
-        oidconsumer = consumer.Consumer(openid_session, self.openid_store)
-        return_to = request.route_url(self.process_url)
-        info = oidconsumer.complete(request.params, return_to)
-
-        if info.status in [consumer.FAILURE, consumer.CANCEL]:
-            raise AuthenticationDenied("OpenID failure")
-        elif info.status == consumer.SUCCESS:
-            openid_identity = info.identity_url
-            if info.endpoint.canonicalID:
-                # If it's an i-name, use the canonicalID as its secure even if
-                # the old one is compromised
-                openid_identity = info.endpoint.canonicalID
-
-            user_data = extract_openid_data(
-                identifier=openid_identity,
-                sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
-                ax_resp=ax.FetchResponse.fromSuccessResponse(info)
-            )
-            # Did we get any OAuth info?
-            oauth = info.extensionResponse(
-                'http://specs.openid.net/extensions/oauth/1.0', False
-            )
-            cred = {}
-            if oauth and 'request_token' in oauth:
-                access_token = self._get_access_token(oauth['request_token'])
-                if access_token:
-                    cred.update(access_token)
-
-                # See if we need to update our profile data with an OAuth call
-                self._update_profile_data(request, user_data, cred)
-
-            # Delete the temporary token data used for the OpenID auth
-            return self.AuthenticationComplete(
-                profile=user_data, credentials=cred)
-        else:
-            raise ThirdPartyFailure("OpenID failed.")
