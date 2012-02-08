@@ -5,6 +5,7 @@ optionally can use OpenId+OAuth hybrid protocol to request access to
 Google Apps using OAuth2.
 
 """
+import logging
 from json import loads
 from urlparse import parse_qs
 
@@ -20,6 +21,8 @@ from velruse.providers.openidconsumer import (
     OpenIDConsumer,
 )
 
+
+log = logging.getLogger(__name__)
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 
@@ -151,7 +154,9 @@ class GoogleConsumer(OpenIDConsumer):
         client = oauth.Client(consumer, token)
         resp, content = client.request(GOOGLE_OAUTH, "POST")
         if resp['status'] != '200':
-            return None
+            log.error("OAuth token validation failed. Status: %s, Content: %s",
+                resp['status'], content)
+            return
 
         access_token = dict(parse_qs(content))
 
