@@ -10,10 +10,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 config = {}
 browser = None  # populated in setUpModule
 
-
 def splitlines(s):
     return filter(None, [x.strip() for x in s.splitlines()])
-
 
 def setUpModule():
     global browser, config
@@ -34,11 +32,9 @@ def setUpModule():
         'ie': webdriver.Ie,
     }[driver]()
 
-
 def tearDownModule():
     if browser is not None:
         browser.quit()
-
 
 class ProviderTests(object):
 
@@ -46,7 +42,6 @@ class ProviderTests(object):
     def require_provider(cls, name):
         if name not in config.get('test_providers', []):
             raise unittest.SkipTest('tests not enabled for "%s"' % name)
-
 
 class TestFacebook(ProviderTests, unittest.TestCase):
     """
@@ -89,7 +84,6 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         self.assertTrue('verifiedEmail' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestGithub(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -122,7 +116,6 @@ class TestGithub(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
 
 class TestTwitter(ProviderTests, unittest.TestCase):
 
@@ -158,7 +151,6 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
 
 class TestBitbucket(ProviderTests, unittest.TestCase):
 
@@ -197,7 +189,6 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestGoogle(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -230,7 +221,6 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
 
 class TestYahoo(ProviderTests, unittest.TestCase):
 
@@ -271,7 +261,6 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestWindowsLive(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -304,7 +293,6 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
 
 if __name__ == '__main__':
     unittest.main()

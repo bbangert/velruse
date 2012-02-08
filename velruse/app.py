@@ -13,7 +13,6 @@ from velruse.utils import splitlines
 
 log = logging.getLogger(__name__)
 
-
 @view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
     end_point = request.registry.settings.get('velruse.end_point')
@@ -30,7 +29,6 @@ def auth_complete_view(context, request):
     form = redirect_form(end_point, token)
     return Response(body=form)
 
-
 @view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
     end_point = request.registry.settings.get('velruse.end_point')
@@ -44,13 +42,11 @@ def auth_denied_view(context, request):
     form = redirect_form(end_point, token)
     return Response(body=form)
 
-
 @view_config(name='auth_info', request_param='format=json', renderer='json')
 def auth_info_view(request):
     storage = request.registry.velruse_store
     token = request.GET['token']
     return storage.retrieve(token)
-
 
 def default_setup(config):
     from pyramid.session import UnencryptedCookieSessionFactoryConfig
@@ -72,7 +68,6 @@ def default_setup(config):
     factory = UnencryptedCookieSessionFactoryConfig(
         secret, cookie_name=cookie_name)
     config.set_session_factory(factory)
-
 
 def includeme(config):
     """Configuration function to make a pyramid app a velruse one."""
@@ -108,7 +103,6 @@ def make_app(**settings):
     config = Configurator(settings=settings)
     config.include(includeme)
     return config.make_wsgi_app()
-
 
 def make_velruse_app(global_conf, **settings):
     """Construct a complete WSGI app ready to serve by Paste
