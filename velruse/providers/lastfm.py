@@ -41,11 +41,10 @@ def add_lastfm_login(config,
     register_provider(config, name, provider)
 
 class LastfmProvider(object):
-    def __init__(self, name, consumer_key, consumer_secret, scope):
+    def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
-        self.scope = scope
 
         self.login_route = 'velruse.%s-login' % name
         self.callback_route = 'velruse.%s-callback' % name
