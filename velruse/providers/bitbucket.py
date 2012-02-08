@@ -24,7 +24,6 @@ SIGMETHOD = oauth.SignatureMethod_HMAC_SHA1()
 
 class BitbucketAuthenticationComplete(AuthenticationComplete):
     """Bitbucket auth complete"""
-    provider = 'bitbucket'
 
 def includeme(config):
     config.add_directive('add_bitbucket_login', add_bitbucket_login)
