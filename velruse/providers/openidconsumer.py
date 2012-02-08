@@ -74,7 +74,7 @@ def includeme(config):
     config.add_directive('add_openid_login', add_openid_login)
 
 def add_openid_login(config,
-                     realm,
+                     realm=None,
                      storage=None,
                      login_path='/login/openid',
                      callback_path='/login/openid/callback',
@@ -86,9 +86,7 @@ def add_openid_login(config,
     `openid.store.interface.OpenIDStore` protocol. This will default
     to `openid.store.memstore.MemoryStore`.
     """
-    if storage is None:
-        storage = MemoryStore()
-    provider = OpenIDConsumer(name, storage, realm)
+    provider = OpenIDConsumer(name, realm, storage)
 
     config.add_route(provider.login_route, login_path)
     config.add_view(provider.login, route_name=provider.login_route)
@@ -105,14 +103,29 @@ class OpenIDConsumer(object):
     Providors using specialized OpenID based authentication subclass this.
 
     """
-    def __init__(self, name, realm, storage, context=AuthenticationComplete):
-        self.name = name
+    def __init__(self,
+                 name,
+                 realm=None,
+                 storage=None,
+                 context=AuthenticationComplete):
         self.openid_store = storage
+        self.name = name
         self.realm = realm
         self.context = context
 
         self.login_route = 'velruse.%s-url' % name
         self.callback_route = 'velruse.%s-callback' % name
+
+    _openid_store = None
+    def _get_openid_store(self):
+        if self._openid_store is None:
+            self._openid_store = MemoryStore()
+        return self._openid_store
+
+    def _set_openid_store(self, val):
+        self._openid_store = val
+
+    openid_store = property(_get_openid_store, _set_openid_store)
 
     def _lookup_identifier(self, request, identifier):
         """Extension point for inherited classes that want to change or set
@@ -139,7 +152,6 @@ class OpenIDConsumer(object):
                       'postcode', 'country', 'language', 'timezone'],
         )
         authrequest.addExtension(sreg_request)
-        return None
 
     def _get_access_token(self, request_token):
         """Called to exchange a request token for the access token
@@ -149,7 +161,6 @@ class OpenIDConsumer(object):
         access token, and return the access token.
 
         """
-        return None
 
     def login(self, request):
         log.debug('Handling OpenID login')
@@ -184,6 +195,7 @@ class OpenIDConsumer(object):
         self._update_authrequest(request, authrequest)
 
         return_to = request.route_url(self.callback_url)
+        request.session['openid_session'] = openid_session
 
         # OpenID 2.0 lets Providers request POST instead of redirect, this
         # checks for such a request.
@@ -192,13 +204,11 @@ class OpenIDConsumer(object):
             redirect_url = authrequest.redirectURL(realm=self.realm,
                                                    return_to=return_to,
                                                    immediate=False)
-            request.session['openid_session'] = openid_session
             return HTTPFound(location=redirect_url)
         else:
             log.debug('About to initiate OpenID POST')
             html = authrequest.htmlMarkup(
                 realm=self.realm, return_to=return_to, immediate=False)
-            request.session['openid_session'] = openid_session
             return Response(body=html)
 
     def _update_profile_data(self, request, user_data, credentials):
@@ -211,8 +221,9 @@ class OpenIDConsumer(object):
         openid_session = request.session.get('openid_session', None)
         if not openid_session:
             raise ThirdPartyFailure("No OpenID Session has begun.")
-        else:
-            del request.session['openid_session']
+
+        # Delete the temporary token data used for the OpenID auth
+        del request.session['openid_session']
 
         # Setup the consumer and parse the information coming back
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
@@ -246,7 +257,6 @@ class OpenIDConsumer(object):
                 # See if we need to update our profile data with an OAuth call
                 self._update_profile_data(request, user_data, cred)
 
-            # Delete the temporary token data used for the OpenID auth
             return self.context(profile=user_data, credentials=cred)
         else:
             raise ThirdPartyFailure("OpenID failed.")
