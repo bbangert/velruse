@@ -21,7 +21,7 @@ def register_provider(config, name, provider):
             providers = {}
             registry.velruse_providers = providers
 
-        providers[name] = provider
+        registry.velruse_providers[name] = provider
 
     config.action(('velruse-provider', name), register)
 
