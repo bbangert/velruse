@@ -196,21 +196,24 @@ class OpenIDConsumer(object):
         # Update the authrequest
         self._update_authrequest(request, authrequest)
 
-        return_to = request.route_url(self.callback_url)
+        return_to = request.route_url(self.callback_route)
         request.session['openid_session'] = openid_session
 
         # OpenID 2.0 lets Providers request POST instead of redirect, this
         # checks for such a request.
         if authrequest.shouldSendRedirect():
             log.debug('About to initiate OpenID redirect')
-            redirect_url = authrequest.redirectURL(realm=self.realm,
-                                                   return_to=return_to,
-                                                   immediate=False)
+            redirect_url = authrequest.redirectURL(
+                realm=self.realm,
+                return_to=return_to,
+                immediate=False)
             return HTTPFound(location=redirect_url)
         else:
             log.debug('About to initiate OpenID POST')
             html = authrequest.htmlMarkup(
-                realm=self.realm, return_to=return_to, immediate=False)
+                realm=self.realm,
+                return_to=return_to,
+                immediate=False)
             return Response(body=html)
 
     def _update_profile_data(self, request, user_data, credentials):
@@ -229,7 +232,7 @@ class OpenIDConsumer(object):
 
         # Setup the consumer and parse the information coming back
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)
-        return_to = request.route_url(self.callback_url)
+        return_to = request.route_url(self.callback_route)
         info = oidconsumer.complete(request.params, return_to)
 
         if info.status in [consumer.FAILURE, consumer.CANCEL]:
