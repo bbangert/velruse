@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import datetime
 import re
 import logging
@@ -5,7 +7,6 @@ import logging
 from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
-from openid.storage.memstore import MemoryStore
 
 from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
@@ -119,6 +120,7 @@ class OpenIDConsumer(object):
     _openid_store = None
     def _get_openid_store(self):
         if self._openid_store is None:
+            from openid.store.memstore import MemoryStore
             self._openid_store = MemoryStore()
         return self._openid_store
 

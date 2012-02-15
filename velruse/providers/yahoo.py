@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import logging
 from urlparse import parse_qs
 
@@ -6,7 +8,7 @@ from openid.extensions import ax
 
 from velruse.api import register_provider
 from velruse.providers.oid_extensions import OAuthRequest
-from velruse.providers.openidconsumer import (
+from velruse.providers.openid import (
     OpenIDAuthenticationComplete,
     OpenIDConsumer,
 )

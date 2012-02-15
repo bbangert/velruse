@@ -3,6 +3,8 @@
 Additional OpenID extensions for OAuth and UIRequest extensions.
 
 """
+from __future__ import absolute_import
+
 from openid import extension
 
 
