@@ -6,39 +6,33 @@
 </head>
 <body>
 
-<form id="facebook" action="http://${host}/velruse/facebook/login" method="post">
-<input type="hidden" name="scope" value="email,publish_stream,read_stream,create_event,offline_access" />
-<input type="submit" value="Login with Facebook" />
+<%def name="form(name, title, **kw)">
+% if name in providers:
+<form id="${name}" action="${login_url(name)}" method="post">
+    % for k, v in kw.items():
+    <input type="hidden" name="${k}" value="${v}" />
+    % endfor
+    <input type="submit" value="${title}" />
 </form>
+% else:
+<form id="${name}" method="post">
+    <input type="submit" value="${title}" disabled="disabled" />
+</form>
+% endif
+</%def>
 
-<form id="github" action="http://${host}/velruse/github/login" method="post">
-<input type="submit" value="Login with GitHub" />
-</form>
-
-<form id="twitter" action="http://${host}/velruse/twitter/login" method="post">
-<input type="submit" value="Login with Twitter" />
-</form>
-
-<form id="bitbucket" action="http://${host}/velruse/bitbucket/login" method="post">
-<input type="submit" value="Login with Bitbucket" />
-</form>
-
-<form id="google" action="http://${host}/velruse/google/login" method="post">
-<input type="hidden" name="use_popup" value="false" />
-<input type="hidden" name="oauth_scope" value="https://www.google.com/analytics/feeds/" />
-<input type="hidden" name="openid_identifier" value="google.com" />
-<input type="submit" value="Login with Google" />
-</form>
-
-<form id="yahoo" action="http://${host}/velruse/yahoo/login" method="post">
-<input type="hidden" name="openid_identifier" value="yahoo.com" />
-<input type="hidden" name="oauth" value="true" />
-<input type="submit" value="Login with Yahoo" />
-</form>
-
-<form id="live" action="http://${host}/velruse/live/login" method="post">
-<input type="submit" value="Login with Windows Live" />
-</form>
+${form('facebook', 'Login with Facebook',
+       scope='email,publish_stream,read_stream,create_event,offline_access')}
+${form('github', 'Login with Github')}
+${form('twitter', 'Login with Twitter')}
+${form('bitbucket', 'Login with Bitbucket')}
+${form('google', 'Login with Google',
+       use_popup='false',
+       openid_identifier='google.com')}
+${form('yahoo', 'Login with Yahoo',
+       oauth='true',
+       openid_identifier='yahoo.com')}
+${form('live', 'Login with Windows Live')}
 
 </body>
 </html>
