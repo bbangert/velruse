@@ -5,6 +5,7 @@ import oauth2 as oauth
 import requests
 
 from pyramid.httpexceptions import HTTPFound
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 from velruse.api import AuthenticationComplete
 from velruse.api import register_provider
@@ -33,7 +34,8 @@ def add_twitter_login(config,
     provider = TwitterProvider(name, consumer_key, consumer_secret)
 
     config.add_route(provider.login_route, login_path)
-    config.add_view(provider.login, route_name=provider.login_route)
+    config.add_view(provider.login, route_name=provider.login_route,
+                    permission=NO_PERMISSION_REQUIRED)
 
     config.add_route(provider.callback_route, callback_path,
                      use_global_views=True,
