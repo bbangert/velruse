@@ -135,7 +135,7 @@ def extract_fb_data(data):
         else:
             h, m = parts[0], '00'
         if 1 < len(h) < 3:
-            h = '%s0%s' % (h[0], h[1])
+            h = '%s0%s' % (h[0], h[1]) ### e.g. -5 --> -05
         elif len(h) == 1:
             h = h[0]
         data['utfOffset'] = ':'.join([h, m])
