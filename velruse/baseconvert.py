@@ -2,7 +2,6 @@
 
 ALPHABET = "23456789abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ"
 
-
 def base_encode(num, alphabet=ALPHABET):
     """Encode a number in Base X
 
@@ -19,7 +18,6 @@ def base_encode(num, alphabet=ALPHABET):
         arr.append(alphabet[rem])
     arr.reverse()
     return ''.join(arr)
-
 
 def base_n_decoder(alphabet=ALPHABET):
     """Decode a Base X encoded string into the number

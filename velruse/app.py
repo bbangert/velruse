@@ -4,17 +4,13 @@ import os
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
-from pyramid.view import view_config
 
 from velruse.utils import generate_token
 from velruse.utils import redirect_form
-from velruse.utils import splitlines
 
 
 log = logging.getLogger(__name__)
 
-
-@view_config(context='velruse.api.AuthenticationComplete')
 def auth_complete_view(context, request):
     end_point = request.registry.settings.get('velruse.end_point')
     token = generate_token()
@@ -30,8 +26,6 @@ def auth_complete_view(context, request):
     form = redirect_form(end_point, token)
     return Response(body=form)
 
-
-@view_config(context='velruse.exceptions.AuthenticationDenied')
 def auth_denied_view(context, request):
     end_point = request.registry.settings.get('velruse.end_point')
     token = generate_token()
@@ -44,13 +38,10 @@ def auth_denied_view(context, request):
     form = redirect_form(end_point, token)
     return Response(body=form)
 
-
-@view_config(name='auth_info', request_param='format=json', renderer='json')
 def auth_info_view(request):
     storage = request.registry.velruse_store
     token = request.GET['token']
     return storage.retrieve(token)
-
 
 def default_setup(config):
     from pyramid.session import UnencryptedCookieSessionFactoryConfig
@@ -73,19 +64,17 @@ def default_setup(config):
         secret, cookie_name=cookie_name)
     config.set_session_factory(factory)
 
-
 def includeme(config):
     """Configuration function to make a pyramid app a velruse one."""
     settings = config.registry.settings
 
     # setup application
-    setup = settings.get('velruse.setup', default_setup)
+    setup = settings.get('velruse.setup') or default_setup
     if setup:
         config.include(setup)
 
-    if not settings.get('velruse.end_point'):
-        raise ConfigurationError(
-            'missing required setting "velruse.end_point"')
+    # configure providers
+    config.include('velruse')
 
     # setup backing storage
     store = settings.get('velruse.store')
@@ -94,21 +83,28 @@ def includeme(config):
             'invalid setting velruse.store: {0}'.format(store))
     config.include(store)
 
-    # include providers
-    providers = settings.get('velruse.providers', '')
-    providers = splitlines(providers)
+    # check for required settings
+    if not settings.get('velruse.end_point'):
+        raise ConfigurationError(
+            'missing required setting "velruse.end_point"')
 
-    for provider in providers:
-        config.include(provider)
-
-    # add the error views
-    config.scan(__name__)
+    # add views
+    config.add_view(
+        auth_complete_view,
+        context='velruse.api.AuthenticationComplete')
+    config.add_view(
+        auth_denied_view,
+        context='velruse.exceptions.AuthenticationDenied')
+    config.add_view(
+        auth_info_view,
+        name='auth_info',
+        request_param='format=json',
+        renderer='json')
 
 def make_app(**settings):
     config = Configurator(settings=settings)
     config.include(includeme)
     return config.make_wsgi_app()
-
 
 def make_velruse_app(global_conf, **settings):
     """Construct a complete WSGI app ready to serve by Paste
@@ -129,6 +125,8 @@ def make_velruse_app(global_conf, **settings):
 
         [app:velruse]
         use = egg:velruse
+
+        velruse.setup = myapp.setup_velruse
 
         velruse.end_point = http://example.com/logged_in
 

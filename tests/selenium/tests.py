@@ -10,10 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 config = {}
 browser = None  # populated in setUpModule
 
-
 def splitlines(s):
-    return filter(None, [x.strip() for x in s.splitlines()])
-
+    return filter(None, [c.strip() for x in s.splitlines()
+                                   for c in x.split(', ')])
 
 def setUpModule():
     global browser, config
@@ -25,7 +24,6 @@ def setUpModule():
 
         config = dict(parser.items('testconfig'))
         config['test_providers'] = splitlines(config['test_providers'])
-        config['base_url'] = 'http://localhost:5000'
 
     driver = config.get('selenium.driver', 'firefox')
     browser = {
@@ -34,11 +32,9 @@ def setUpModule():
         'ie': webdriver.Ie,
     }[driver]()
 
-
 def tearDownModule():
     if browser is not None:
         browser.quit()
-
 
 class ProviderTests(object):
 
@@ -46,7 +42,6 @@ class ProviderTests(object):
     def require_provider(cls, name):
         if name not in config.get('test_providers', []):
             raise unittest.SkipTest('tests not enabled for "%s"' % name)
-
 
 class TestFacebook(ProviderTests, unittest.TestCase):
     """
@@ -89,7 +84,6 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         self.assertTrue('verifiedEmail' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestGithub(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -122,7 +116,6 @@ class TestGithub(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
 
 class TestTwitter(ProviderTests, unittest.TestCase):
 
@@ -158,7 +151,6 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
 
 class TestBitbucket(ProviderTests, unittest.TestCase):
 
@@ -197,7 +189,6 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestGoogle(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -205,12 +196,13 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         cls.require_provider('google')
         cls.login = config['google.login']
         cls.password = config['google.password']
+        cls.base_url = config.get('google.base_url', config['base_url'])
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.base_url + '/login')
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('google').submit()
         WebDriverWait(browser, 10).until(
@@ -231,7 +223,6 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestYahoo(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -239,12 +230,13 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         cls.require_provider('yahoo')
         cls.login = config['yahoo.login']
         cls.password = config['yahoo.password']
+        cls.base_url = config.get('yahoo.base_url', config['base_url'])
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.base_url + '/login')
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('yahoo').submit()
         WebDriverWait(browser, 10).until(
@@ -271,7 +263,6 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestWindowsLive(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -279,12 +270,13 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         cls.require_provider('live')
         cls.login = config['live.login']
         cls.password = config['live.password']
+        cls.base_url = config.get('live.base_url', config['base_url'])
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.base_url + '/login')
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('live').submit()
         WebDriverWait(browser, 10).until(
@@ -304,7 +296,6 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
 
 if __name__ == '__main__':
     unittest.main()
