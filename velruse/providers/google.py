@@ -7,6 +7,8 @@ Google Apps using OAuth2.
 """
 from __future__ import absolute_import
 
+from pyramid.security import NO_PERMISSION_REQUIRED
+
 import logging
 from json import loads
 from urlparse import parse_qs
@@ -55,7 +57,8 @@ def add_google_login(config,
                               consumer_key, consumer_secret, scope)
 
     config.add_route(provider.login_route, login_path)
-    config.add_view(provider.login, route_name=provider.login_route)
+    config.add_view(provider.login, route_name=provider.login_route,
+                    permission=NO_PERMISSION_REQUIRED)
 
     config.add_route(provider.callback_route, callback_path,
                      use_global_views=True,
