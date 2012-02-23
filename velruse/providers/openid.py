@@ -12,9 +12,11 @@ from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import AuthenticationComplete
-from velruse.api import register_provider
-from velruse.exceptions import AuthenticationDenied
+from velruse.api import (
+    AuthenticationComplete,
+    AuthenticationDenied,
+    register_provider,
+)
 from velruse.exceptions import MissingParameter
 from velruse.exceptions import ThirdPartyFailure
 
@@ -238,7 +240,7 @@ class OpenIDConsumer(object):
         info = oidconsumer.complete(request.params, return_to)
 
         if info.status in [consumer.FAILURE, consumer.CANCEL]:
-            raise AuthenticationDenied("OpenID failure")
+            return AuthenticationDenied("OpenID failure")
         elif info.status == consumer.SUCCESS:
             openid_identity = info.identity_url
             if info.endpoint.canonicalID:

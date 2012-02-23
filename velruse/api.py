@@ -8,6 +8,14 @@ class AuthenticationComplete(object):
         self.profile = profile
         self.credentials = credentials
 
+class AuthenticationDenied(object):
+    """ An AuthenticationDenied context object. Used when the provider
+    returned successfully but without proper credentials. This may be
+    the case if the user cancels the login."""
+
+    def __init__(self, reason=None):
+        self.reason = reason
+
 def register_provider(config, name, provider):
     """
     Add a provider to the registry. This will also provide conflict
