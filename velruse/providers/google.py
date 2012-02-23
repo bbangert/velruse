@@ -35,7 +35,8 @@ def includeme(config):
         process_url='google_process',
         oauth_key=settings.get('velruse.google.consumer_key'),
         oauth_secret=settings.get('velruse.google.consumer_secret'),
-        request_attributes=settings.get('request_attributes')
+        request_attributes=settings.get('request_attributes'),
+        apps_domain=settings.get('velruse.google.apps_domain')
     )
     config.add_route("google_login", "/google/login")
     config.add_route("google_process", "/google/process",
@@ -46,7 +47,8 @@ def includeme(config):
 
 class GoogleConsumer(OpenIDConsumer):
     def __init__(self, oauth_key=None, oauth_secret=None,
-                 request_attributes=None, *args, **kwargs):
+                 request_attributes=None, apps_domain=None, *args,
+                 **kwargs):
         """Handle Google Auth
 
         This also handles making an OAuth request during the OpenID
@@ -62,10 +64,16 @@ class GoogleConsumer(OpenIDConsumer):
         else:
             self.request_attributes = ['country', 'email', 'first_name',
                                        'last_name', 'language']
+        if apps_domain is None:
+            self.directed_endpoint = "https://www.google.com/accounts/o8/id"
+        else:
+            self.directed_endpoint = (
+                    "https://www.google.com/accounts/o8/site-xrds?hd=%s" %
+                    apps_domain)
 
     def _lookup_identifier(self, request, identifier):
         """Return the Google OpenID directed endpoint"""
-        return "https://www.google.com/accounts/o8/id"
+        return self.directed_endpoint
 
     def _update_authrequest(self, request, authrequest):
         """Update the authrequest with Attribute Exchange and optionally OAuth
