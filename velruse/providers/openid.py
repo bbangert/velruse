@@ -8,9 +8,9 @@ from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
 
-from pyramid.security import NO_PERMISSION_REQUIRED
 from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 from velruse.api import AuthenticationComplete
 from velruse.api import register_provider

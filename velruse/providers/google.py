@@ -7,14 +7,14 @@ Google Apps using OAuth2.
 """
 from __future__ import absolute_import
 
-from pyramid.security import NO_PERMISSION_REQUIRED
-
 import logging
 from json import loads
 from urlparse import parse_qs
 
 import oauth2 as oauth
 from openid.extensions import ax
+
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 from velruse.api import register_provider
 from velruse.providers.oid_extensions import OAuthRequest
