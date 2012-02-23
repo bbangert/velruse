@@ -12,6 +12,7 @@ from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
+from velruse.utils import ProviderSettings
 
 
 class WeiboAuthenticationComplete(AuthenticationComplete):
@@ -19,6 +20,15 @@ class WeiboAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_weibo_login', add_weibo_login)
+
+    if 'weibo' in getattr(config.registry, 'velruse_autoload', []):
+        settings = config.registry.settings
+        p = ProviderSettings(settings, 'velruse.weibo.')
+        p.update('consumer_key', required=True)
+        p.update('consumer_secret', required=True)
+        p.update('login_path')
+        p.update('callback_path')
+        config.add_weibo_login(**p.kwargs)
 
 def add_weibo_login(config,
                      consumer_key,

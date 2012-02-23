@@ -11,6 +11,7 @@ from velruse.api import register_provider
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
+from velruse.utils import ProviderSettings
 
 
 class LiveAuthenticationComplete(AuthenticationComplete):
@@ -18,6 +19,16 @@ class LiveAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_live_login', add_live_login)
+
+    if 'live' in getattr(config.registry, 'velruse_autoload', []):
+        settings = config.registry.settings
+        p = ProviderSettings(settings, 'velruse.live.')
+        p.update('consumer_key', required=True)
+        p.update('consumer_secret', required=True)
+        p.update('scope')
+        p.update('login_path')
+        p.update('callback_path')
+        config.add_live_login(**p.kwargs)
 
 def add_live_login(config,
                    consumer_key,

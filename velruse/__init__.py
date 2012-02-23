@@ -1,4 +1,11 @@
+from velruse.utils import splitlines
+
 def includeme(config):
+    registry = config.registry
+    settings = registry.settings
+    autoload = settings.get('velruse.providers', '')
+    registry.velruse_autoload = splitlines(autoload)
+
     config.include('velruse.providers.bitbucket')
     config.include('velruse.providers.douban')
     config.include('velruse.providers.facebook')

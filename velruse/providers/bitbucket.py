@@ -15,6 +15,7 @@ from velruse.api import AuthenticationComplete
 from velruse.api import register_provider
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
+from velruse.utils import ProviderSettings
 
 
 REQUEST_URL = 'https://bitbucket.org/api/1.0/oauth/request_token/'
@@ -27,6 +28,15 @@ class BitbucketAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_bitbucket_login', add_bitbucket_login)
+
+    if 'bitbucket' in getattr(config.registry, 'velruse_autoload', []):
+        settings = config.registry.settings
+        p = ProviderSettings(settings, 'velruse.bitbucket.')
+        p.update('consumer_key', required=True)
+        p.update('consumer_secret', required=True)
+        p.update('login_path')
+        p.update('callback_path')
+        config.add_bitbucket_login(**p.kwargs)
 
 def add_bitbucket_login(config,
                         consumer_key,

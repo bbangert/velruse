@@ -12,6 +12,7 @@ from velruse.api import register_provider
 from velruse.exceptions import AuthenticationDenied
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
+from velruse.utils import ProviderSettings
 
 
 class TaobaoAuthenticationComplete(AuthenticationComplete):
@@ -19,6 +20,15 @@ class TaobaoAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_taobao_login', add_taobao_login)
+
+    if 'taobao' in getattr(config.registry, 'velruse_autoload', []):
+        settings = config.registry.settings
+        p = ProviderSettings(settings, 'velruse.taobao.')
+        p.update('consumer_key', required=True)
+        p.update('consumer_secret', required=True)
+        p.update('login_path')
+        p.update('callback_path')
+        config.add_taobao_login(**p.kwargs)
 
 def add_taobao_login(config,
                      consumer_key,
