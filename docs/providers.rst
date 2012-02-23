@@ -144,6 +144,9 @@ velruse.google.consumer_key
 velruse.google.consumer_secret
     Consumer secret as specified
 velruse.google.oauth_scope
+velruse.google.apps_domain
+    Google apps domain, e.g. 'yourdomain.com'. Setting this will cause the use
+    of a domain specific endpoint.
 
 .. warning::
 
