@@ -4,7 +4,7 @@ from pyramid.config import Configurator
 from pyramid.session import UnencryptedCookieSessionFactoryConfig
 from pyramid.view import view_config
 
-from velruse.api import login_url
+from velruse import login_url
 
 
 @view_config(
@@ -19,7 +19,7 @@ def login_view(request):
     }
 
 @view_config(
-    context='velruse.api.AuthenticationComplete',
+    context='velruse.AuthenticationComplete',
     renderer='testapp:templates/result.mako',
 )
 def login_complete_view(request):
@@ -33,7 +33,7 @@ def login_complete_view(request):
     }
 
 @view_config(
-    context='velruse.exceptions.AuthenticationDenied',
+    context='velruse.AuthenticationDenied',
     renderer='testapp:templates/result.mako',
 )
 def login_denied_view(request):

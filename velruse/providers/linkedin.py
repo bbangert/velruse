@@ -8,7 +8,7 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse import (
+from velruse.api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
