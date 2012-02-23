@@ -17,7 +17,6 @@ from velruse.api import (
 from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
-from velruse.utils import ProviderSettings
 
 
 class FacebookAuthenticationComplete(AuthenticationComplete):
@@ -25,16 +24,6 @@ class FacebookAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_facebook_login', add_facebook_login)
-
-    if 'facebook' in getattr(config.registry, 'velruse_autoload', []):
-        settings = config.registry.settings
-        p = ProviderSettings(settings, 'velruse.facebook.')
-        p.update('consumer_key', required=True)
-        p.update('consumer_secret', required=True)
-        p.update('scope')
-        p.update('login_path')
-        p.update('callback_path')
-        config.add_facebook_login(**p.kwargs)
 
 def add_facebook_login(config,
                        consumer_key,

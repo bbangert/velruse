@@ -13,7 +13,6 @@ from velruse.api import (
 )
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
-from velruse.utils import ProviderSettings
 
 
 class RenrenAuthenticationComplete(AuthenticationComplete):
@@ -21,16 +20,6 @@ class RenrenAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_renren_login', add_renren_login)
-
-    if 'renren' in getattr(config.registry, 'velruse_autoload', []):
-        settings = config.registry.settings
-        p = ProviderSettings(settings, 'velruse.renren.')
-        p.update('consumer_key', required=True)
-        p.update('consumer_secret', required=True)
-        p.update('scope')
-        p.update('login_path')
-        p.update('callback_path')
-        config.add_renren_login(**p.kwargs)
 
 def add_renren_login(config,
                      consumer_key,

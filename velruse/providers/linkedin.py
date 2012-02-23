@@ -14,7 +14,6 @@ from velruse.api import (
     register_provider,
 )
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import ProviderSettings
 
 
 REQUEST_URL = 'https://api.linkedin.com/uas/oauth/requestToken'
@@ -25,15 +24,6 @@ class LinkedInAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_linkedin_login', add_linkedin_login)
-
-    if 'linkedin' in getattr(config.registry, 'velruse_autoload', []):
-        settings = config.registry.settings
-        p = ProviderSettings(settings, 'velruse.linkedin.')
-        p.update('consumer_key', required=True)
-        p.update('consumer_secret', required=True)
-        p.update('login_path')
-        p.update('callback_path')
-        config.add_linkedin_login(**p.kwargs)
 
 def add_linkedin_login(config,
                        consumer_key,

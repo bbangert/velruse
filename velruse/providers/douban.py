@@ -15,7 +15,6 @@ from velruse.api import (
     register_provider,
 )
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import ProviderSettings
 
 
 REQUEST_URL = 'http://www.douban.com/service/auth/request_token'
@@ -28,15 +27,6 @@ class DoubanAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_douban_login', add_douban_login)
-
-    if 'douban' in getattr(config.registry, 'velruse_autoload', []):
-        settings = config.registry.settings
-        p = ProviderSettings(settings, 'velruse.douban.')
-        p.update('consumer_key', required=True)
-        p.update('consumer_secret', required=True)
-        p.update('login_path')
-        p.update('callback_path')
-        config.add_douban_login(**p.kwargs)
 
 def add_douban_login(config,
                      consumer_key,
