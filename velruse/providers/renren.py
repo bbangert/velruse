@@ -24,7 +24,7 @@ def includeme(config):
 def add_renren_login(config,
                      consumer_key,
                      consumer_secret,
-                     scope=None,
+                     scope='',
                      login_path='/login/renren',
                      callback_path='/login/renren/callback',
                      name='renren'):
