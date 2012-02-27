@@ -14,6 +14,7 @@ from velruse.api import (
 )
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
+from velruse.utils import ProviderSettings
 
 API_BASE = 'https://ws.audioscrobbler.com/2.0/'
 
@@ -22,6 +23,15 @@ class LastFMAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_lastfm_login', add_lastfm_login)
+
+    if 'lastfm' in getattr(config.registry, 'velruse_autoload', []):
+        settings = config.registry.settings
+        p = ProviderSettings(settings, 'velruse.lastfm.')
+        p.update('consumer_key', required=True)
+        p.update('consumer_secret', required=True)
+        p.update('login_path')
+        p.update('callback_path')
+        config.add_lastfm_login(**p.kwargs)
 
 def add_lastfm_login(config,
                      consumer_key,

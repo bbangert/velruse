@@ -18,6 +18,7 @@ from velruse.api import (
 )
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
+from velruse.utils import ProviderSettings
 
 
 class GithubAuthenticationComplete(AuthenticationComplete):
@@ -25,6 +26,16 @@ class GithubAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_github_login', add_github_login)
+
+    if 'github' in getattr(config.registry, 'velruse_autoload', []):
+        settings = config.registry.settings
+        p = ProviderSettings(settings, 'velruse.github.')
+        p.update('consumer_key', required=True)
+        p.update('consumer_secret', required=True)
+        p.update('scope')
+        p.update('login_path')
+        p.update('callback_path')
+        config.add_github_login(**p.kwargs)
 
 def add_github_login(config,
                      consumer_key,

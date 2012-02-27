@@ -1,16 +1,3 @@
-from velruse.api import (
-    AuthenticationComplete,
-    AuthenticationDenied,
-    login_url,
-)
-
-from velruse.exceptions import (
-    CSRFError,
-    MissingParameter,
-    ThirdPartyFailure,
-    VelruseException,
-)
-
 def includeme(config):
     config.include('velruse.providers.bitbucket')
     config.include('velruse.providers.douban')
