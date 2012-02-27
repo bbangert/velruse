@@ -8,7 +8,7 @@ from openid.extensions import ax
 
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import register_provider
+from velruse import register_provider
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.openid import (
     OpenIDAuthenticationComplete,
