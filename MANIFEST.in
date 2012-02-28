@@ -1,0 +1,5 @@
+graft docs
+prune docs/_build
+graft demo
+exclude *.pyc
+exclude *.pyo
