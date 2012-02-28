@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 
-version = '0.20a1'
+version = '0.3.wiggy.2dev'
 
 tests_require = [
     'nose>=0.11',
