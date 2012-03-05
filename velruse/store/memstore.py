@@ -7,7 +7,6 @@ from velruse.store.interface import UserStore
 def includeme(config):
     config.registry.velruse_store = MemoryStore()
 
-
 class MemoryStore(UserStore):
     """Memory Storage for Auth Provider"""
     def __init__(self):

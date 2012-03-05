@@ -1,7 +1,7 @@
 """MongoDB UserStore implementation"""
 try:
     import cPickle as pickle
-except ImportError:
+except ImportError: # pragma: no cover
     import pickle
 
 import datetime
@@ -29,7 +29,6 @@ def includeme(config):
         host=host, port=port, db=db, collection=collection,
     )
     config.registry.velruse_store = store
-
 
 class MongoDBStore(UserStore):
     """MongoDB Storage for Auth Provider"""

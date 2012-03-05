@@ -1,7 +1,7 @@
 """Redis UserStore implementation"""
 try:
     import cPickle as pickle
-except ImportError:
+except ImportError: # pragma: no cover
     import pickle
 
 import redis
@@ -9,6 +9,7 @@ from redis.exceptions import RedisError
 from pyramid.decorator import reify
 
 from velruse.store.interface import UserStore
+
 
 def includeme(config):
     settings = config.registry.settings
@@ -20,7 +21,6 @@ def includeme(config):
         host=host, port=port, db=db, key_prefix=key_prefix,
     )
     config.registry.velruse_store = store
-
 
 class RedisStore(UserStore):
     """Redis Storage for Auth Provider"""

@@ -10,22 +10,19 @@ from sqlalchemy import String, Text, DateTime
 from velruse.store.interface import UserStore
 
 
-SQLBase = declarative_base()
-
-
 def includeme(config):
     settings = config.registry.settings
     engine = engine_from_config(settings, 'velruse.store.')
     store = SQLStore(engine)
     config.registry.velruse_store = store
 
+SQLBase = declarative_base()
 
 class KeyStorage(SQLBase):
     __tablename__ = 'velruse_key_storage'
     key = Column(String(200), primary_key=True, nullable=False)
     value = Column(Text(), nullable=False)
     expires = Column(DateTime())
-
 
 class SQLStore(UserStore):
     """Memory Storage for Auth Provider"""

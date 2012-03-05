@@ -29,7 +29,6 @@ def includeme(config):
     store = MemcachedStore(servers=servers, key_prefix=key_prefix)
     config.registry.velruse_store = store
 
-
 class MemcachedStore(UserStore):
     """Memcached Storage for Auth Provider"""
 
