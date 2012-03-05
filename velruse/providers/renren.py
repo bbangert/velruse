@@ -6,14 +6,14 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse import (
+from velruse.api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
 from velruse.exceptions import ThirdPartyFailure
+from velruse.settings import ProviderSettings
 from velruse.utils import flat_url
-from velruse.utils import ProviderSettings
 
 
 class RenrenAuthenticationComplete(AuthenticationComplete):
@@ -21,16 +21,18 @@ class RenrenAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_renren_login', add_renren_login)
+    config.add_directive('setup_renren_login_from_settings',
+                         add_renren_login_from_settings)
 
-    if 'renren' in getattr(config.registry, 'velruse_autoload', []):
-        settings = config.registry.settings
-        p = ProviderSettings(settings, 'velruse.renren.')
-        p.update('consumer_key', required=True)
-        p.update('consumer_secret', required=True)
-        p.update('scope')
-        p.update('login_path')
-        p.update('callback_path')
-        config.add_renren_login(**p.kwargs)
+def add_renren_login_from_settings(config):
+    settings = config.registry.settings
+    p = ProviderSettings(settings, 'velruse.renren.')
+    p.update('consumer_key', required=True)
+    p.update('consumer_secret', required=True)
+    p.update('scope')
+    p.update('login_path')
+    p.update('callback_path')
+    config.add_renren_login(**p.kwargs)
 
 def add_renren_login(config,
                      consumer_key,

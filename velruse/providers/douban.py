@@ -9,13 +9,13 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse import (
+from velruse.api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import ProviderSettings
+from velruse.settings import ProviderSettings
 
 
 REQUEST_URL = 'http://www.douban.com/service/auth/request_token'
@@ -28,15 +28,17 @@ class DoubanAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_douban_login', add_douban_login)
+    config.add_directive('setup_douban_login_from_settings',
+                         add_douban_login_from_settings)
 
-    if 'douban' in getattr(config.registry, 'velruse_autoload', []):
-        settings = config.registry.settings
-        p = ProviderSettings(settings, 'velruse.douban.')
-        p.update('consumer_key', required=True)
-        p.update('consumer_secret', required=True)
-        p.update('login_path')
-        p.update('callback_path')
-        config.add_douban_login(**p.kwargs)
+def add_douban_login_from_settings(config):
+    settings = config.registry.settings
+    p = ProviderSettings(settings, 'velruse.douban.')
+    p.update('consumer_key', required=True)
+    p.update('consumer_secret', required=True)
+    p.update('login_path')
+    p.update('callback_path')
+    config.add_douban_login(**p.kwargs)
 
 def add_douban_login(config,
                      consumer_key,

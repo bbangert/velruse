@@ -12,13 +12,13 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse import (
+from velruse.api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import ProviderSettings
+from velruse.settings import ProviderSettings
 
 
 REQUEST_URL = 'https://bitbucket.org/api/1.0/oauth/request_token/'
@@ -31,15 +31,17 @@ class BitbucketAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_bitbucket_login', add_bitbucket_login)
+    config.add_directive('setup_bitbucket_login_from_settings',
+                         add_bitbucket_login_from_settings)
 
-    if 'bitbucket' in getattr(config.registry, 'velruse_autoload', []):
-        settings = config.registry.settings
-        p = ProviderSettings(settings, 'velruse.bitbucket.')
-        p.update('consumer_key', required=True)
-        p.update('consumer_secret', required=True)
-        p.update('login_path')
-        p.update('callback_path')
-        config.add_bitbucket_login(**p.kwargs)
+def add_bitbucket_login_from_settings(config):
+    settings = config.registry.settings
+    p = ProviderSettings(settings, 'velruse.bitbucket.')
+    p.update('consumer_key', required=True)
+    p.update('consumer_secret', required=True)
+    p.update('login_path')
+    p.update('callback_path')
+    config.add_bitbucket_login(**p.kwargs)
 
 def add_bitbucket_login(config,
                         consumer_key,

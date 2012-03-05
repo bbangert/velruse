@@ -7,15 +7,15 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse import (
+from velruse.api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
 from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
+from velruse.settings import ProviderSettings
 from velruse.utils import flat_url
-from velruse.utils import ProviderSettings
 
 
 class WeiboAuthenticationComplete(AuthenticationComplete):
@@ -23,15 +23,17 @@ class WeiboAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_weibo_login', add_weibo_login)
+    config.add_directive('setup_weibo_login_from_settings',
+                         add_weibo_login_from_settings)
 
-    if 'weibo' in getattr(config.registry, 'velruse_autoload', []):
-        settings = config.registry.settings
-        p = ProviderSettings(settings, 'velruse.weibo.')
-        p.update('consumer_key', required=True)
-        p.update('consumer_secret', required=True)
-        p.update('login_path')
-        p.update('callback_path')
-        config.add_weibo_login(**p.kwargs)
+def add_weibo_login_from_settings(config):
+    settings = config.registry.settings
+    p = ProviderSettings(settings, 'velruse.weibo.')
+    p.update('consumer_key', required=True)
+    p.update('consumer_secret', required=True)
+    p.update('login_path')
+    p.update('callback_path')
+    config.add_weibo_login(**p.kwargs)
 
 def add_weibo_login(config,
                      consumer_key,
