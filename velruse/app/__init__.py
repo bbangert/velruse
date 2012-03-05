@@ -5,8 +5,8 @@ from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
 
-from velruse.utils import generate_token
-from velruse.utils import redirect_form
+from velruse.app.utils import generate_token
+from velruse.app.utils import redirect_form
 
 
 log = logging.getLogger(__name__)
