@@ -115,8 +115,8 @@ class OpenIDConsumer(object):
                  context=AuthenticationComplete):
         self.openid_store = storage
         self.name = name
-        self.realm = realm
         self.context = context
+        self.realm_override = realm
 
         self.login_route = 'velruse.%s-url' % name
         self.callback_route = 'velruse.%s-callback' % name
@@ -132,6 +132,11 @@ class OpenIDConsumer(object):
         self._openid_store = val
 
     openid_store = property(_get_openid_store, _set_openid_store)
+
+    def _get_realm(self, request):
+        if self.realm_override is not None:
+            return self.realm_override
+        return request.host_url
 
     def _lookup_identifier(self, request, identifier):
         """Extension point for inherited classes that want to change or set
@@ -200,6 +205,7 @@ class OpenIDConsumer(object):
         # Update the authrequest
         self._update_authrequest(request, authrequest)
 
+        realm = self._get_realm(request)
         return_to = request.route_url(self.callback_route)
         request.session['openid_session'] = openid_session
 
@@ -208,14 +214,14 @@ class OpenIDConsumer(object):
         if authrequest.shouldSendRedirect():
             log.debug('About to initiate OpenID redirect')
             redirect_url = authrequest.redirectURL(
-                realm=self.realm,
+                realm=realm,
                 return_to=return_to,
                 immediate=False)
             return HTTPFound(location=redirect_url)
         else:
             log.debug('About to initiate OpenID POST')
             html = authrequest.htmlMarkup(
-                realm=self.realm,
+                realm=realm,
                 return_to=return_to,
                 immediate=False)
             return Response(body=html)
