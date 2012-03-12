@@ -26,9 +26,9 @@ def includeme(config):
     config.add_directive('setup_taobao_login_from_settings',
                          add_taobao_login_from_settings)
 
-def add_taobao_login_from_settings(config):
+def add_taobao_login_from_settings(config, prefix='velruse.taobao.'):
     settings = config.registry.settings
-    p = ProviderSettings(settings, 'velruse.taobao.')
+    p = ProviderSettings(settings, prefix)
     p.update('consumer_key', required=True)
     p.update('consumer_secret', required=True)
     p.update('login_path')

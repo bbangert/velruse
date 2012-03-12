@@ -31,9 +31,9 @@ def includeme(config):
     config.add_directive('setup_douban_login_from_settings',
                          add_douban_login_from_settings)
 
-def add_douban_login_from_settings(config):
+def add_douban_login_from_settings(config, prefix='velruse.douban'):
     settings = config.registry.settings
-    p = ProviderSettings(settings, 'velruse.douban.')
+    p = ProviderSettings(settings, prefix)
     p.update('consumer_key', required=True)
     p.update('consumer_secret', required=True)
     p.update('login_path')

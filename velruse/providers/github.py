@@ -29,9 +29,9 @@ def includeme(config):
     config.add_directive('setup_github_login_from_settings',
                          add_github_login_from_settings)
 
-def add_github_login_from_settings(config):
+def add_github_login_from_settings(config, prefix='velruse.github.'):
     settings = config.registry.settings
-    p = ProviderSettings(settings, 'velruse.github.')
+    p = ProviderSettings(settings, prefix)
     p.update('consumer_key', required=True)
     p.update('consumer_secret', required=True)
     p.update('scope')

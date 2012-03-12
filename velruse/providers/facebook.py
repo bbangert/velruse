@@ -28,9 +28,9 @@ def includeme(config):
     config.add_directive('setup_facebook_login_from_settings',
                          add_facebook_login_from_settings)
 
-def add_facebook_login_from_settings(config):
+def add_facebook_login_from_settings(config, prefix='velruse.facebook.'):
     settings = config.registry.settings
-    p = ProviderSettings(settings, 'velruse.facebook.')
+    p = ProviderSettings(settings, prefix)
     p.update('consumer_key', required=True)
     p.update('consumer_secret', required=True)
     p.update('scope')

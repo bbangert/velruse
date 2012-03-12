@@ -34,9 +34,9 @@ def includeme(config):
     config.add_directive('setup_bitbucket_login_from_settings',
                          add_bitbucket_login_from_settings)
 
-def add_bitbucket_login_from_settings(config):
+def add_bitbucket_login_from_settings(config, prefix='velruse.bitbucket.'):
     settings = config.registry.settings
-    p = ProviderSettings(settings, 'velruse.bitbucket.')
+    p = ProviderSettings(settings, prefix)
     p.update('consumer_key', required=True)
     p.update('consumer_secret', required=True)
     p.update('login_path')
