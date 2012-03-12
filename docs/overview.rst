@@ -45,16 +45,29 @@ Velruse looks like this:
 Using in a Pyramid App
 ======================
 
-config.includeme('velruse.providers.google')
-config.add_google_login(realm='http://www.example.com/')$
+.. code-block:: python
 
-Attempt login by visiting: http://www.example.com/login/google.
+    config.include('velruse.providers.google')
+    config.add_google_login(realm='http://www.example.com/')
+
+You can get the login url with :func:`velruse.api.login_url` like so:
+
+.. code-block:: python
+
+    login_url(request, 'google')
+
+In this case, the login url handler will be at
+http://www.example.com/login/google. Go to that url to login via the Google
+provider.
+
+.. warning::
+
+    In order to get working code examples, you will probably need to change the
+    realm to something sensible. Maybe "localhost" would work for testing.
 
 
 Using Separate App as a Service
 ===============================
-
-blah
 
 
 .. _RPXNow: http://rpxnow.com/

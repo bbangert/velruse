@@ -113,6 +113,10 @@ Complete Example:
 Google (velruse.providers.google)
 ==================================
 
+.. warning::
+
+    This provider currently doesn't support OAuth 2.0 workflow.
+
 Google provides both basic OpenID using Attribute Exchange 2.0, as well
 as a OpenID+OAuth hybrid that authenticates a user and completes OAuth
 authentication to provide API access to Google services.
@@ -133,17 +137,23 @@ Google Developer Links:
 Settings
 --------
 
-The Google provider requires that an OpenID provider configuration be
-present in your configuration file in order to provide the ``Realm``
-and ``Store`` configuration values.
+The Google provider requires that an OpenID provider requires at least a
+realm to be provided. The realm must be a containing namespace for the callback
+URL.
 
-The following are only required if using the OAuth hybrid:
+.. code-block:: python
 
-velruse.google.consumer_key
-    The consumer key, e.g. `yourdomain.com`
-velruse.google.consumer_secret
-    Consumer secret as specified
-velruse.google.oauth_scope
+    config.include('velruse.providers.google')
+    config.add_google_login(realm='http://www.example.com/')
+
+Other useful params for add_google_login:
+
+* consumer_key: OAuth 1.0 key
+* consumer_secret: OAuth 1.0 secret
+* scope: OAuth 1.0 scope
+* login_path: path for login handler (default: /login/google)
+* callback_path: path for callback handler (default: /login/google/callback)
+* name: Unique identifier for this provider (default: google)
 
 .. warning::
 
