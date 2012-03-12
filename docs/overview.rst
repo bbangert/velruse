@@ -42,4 +42,19 @@ Velruse looks like this:
    user's authentication data.
 
 
+Using in a Pyramid App
+======================
+
+config.includeme('velruse.providers.google')
+config.add_google_login(realm='http://www.example.com/')$
+
+Attempt login by visiting: http://www.example.com/login/google.
+
+
+Using Separate App as a Service
+===============================
+
+blah
+
+
 .. _RPXNow: http://rpxnow.com/
