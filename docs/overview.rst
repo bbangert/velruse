@@ -38,15 +38,36 @@ Velruse looks like this:
    and includes any additional parameters that the :term:`auth provider`
    requires.
 2. When the :term:`auth provider` finishes the authentication, the user is
-   redirected back to the endpoint specified with a POST, which includes a
-   unique token.
-3. Website then makes a query to the :term:`UserStore` using the token that
-   was provided. The user's identity information will be returned, or an error
-   if the authentication was unsuccessful.
+   redirected back to the endpoint specified with a POST, which includes the
+   user's authentication data.
 
-If the website is unable to directly access the :term:`UserStore` then
-`Step 3` can be replaced by issuing a HTTP POST in the background to the
-:term:`auth provider` requesting the user's information with the token.
+
+Using in a Pyramid App
+======================
+
+.. code-block:: python
+
+    config.include('velruse.providers.google')
+    config.add_google_login(realm='http://www.example.com/')
+
+You can get the login url with :func:`velruse.api.login_url` like so:
+
+.. code-block:: python
+
+    login_url(request, 'google')
+
+In this case, the login url handler will be at
+http://www.example.com/login/google. Go to that url to login via the Google
+provider.
+
+.. warning::
+
+    In order to get working code examples, you will probably need to change the
+    realm to something sensible. Maybe "localhost" would work for testing.
+
+
+Using Separate App as a Service
+===============================
 
 
 .. _RPXNow: http://rpxnow.com/

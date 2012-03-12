@@ -10,5 +10,3 @@ Module Contents
 .. autofunction:: includeme
 .. autofunction:: twitter_login
 .. autofunction:: twitter_process
-
- 
