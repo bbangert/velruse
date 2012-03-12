@@ -10,10 +10,9 @@ from selenium.webdriver.support.ui import WebDriverWait
 config = {}
 browser = None  # populated in setUpModule
 
-
 def splitlines(s):
-    return filter(None, [x.strip() for x in s.splitlines()])
-
+    return filter(None, [c.strip() for x in s.splitlines()
+                                   for c in x.split(', ')])
 
 def setUpModule():
     global browser, config
@@ -25,7 +24,6 @@ def setUpModule():
 
         config = dict(parser.items('testconfig'))
         config['test_providers'] = splitlines(config['test_providers'])
-        config['base_url'] = 'http://localhost:5000'
 
     driver = config.get('selenium.driver', 'firefox')
     browser = {
@@ -34,11 +32,9 @@ def setUpModule():
         'ie': webdriver.Ie,
     }[driver]()
 
-
 def tearDownModule():
     if browser is not None:
         browser.quit()
-
 
 class ProviderTests(object):
 
@@ -47,6 +43,8 @@ class ProviderTests(object):
         if name not in config.get('test_providers', []):
             raise unittest.SkipTest('tests not enabled for "%s"' % name)
 
+def find_login_url(config, key):
+    return config.get(key, config['default_login_url'])
 
 class TestFacebook(ProviderTests, unittest.TestCase):
     """
@@ -62,12 +60,13 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         cls.login = config['facebook.login']
         cls.password = config['facebook.password']
         cls.app = config['facebook.app']
+        cls.login_url = find_login_url(config, 'facebook.login_url')
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('facebook').submit()
         self.assertEqual(browser.title, 'Log In | Facebook')
@@ -89,7 +88,6 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         self.assertTrue('verifiedEmail' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestGithub(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -98,15 +96,16 @@ class TestGithub(ProviderTests, unittest.TestCase):
         cls.login = config['github.login']
         cls.password = config['github.password']
         cls.app = config['github.app']
+        cls.login_url = find_login_url(config, 'github.login_url')
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('github').submit()
-        self.assertEqual(browser.title, 'Log in - GitHub')
+        self.assertEqual(browser.title, u'Log in \xb7 GitHub')
         form = browser.find_element_by_id('login')
         login = form.find_element_by_name('login')
         login.send_keys(self.login)
@@ -123,7 +122,6 @@ class TestGithub(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestTwitter(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -132,12 +130,13 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         cls.login = config['twitter.login']
         cls.password = config['twitter.password']
         cls.app = config['twitter.app']
+        cls.login_url = find_login_url(config, 'twitter.login_url')
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('twitter').submit()
         self.assertEqual(browser.title, 'Twitter / Authorize an application')
@@ -159,7 +158,6 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestBitbucket(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -168,12 +166,13 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         cls.login = config['bitbucket.login']
         cls.password = config['bitbucket.password']
         cls.app = config['bitbucket.app']
+        cls.login_url = find_login_url(config, 'bitbucket.login_url')
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('bitbucket').submit()
         self.assertEqual(browser.title, 'Log in to your Bitbucket account')
@@ -197,7 +196,6 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestGoogle(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -205,12 +203,13 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         cls.require_provider('google')
         cls.login = config['google.login']
         cls.password = config['google.password']
+        cls.login_url = find_login_url(config, 'google.login_url')
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('google').submit()
         WebDriverWait(browser, 10).until(
@@ -231,7 +230,6 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestYahoo(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -239,12 +237,13 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         cls.require_provider('yahoo')
         cls.login = config['yahoo.login']
         cls.password = config['yahoo.password']
+        cls.login_url = find_login_url(config, 'yahoo.login_url')
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('yahoo').submit()
         WebDriverWait(browser, 10).until(
@@ -271,7 +270,6 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-
 class TestWindowsLive(ProviderTests, unittest.TestCase):
 
     @classmethod
@@ -279,12 +277,13 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         cls.require_provider('live')
         cls.login = config['live.login']
         cls.password = config['live.password']
+        cls.login_url = find_login_url(config, 'live.login_url')
 
     def setUp(self):
         browser.delete_all_cookies()
 
     def test_it(self):
-        browser.get(config['base_url'] + '/login')
+        browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('live').submit()
         WebDriverWait(browser, 10).until(
@@ -304,7 +303,6 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
 
 if __name__ == '__main__':
     unittest.main()

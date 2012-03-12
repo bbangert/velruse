@@ -11,8 +11,19 @@ def main(global_config, **settings):
         settings=settings,
         session_factory=session_factory,
     )
-    config.include('velruse.providers.github')
-    config.include('velruse.providers.facebook')
+    config.include('velruse')
+
+    config.add_facebook_login(
+        settings['velruse.facebook.app_id'],
+        settings['velruse.facebook.app_secret'])
+
+#    config.add_github_login(
+#        settings['velruse.github.app_id'],
+#        settings['velruse.github.app_secret'])
+
+#    config.add_twitter_login(
+#        settings['velruse.twitter.app_id'],
+#        settings['velruse.twitter.app_secret'])
 
     config.scan('.views')
     return config.make_wsgi_app()
