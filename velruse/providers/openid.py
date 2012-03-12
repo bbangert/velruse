@@ -206,6 +206,7 @@ class OpenIDConsumer(object):
         self._update_authrequest(request, authrequest)
 
         realm = self._get_realm(request)
+        # TODO: add a csrf check to the return_to URL
         return_to = request.route_url(self.callback_route)
         request.session['openid_session'] = openid_session
 
