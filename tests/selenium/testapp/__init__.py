@@ -33,7 +33,7 @@ def login_complete_view(request):
     }
 
 @view_config(
-    context='velruse.exceptions.AuthenticationDenied',
+    context='velruse.api.AuthenticationDenied',
     renderer='testapp:templates/result.mako',
 )
 def login_denied_view(request):
