@@ -14,5 +14,3 @@ Module Contents
 .. autofunction:: includeme
 .. autofunction:: github_login
 .. autofunction:: github_process
-
- 

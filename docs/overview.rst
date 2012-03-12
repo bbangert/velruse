@@ -38,15 +38,8 @@ Velruse looks like this:
    and includes any additional parameters that the :term:`auth provider`
    requires.
 2. When the :term:`auth provider` finishes the authentication, the user is
-   redirected back to the endpoint specified with a POST, which includes a
-   unique token.
-3. Website then makes a query to the :term:`UserStore` using the token that
-   was provided. The user's identity information will be returned, or an error
-   if the authentication was unsuccessful.
-
-If the website is unable to directly access the :term:`UserStore` then
-`Step 3` can be replaced by issuing a HTTP POST in the background to the
-:term:`auth provider` requesting the user's information with the token.
+   redirected back to the endpoint specified with a POST, which includes the
+   user's authentication data.
 
 
 .. _RPXNow: http://rpxnow.com/

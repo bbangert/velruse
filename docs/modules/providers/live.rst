@@ -1,4 +1,4 @@
-:mod:`velruse.providers.live_` -- Window Live Provider
+:mod:`velruse.providers.live` -- Window Live Provider
 ======================================================
 
 .. automodule:: velruse.providers.live
@@ -10,5 +10,3 @@ Module Contents
 .. autofunction:: includeme
 .. autofunction:: live_login
 .. autofunction:: live_process
-
-
