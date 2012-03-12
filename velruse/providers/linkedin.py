@@ -14,7 +14,7 @@ from velruse.api import (
     register_provider,
 )
 from velruse.exceptions import ThirdPartyFailure
-from velruse.utils import ProviderSettings
+from velruse.settings import ProviderSettings
 
 
 REQUEST_URL = 'https://api.linkedin.com/uas/oauth/requestToken'
