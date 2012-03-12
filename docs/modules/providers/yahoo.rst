@@ -10,6 +10,3 @@ Module Contents
     :members: __init__, _lookup_identifier, _update_authrequest, _get_access_token
 
 .. autofunction:: includeme
-
- 
-
