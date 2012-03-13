@@ -1,6 +1,8 @@
 import logging
 import os
 
+from anykeystore import create_store_from_settings
+
 from pyramid.config import Configurator
 from pyramid.exceptions import ConfigurationError
 from pyramid.response import Response
@@ -39,6 +41,7 @@ def auth_denied_view(context, request):
     return Response(body=form)
 
 def auth_info_view(request):
+    # TODO: insecure URL, must be protected behind a firewall
     storage = request.registry.velruse_store
     token = request.GET['token']
     return storage.retrieve(token)
@@ -64,24 +67,54 @@ def default_setup(config):
         secret, cookie_name=cookie_name)
     config.set_session_factory(factory)
 
+    # setup backing storage
+    storage_string = settings.get('velruse.store.')
+    settings['velruse.store.store'] = storage_string
+    store = create_store_from_settings('velruse.store.')
+    config.add_velruse_storage(store)
+
+def register_velruse_storage(config, storage):
+    """Add key/value storage for velruse to the pyramid application."""
+    config.registry.velruse_storage = storage
+
+settings_adapter = {
+    'bitbucket': 'add_bitbucket_login_from_settings',
+    'douban': 'add_douban_login_from_settings',
+    'facebook': 'add_facebook_login_from_settings',
+    'github': 'add_github_login_from_settings',
+    'google': 'add_google_login_from_settings',
+    'lastfm': 'add_lastfm_login_from_settings',
+    'linkedin': 'add_linkedin_login_from_settings',
+    'live': 'add_live_login_from_settings',
+    'openid': 'add_openid_login_from_settings',
+    'qq': 'add_qq_login_from_settings',
+    'renren': 'add_renren_login_from_settings',
+    'taobao': 'add_taobao_login_from_settings',
+    'twitter': 'add_twitter_login_from_settings',
+    'weibo': 'add_weibo_login_from_settings',
+    'yahoo': 'add_yahoo_login_from_settings',
+}
+
 def includeme(config):
-    """Configuration function to make a pyramid app a velruse one."""
+    """Add the velruse standalone app configuration to a pyramid app."""
     settings = config.registry.settings
+    config.add_directive('register_velruse_storage', register_velruse_storage)
 
     # setup application
     setup = settings.get('velruse.setup') or default_setup
     if setup:
         config.include(setup)
 
-    # configure providers
-    config.include('velruse')
-
-    # setup backing storage
-    store = settings.get('velruse.store')
-    if store is None:
-        raise ConfigurationError(
-            'invalid setting velruse.store: {0}'.format(store))
-    config.include(store)
+    for provider in settings.get('velruse.login_providers'):
+        # configure providers
+        config.include('velruse.providers.%s' % provider)
+        login_cfg = settings_adapter.get(provider)
+        if login_cfg is None:
+            raise ConfigurationError(
+                'could not find configuration method for provider %s'
+                '' % provider)
+        cfg = getattr(config, login_cfg)
+        cfg(prefix='velruse.%s.' % provider)
 
     # check for required settings
     if not settings.get('velruse.end_point'):
@@ -130,7 +163,7 @@ def make_velruse_app(global_conf, **settings):
 
         velruse.end_point = http://example.com/logged_in
 
-        velruse.store = velruse.store.redis
+        velruse.store = redis
         velruse.store.host = localhost
         velruse.store.port = 6379
         velruse.store.db = 0
@@ -142,6 +175,7 @@ def make_velruse_app(global_conf, **settings):
 
         velruse.facebook.consumer_key = KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
         velruse.facebook.consumer_secret = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
+
         velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
         velruse.twitter.consumer_secret =
             eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
