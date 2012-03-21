@@ -37,7 +37,7 @@ def add_renren_login_from_settings(config, prefix='velruse.renren.'):
 def add_renren_login(config,
                      consumer_key,
                      consumer_secret,
-                     scope=None,
+                     scope='',
                      login_path='/login/renren',
                      callback_path='/login/renren/callback',
                      name='renren'):
