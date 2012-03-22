@@ -8,7 +8,7 @@
 
 <%def name="form(name, title, **kw)">
 % if name in providers:
-<form id="${name}" action="${login_url(name)}" method="post">
+<form id="${name}" action="${login_url(request, name)}" method="post">
     % for k, v in kw.items():
     <input type="hidden" name="${k}" value="${v}" />
     % endfor
