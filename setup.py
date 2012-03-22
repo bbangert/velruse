@@ -10,6 +10,7 @@ requires=[
 
 tests_require = requires + [
     'nose',
+    'nose-testconfig',
     'selenium',
 ]
 
@@ -19,14 +20,20 @@ setup(name='velruse',
           'Simplifying third-party authentication for web applications.'),
       long_description='',
       # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      classifiers=[],
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: MIT License',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
+          'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
+      ],
       keywords='',
       author='Ben Bangert',
       author_email='ben@groovie.org',
       maintainer='Michael Merickel',
       maintainer_email='oss@m.merickel.org',
       url='velruse.readthedocs.org',
-      license='',
       packages=['velruse'],
       include_package_data=True,
       zip_safe=False,
