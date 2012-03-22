@@ -6,7 +6,7 @@ requires=[
     'pyramid',
     'requests',
     'anykeystore',
-],
+]
 
 tests_require = requires + [
     'nose',
@@ -39,7 +39,7 @@ setup(name='velruse',
       zip_safe=False,
       install_requires=requires,
       extras_require={
-          'tests': tests_require,
+          'testing': tests_require,
       },
       entry_points="""
       [paste.app_factory]
