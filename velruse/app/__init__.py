@@ -14,7 +14,7 @@ from velruse.app.utils import redirect_form
 log = logging.getLogger(__name__)
 
 def auth_complete_view(context, request):
-    end_point = request.registry.settings.get('velruse.end_point')
+    end_point = request.registry.settings.get('end_point')
     token = generate_token()
     storage = request.registry.velruse_store
     if 'birthday' in context.profile:
@@ -29,7 +29,7 @@ def auth_complete_view(context, request):
     return Response(body=form)
 
 def auth_denied_view(context, request):
-    end_point = request.registry.settings.get('velruse.end_point')
+    end_point = request.registry.settings.get('end_point')
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
@@ -43,8 +43,13 @@ def auth_denied_view(context, request):
 def auth_info_view(request):
     # TODO: insecure URL, must be protected behind a firewall
     storage = request.registry.velruse_store
-    token = request.GET['token']
-    return storage.retrieve(token)
+    token = request.get('token')
+    try:
+        return storage.retrieve(token)
+    except KeyError:
+        log.info('auth_info requested invalid token "%s"')
+        request.response.status = 400
+        return None
 
 def default_setup(config):
     from pyramid.session import UnencryptedCookieSessionFactoryConfig
@@ -54,9 +59,8 @@ def default_setup(config):
              'function for configuring the session factory.')
 
     settings = config.registry.settings
-    secret = settings.get('velruse.session.secret')
-    cookie_name = settings.get('velruse.session.cookie_name',
-                               'velruse.session')
+    secret = settings.get('session.secret')
+    cookie_name = settings.get('session.cookie_name', 'velruse.session')
     if secret is None:
         log.warn('Configuring unencrypted cookie-based session with a '
                  'random secret which will invalidate old cookies when '
@@ -68,66 +72,80 @@ def default_setup(config):
     config.set_session_factory(factory)
 
     # setup backing storage
-    storage_string = settings.get('velruse.store.')
-    settings['velruse.store.store'] = storage_string
-    store = create_store_from_settings('velruse.store.')
-    config.add_velruse_storage(store)
+    storage_string = settings.get('store')
+    settings['store.store'] = storage_string
+    store = create_store_from_settings('store.')
+    config.register_velruse_store(store)
 
-def register_velruse_storage(config, storage):
-    """Add key/value storage for velruse to the pyramid application."""
-    config.registry.velruse_storage = storage
+def register_velruse_store(config, storage):
+    """Add key/value store for velruse to the pyramid application."""
+    config.registry.velruse_store = storage
 
 settings_adapter = {
     'bitbucket': 'add_bitbucket_login_from_settings',
     'douban': 'add_douban_login_from_settings',
     'facebook': 'add_facebook_login_from_settings',
     'github': 'add_github_login_from_settings',
-    'google': 'add_google_login_from_settings',
     'lastfm': 'add_lastfm_login_from_settings',
     'linkedin': 'add_linkedin_login_from_settings',
     'live': 'add_live_login_from_settings',
-    'openid': 'add_openid_login_from_settings',
     'qq': 'add_qq_login_from_settings',
     'renren': 'add_renren_login_from_settings',
     'taobao': 'add_taobao_login_from_settings',
     'twitter': 'add_twitter_login_from_settings',
     'weibo': 'add_weibo_login_from_settings',
-    'yahoo': 'add_yahoo_login_from_settings',
 }
+
+def find_providers(settings):
+    providers = set()
+    for k in settings:
+        if k.startswith('provider.'):
+            k = k[9:].split('.', 1)[0]
+            providers.add(k)
+    return providers
+
+def load_provider(config, provider):
+    settings = config.registry.settings
+    impl = settings.get('provider.%s.impl' % provider) or provider
+
+    login_cfg = settings_adapter.get(impl)
+    if login_cfg is None:
+        raise ConfigurationError(
+            'could not find configuration method for provider %s'
+            '' % provider)
+    loader = getattr(config, login_cfg)
+    loader(prefix='provider.%s.' % provider)
 
 def includeme(config):
     """Add the velruse standalone app configuration to a pyramid app."""
     settings = config.registry.settings
-    config.add_directive('register_velruse_storage', register_velruse_storage)
+    config.add_directive('register_velruse_store', register_velruse_store)
 
     # setup application
-    setup = settings.get('velruse.setup') or default_setup
+    setup = settings.get('setup') or default_setup
     if setup:
         config.include(setup)
 
-    for provider in settings.get('velruse.login_providers'):
-        # configure providers
+    # include supported providers
+    for provider in settings_adapter:
         config.include('velruse.providers.%s' % provider)
-        login_cfg = settings_adapter.get(provider)
-        if login_cfg is None:
-            raise ConfigurationError(
-                'could not find configuration method for provider %s'
-                '' % provider)
-        cfg = getattr(config, login_cfg)
-        cfg(prefix='velruse.%s.' % provider)
+
+    # configure requested providers
+    for provider in find_providers(settings):
+        load_provider(provider)
 
     # check for required settings
-    if not settings.get('velruse.end_point'):
+    if not settings.get('end_point'):
         raise ConfigurationError(
-            'missing required setting "velruse.end_point"')
+            'missing required setting "end_point"')
 
     # add views
     config.add_view(
         auth_complete_view,
-        context='velruse.api.AuthenticationComplete')
+        context='velruse.AuthenticationComplete')
     config.add_view(
         auth_denied_view,
-        context='velruse.exceptions.AuthenticationDenied')
+        context='velruse.AuthenticationDenied')
     config.add_view(
         auth_info_view,
         name='auth_info',
@@ -159,26 +177,24 @@ def make_velruse_app(global_conf, **settings):
         [app:velruse]
         use = egg:velruse
 
-        velruse.setup = myapp.setup_velruse
+        setup = myapp.setup_velruse
 
-        velruse.end_point = http://example.com/logged_in
+        end_point = http://example.com/logged_in
 
-        velruse.store = redis
-        velruse.store.host = localhost
-        velruse.store.port = 6379
-        velruse.store.db = 0
-        velruse.store.key_prefix = velruse_ustore
+        store = redis
+        store.host = localhost
+        store.port = 6379
+        store.db = 0
+        store.key_prefix = velruse_ustore
 
-        velruse.providers =
-            facebook
-            twitter
+        provider.facebook.consumer_key = KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
+        provider.facebook.consumer_secret =
+            ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
+        provider.facebook.scope = email
 
-        velruse.facebook.consumer_key = KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
-        velruse.facebook.consumer_secret = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
-
-        velruse.twitter.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
-        velruse.twitter.consumer_secret =
-            eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
+        provider.tw.impl = twitter
+        provider.tw.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
+        provider.tw.consumer_secret = eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
 
         [app:YOURAPP]
         use = egg:YOURAPP
