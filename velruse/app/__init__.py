@@ -14,7 +14,7 @@ from velruse.app.utils import redirect_form
 log = logging.getLogger(__name__)
 
 def auth_complete_view(context, request):
-    end_point = request.registry.settings.get('end_point')
+    endpoint = request.registry.settings.get('endpoint')
     token = generate_token()
     storage = request.registry.velruse_store
     if 'birthday' in context.profile:
@@ -25,11 +25,11 @@ def auth_complete_view(context, request):
         'credentials': context.credentials,
     }
     storage.store(token, result_data, expires=300)
-    form = redirect_form(end_point, token)
+    form = redirect_form(endpoint, token)
     return Response(body=form)
 
 def auth_denied_view(context, request):
-    end_point = request.registry.settings.get('end_point')
+    endpoint = request.registry.settings.get('endpoint')
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
@@ -37,7 +37,7 @@ def auth_denied_view(context, request):
         'description': context.message, 
     }
     storage.store(token, error_dict, expires=300)
-    form = redirect_form(end_point, token)
+    form = redirect_form(endpoint, token)
     return Response(body=form)
 
 def auth_info_view(request):
@@ -135,9 +135,9 @@ def includeme(config):
         load_provider(provider)
 
     # check for required settings
-    if not settings.get('end_point'):
+    if not settings.get('endpoint'):
         raise ConfigurationError(
-            'missing required setting "end_point"')
+            'missing required setting "endpoint"')
 
     # add views
     config.add_view(
@@ -179,7 +179,7 @@ def make_velruse_app(global_conf, **settings):
 
         setup = myapp.setup_velruse
 
-        end_point = http://example.com/logged_in
+        endpoint = http://example.com/logged_in
 
         store = redis
         store.host = localhost
