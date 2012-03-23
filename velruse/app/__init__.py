@@ -72,7 +72,7 @@ def default_setup(config):
     config.set_session_factory(factory)
 
     # setup backing storage
-    storage_string = settings.get('store')
+    storage_string = settings.get('store', 'memory')
     settings['store.store'] = storage_string
     store = create_store_from_settings('store.')
     config.register_velruse_store(store)
