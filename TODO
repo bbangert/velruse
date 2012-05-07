@@ -1,0 +1,33 @@
+Velruse TODO
+============
+
+Next Release
+------------
+
+- Fix the Flask example to work with a Velruse standalone app.
+
+- Document the standalone app.
+
+Nice-to-Have
+------------
+
+- Create a Velruse WSGI middleware component. This would contain most of the
+  current internals of the standalone app, but allow the credentials to be
+  passed directly into an application (via the environ) without any
+  sub-requests.
+
+- OpenID doesn't seem to work with Google Hosted Apps.
+
+- Improved testing.
+
+  + Support request/response fixtures for each endpoint that can be
+    run through to validate behavior.
+
+  + Make selenium tests optional, and preferably have the server run
+    in a thread within the test setup to avoid having to spin up a separate
+    shell to run the server.
+
+  + Create unit tests for the portable contacts conversion functions
+    such as ``velruse.providers.facebook.extract_fb_data()``.
+
+  + Automate testing, possibly via Travis-CI or Jenkins.
