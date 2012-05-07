@@ -10,4 +10,3 @@ Module Contents
 .. autofunction:: redirect_form
 .. autofunction:: generate_token
 .. autofunction:: splitlines
-

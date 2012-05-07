@@ -14,5 +14,3 @@ Module Contents
 .. autofunction:: includeme
 .. autofunction:: facebook_login
 .. autofunction:: facebook_process
-
- 

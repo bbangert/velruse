@@ -1,38 +1,46 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
-version = '0.20a1'
+requires=[
+    'python-openid',
+    'oauth2',
+    'pyramid',
+    'requests',
+    'anykeystore',
+]
 
-tests_require = [
-    'nose>=0.11',
+tests_require = requires + [
+    'nose',
+    'nose-testconfig',
     'selenium',
-    'pymongo',
-    'unittest2',
-    'PasteScript',
 ]
 
 setup(name='velruse',
-      version=version,
+      version='0.3dev',
       description=(
           'Simplifying third-party authentication for web applications.'),
       long_description='',
       # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
-      classifiers=[],
+      classifiers=[
+          'Development Status :: 4 - Beta',
+          'Intended Audience :: Developers',
+          'License :: OSI Approved :: MIT License',
+          'Programming Language :: Python :: 2.6',
+          'Programming Language :: Python :: 2.7',
+          'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
+      ],
       keywords='',
       author='Ben Bangert',
       author_email='ben@groovie.org',
-      url='',
-      license='',
-      packages=find_packages(exclude=['ez_setup', 'examples', 'tests']),
+      maintainer='Michael Merickel',
+      maintainer_email='oss@m.merickel.org',
+      url='velruse.readthedocs.org',
+      packages=['velruse'],
       include_package_data=True,
       zip_safe=False,
-      install_requires=[
-          'python-openid>=2.2.4',
-          'oauth2>=1.1.3',
-          'pyramid>=1.2',
-          'requests>=0.6.6',
-      ],
-      tests_require=tests_require,
-      extras_require={'tests': tests_require},
+      install_requires=requires,
+      extras_require={
+          'testing': tests_require,
+      },
       entry_points="""
       [paste.app_factory]
       main = velruse.app:make_velruse_app
