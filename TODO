@@ -31,3 +31,22 @@ Nice-to-Have
     such as ``velruse.providers.facebook.extract_fb_data()``.
 
   + Automate testing, possibly via Travis-CI or Jenkins.
+
+- Add an LDAP provider?
+
+- Support storing some state via the login URL.
+
+  + POST /login/facebook with state=foo, we would expect that state=foo
+    is then available somehow in the AuthenticationComplete context.
+
+- Add CSRF checking to more providers.
+
+- Add introspection via Pyramid's introspection API ('velruse providers'
+  category).
+
+- Add support for /auth endpoints as well as /login endpoints. Some providers
+  like Twitter and Last.fm have different workflows for simply logging in
+  versus granting access to the user's data on a provider's system.
+
+- Possibly factor out a Provider base class that can handle a lot of common
+  operations between providers (sub-requests, state tracking, introspection).
