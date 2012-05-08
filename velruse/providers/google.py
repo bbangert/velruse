@@ -30,11 +30,14 @@ log = logging.getLogger(__name__)
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 
+
 class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
     """Google auth complete"""
 
+
 def includeme(config):
     config.add_directive('add_google_login', add_google_login)
+
 
 def add_google_login(config,
                      attrs=None,
@@ -65,6 +68,7 @@ def add_google_login(config,
                      factory=provider.callback)
 
     register_provider(config, name, provider)
+
 
 class GoogleConsumer(OpenIDConsumer):
     openid_attributes = [

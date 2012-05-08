@@ -1,6 +1,7 @@
 def splitlines(s):
     return filter(None, [x.strip() for x in s.splitlines()])
 
+
 class ProviderSettings(object):
     def __init__(self, settings, prefix=''):
         self.settings = settings

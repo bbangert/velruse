@@ -23,10 +23,12 @@ from velruse.utils import flat_url
 class FacebookAuthenticationComplete(AuthenticationComplete):
     """Facebook auth complete"""
 
+
 def includeme(config):
     config.add_directive('add_facebook_login', add_facebook_login)
     config.add_directive('setup_facebook_login_from_settings',
                          add_facebook_login_from_settings)
+
 
 def add_facebook_login_from_settings(config, prefix='velruse.facebook.'):
     settings = config.registry.settings
@@ -37,6 +39,7 @@ def add_facebook_login_from_settings(config, prefix='velruse.facebook.'):
     p.update('login_path')
     p.update('callback_path')
     config.add_facebook_login(**p.kwargs)
+
 
 def add_facebook_login(config,
                        consumer_key,
@@ -59,6 +62,7 @@ def add_facebook_login(config,
                      factory=provider.callback)
 
     register_provider(config, name, provider)
+
 
 class FacebookProvider(object):
     def __init__(self, name, consumer_key, consumer_secret, scope):
@@ -121,6 +125,7 @@ class FacebookProvider(object):
         return FacebookAuthenticationComplete(profile=profile,
                                               credentials=cred)
 
+
 def extract_fb_data(data):
     """Extact and normalize facebook data as parsed from the graph JSON"""
     # Setup the normalized contact info
@@ -152,7 +157,7 @@ def extract_fb_data(data):
         else:
             h, m = parts[0], '00'
         if 1 < len(h) < 3:
-            h = '%s0%s' % (h[0], h[1]) ### e.g. -5 --> -05
+            h = '%s0%s' % (h[0], h[1])  # e.g. -5 --> -05
         elif len(h) == 1:
             h = h[0]
         data['utfOffset'] = ':'.join([h, m])

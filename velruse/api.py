@@ -3,7 +3,8 @@ from velruse import (
     AuthenticationComplete,
     AuthenticationDenied,
     login_url,
-) # bw compat
+)  # bw compat
+
 
 def register_provider(config, name, provider):
     """

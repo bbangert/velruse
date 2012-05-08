@@ -23,13 +23,16 @@ ACCESS_URL = 'http://www.douban.com/service/auth/access_token'
 USER_URL = 'http://api.douban.com/people/%40me?alt=json'
 SIGMETHOD = oauth.SignatureMethod_HMAC_SHA1()
 
+
 class DoubanAuthenticationComplete(AuthenticationComplete):
     """Douban auth complete"""
+
 
 def includeme(config):
     config.add_directive('add_douban_login', add_douban_login)
     config.add_directive('setup_douban_login_from_settings',
                          add_douban_login_from_settings)
+
 
 def add_douban_login_from_settings(config, prefix='velruse.douban'):
     settings = config.registry.settings
@@ -39,6 +42,7 @@ def add_douban_login_from_settings(config, prefix='velruse.douban'):
     p.update('login_path')
     p.update('callback_path')
     config.add_douban_login(**p.kwargs)
+
 
 def add_douban_login(config,
                      consumer_key,
@@ -60,6 +64,7 @@ def add_douban_login(config,
                      factory=provider.callback)
 
     register_provider(config, name, provider)
+
 
 class DoubanProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
@@ -93,7 +98,6 @@ class DoubanProvider(object):
             callback=request.route_url(self.callback_route),
             http_url=req_url)
         return HTTPFound(location=oauth_request.to_url())
-
 
     def callback(self, request):
         """Process the douban redirect"""

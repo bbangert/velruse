@@ -24,10 +24,12 @@ from velruse.utils import flat_url
 class GithubAuthenticationComplete(AuthenticationComplete):
     """Github auth complete"""
 
+
 def includeme(config):
     config.add_directive('add_github_login', add_github_login)
     config.add_directive('setup_github_login_from_settings',
                          add_github_login_from_settings)
+
 
 def add_github_login_from_settings(config, prefix='velruse.github.'):
     settings = config.registry.settings
@@ -38,6 +40,7 @@ def add_github_login_from_settings(config, prefix='velruse.github.'):
     p.update('login_path')
     p.update('callback_path')
     config.add_github_login(**p.kwargs)
+
 
 def add_github_login(config,
                      consumer_key,
@@ -60,6 +63,7 @@ def add_github_login(config,
                      factory=provider.callback)
 
     register_provider(config, name, provider)
+
 
 class GithubProvider(object):
     def __init__(self, name, consumer_key, consumer_secret, scope):

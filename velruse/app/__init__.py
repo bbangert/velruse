@@ -13,6 +13,7 @@ from velruse.app.utils import redirect_form
 
 log = logging.getLogger(__name__)
 
+
 def auth_complete_view(context, request):
     endpoint = request.registry.settings.get('endpoint')
     token = generate_token()
@@ -28,17 +29,19 @@ def auth_complete_view(context, request):
     form = redirect_form(endpoint, token)
     return Response(body=form)
 
+
 def auth_denied_view(context, request):
     endpoint = request.registry.settings.get('endpoint')
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
-        'code': getattr(context, 'code', None), 
-        'description': context.message, 
+        'code': getattr(context, 'code', None),
+        'description': context.message,
     }
     storage.store(token, error_dict, expires=300)
     form = redirect_form(endpoint, token)
     return Response(body=form)
+
 
 def auth_info_view(request):
     # TODO: insecure URL, must be protected behind a firewall
@@ -50,6 +53,7 @@ def auth_info_view(request):
         log.info('auth_info requested invalid token "%s"')
         request.response.status = 400
         return None
+
 
 def default_setup(config):
     from pyramid.session import UnencryptedCookieSessionFactoryConfig
@@ -77,6 +81,7 @@ def default_setup(config):
     store = create_store_from_settings('store.')
     config.register_velruse_store(store)
 
+
 def register_velruse_store(config, storage):
     """Add key/value store for velruse to the pyramid application."""
     config.registry.velruse_store = storage
@@ -96,6 +101,7 @@ settings_adapter = {
     'weibo': 'add_weibo_login_from_settings',
 }
 
+
 def find_providers(settings):
     providers = set()
     for k in settings:
@@ -103,6 +109,7 @@ def find_providers(settings):
             k = k[9:].split('.', 1)[0]
             providers.add(k)
     return providers
+
 
 def load_provider(config, provider):
     settings = config.registry.settings
@@ -115,6 +122,7 @@ def load_provider(config, provider):
             '' % provider)
     loader = getattr(config, login_cfg)
     loader(prefix='provider.%s.' % provider)
+
 
 def includeme(config):
     """Add the velruse standalone app configuration to a pyramid app."""
@@ -152,10 +160,12 @@ def includeme(config):
         request_param='format=json',
         renderer='json')
 
+
 def make_app(**settings):
     config = Configurator(settings=settings)
     config.include(includeme)
     return config.make_wsgi_app()
+
 
 def make_velruse_app(global_conf, **settings):
     """Construct a complete WSGI app ready to serve by Paste

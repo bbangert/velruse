@@ -21,10 +21,12 @@ from velruse.utils import flat_url
 class WeiboAuthenticationComplete(AuthenticationComplete):
     """Weibo auth complete"""
 
+
 def includeme(config):
     config.add_directive('add_weibo_login', add_weibo_login)
     config.add_directive('setup_weibo_login_from_settings',
                          add_weibo_login_from_settings)
+
 
 def add_weibo_login_from_settings(config, prefix='velruse.weibo.'):
     settings = config.registry.settings
@@ -34,6 +36,7 @@ def add_weibo_login_from_settings(config, prefix='velruse.weibo.'):
     p.update('login_path')
     p.update('callback_path')
     config.add_weibo_login(**p.kwargs)
+
 
 def add_weibo_login(config,
                      consumer_key,
@@ -56,6 +59,7 @@ def add_weibo_login(config,
 
     register_provider(config, name, provider)
 
+
 class WeiboProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
@@ -73,7 +77,6 @@ class WeiboProvider(object):
                           redirect_uri=request.route_url(self.callback_route),
                           state=state)
         return HTTPFound(location=fb_url)
-
 
     def callback(self, request):
         """Process the weibo redirect"""

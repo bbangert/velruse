@@ -26,13 +26,16 @@ ACCESS_URL = 'https://bitbucket.org/api/1.0/oauth/access_token/'
 USER_URL = 'https://bitbucket.org/api/1.0/user'
 SIGMETHOD = oauth.SignatureMethod_HMAC_SHA1()
 
+
 class BitbucketAuthenticationComplete(AuthenticationComplete):
     """Bitbucket auth complete"""
+
 
 def includeme(config):
     config.add_directive('add_bitbucket_login', add_bitbucket_login)
     config.add_directive('setup_bitbucket_login_from_settings',
                          add_bitbucket_login_from_settings)
+
 
 def add_bitbucket_login_from_settings(config, prefix='velruse.bitbucket.'):
     settings = config.registry.settings
@@ -42,6 +45,7 @@ def add_bitbucket_login_from_settings(config, prefix='velruse.bitbucket.'):
     p.update('login_path')
     p.update('callback_path')
     config.add_bitbucket_login(**p.kwargs)
+
 
 def add_bitbucket_login(config,
                         consumer_key,
@@ -63,6 +67,7 @@ def add_bitbucket_login(config,
                      factory=provider.callback)
 
     register_provider(config, name, provider)
+
 
 class BitbucketProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):

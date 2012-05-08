@@ -25,6 +25,7 @@ for (var i = 0; i < elements.length; i++) {
 </html>
 """ % (end_point, token)
 
+
 def generate_token():
     """Generate a random token"""
     return base_encode(uuid.uuid4().int)

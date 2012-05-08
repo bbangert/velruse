@@ -18,13 +18,16 @@ from velruse.utils import flat_url
 
 API_BASE = 'https://ws.audioscrobbler.com/2.0/'
 
+
 class LastFMAuthenticationComplete(AuthenticationComplete):
     """LastFM auth complete"""
+
 
 def includeme(config):
     config.add_directive('add_lastfm_login', add_lastfm_login)
     config.add_directive('setup_lastfm_login_from_settings',
                          add_lastfm_login_from_settings)
+
 
 def add_lastfm_login_from_settings(config, prefix='velruse.lastfm.'):
     settings = config.registry.settings
@@ -34,6 +37,7 @@ def add_lastfm_login_from_settings(config, prefix='velruse.lastfm.'):
     p.update('login_path')
     p.update('callback_path')
     config.add_lastfm_login(**p.kwargs)
+
 
 def add_lastfm_login(config,
                      consumer_key,
@@ -56,6 +60,7 @@ def add_lastfm_login(config,
 
     register_provider(config, name, provider)
 
+
 class LastfmProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
@@ -70,7 +75,6 @@ class LastfmProvider(object):
         fb_url = flat_url('https://www.last.fm/api/auth/',
                           api_key=self.consumer_key)
         return HTTPFound(location=fb_url)
-
 
     def callback(self, request):
         """Process the LastFM redirect"""
@@ -137,6 +141,7 @@ class LastfmProvider(object):
             profile['photos'].append({'type': '', 'value': larger})
         return LastFMAuthenticationComplete(profile=profile,
                                             credentials=cred)
+
 
 def sign_call(params, secret):
     pairs = ['%s%s' % (k, params[k]) for k in sorted(params)]

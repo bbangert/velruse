@@ -71,11 +71,14 @@ trans_dict = dict(
 
 attributes = ax_attributes
 
+
 class OpenIDAuthenticationComplete(AuthenticationComplete):
     """OpenID auth complete"""
 
+
 def includeme(config):
     config.add_directive('add_openid_login', add_openid_login)
+
 
 def add_openid_login(config,
                      realm=None,
@@ -102,6 +105,7 @@ def add_openid_login(config,
 
     register_provider(config, name, provider)
 
+
 class OpenIDConsumer(object):
     """OpenID Consumer base class
 
@@ -122,6 +126,7 @@ class OpenIDConsumer(object):
         self.callback_route = 'velruse.%s-callback' % name
 
     _openid_store = None
+
     def _get_openid_store(self):
         if self._openid_store is None:
             from openid.store.memstore import MemoryStore
@@ -277,6 +282,7 @@ class OpenIDConsumer(object):
         else:
             raise ThirdPartyFailure("OpenID failed.")
 
+
 class AttribAccess(object):
     """Uniform attribute accessor for Simple Reg and Attribute Exchange
     values"""
@@ -302,6 +308,7 @@ class AttribAccess(object):
             return None
 
         return self.sreg_resp.get(key)
+
 
 def extract_openid_data(identifier, sreg_resp, ax_resp):
     """Extract the OpenID Data from Simple Reg and AX data

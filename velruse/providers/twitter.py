@@ -19,13 +19,16 @@ from velruse.settings import ProviderSettings
 REQUEST_URL = 'https://api.twitter.com/oauth/request_token'
 ACCESS_URL = 'https://api.twitter.com/oauth/access_token'
 
+
 class TwitterAuthenticationComplete(AuthenticationComplete):
     """Twitter auth complete"""
+
 
 def includeme(config):
     config.add_directive('add_twitter_login', add_twitter_login)
     config.add_directive('setup_twitter_login_from_settings',
                          add_twitter_login_from_settings)
+
 
 def add_twitter_login_from_settings(config, prefix='velruse.twitter.'):
     settings = config.registry.settings
@@ -35,6 +38,7 @@ def add_twitter_login_from_settings(config, prefix='velruse.twitter.'):
     p.update('login_path')
     p.update('callback_path')
     config.add_twitter_login(**p.kwargs)
+
 
 def add_twitter_login(config,
                       consumer_key,
@@ -56,6 +60,7 @@ def add_twitter_login(config,
                      factory=provider.callback)
 
     register_provider(config, name, provider)
+
 
 class TwitterProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
@@ -91,7 +96,6 @@ class TwitterProvider(object):
         oauth_request = oauth.Request.from_token_and_callback(
             token=request_token, http_url=req_url)
         return HTTPFound(location=oauth_request.to_url())
-
 
     def callback(self, request):
         """Process the Twitter redirect"""

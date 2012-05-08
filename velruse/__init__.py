@@ -6,6 +6,7 @@ class AuthenticationComplete(object):
         self.profile = profile
         self.credentials = credentials
 
+
 class AuthenticationDenied(object):
     """ An AuthenticationDenied context object. Used when the provider
     returned successfully but without proper credentials. This may be
@@ -13,6 +14,7 @@ class AuthenticationDenied(object):
 
     def __init__(self, reason=None):
         self.reason = reason
+
 
 def login_url(request, name):
     """ Generate the login URL for a provider."""

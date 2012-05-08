@@ -20,11 +20,14 @@ log = logging.getLogger(__name__)
 
 YAHOO_OAUTH = 'https://api.login.yahoo.com/oauth/v2/get_token'
 
+
 class YahooAuthenticationComplete(OpenIDAuthenticationComplete):
     """Yahoo auth complete"""
 
+
 def includeme(config):
     config.add_directive('add_yahoo_login', add_yahoo_login)
+
 
 def add_yahoo_login(config,
                     realm=None,
@@ -53,6 +56,7 @@ def add_yahoo_login(config,
                      factory=provider.callback)
 
     register_provider(config, name, provider)
+
 
 class YahooConsumer(OpenIDConsumer):
     def __init__(self, name, realm=None, storage=None,

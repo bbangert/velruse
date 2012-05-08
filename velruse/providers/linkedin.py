@@ -20,13 +20,16 @@ from velruse.settings import ProviderSettings
 REQUEST_URL = 'https://api.linkedin.com/uas/oauth/requestToken'
 ACCESS_URL = 'https://api.linkedin.com/uas/oauth/accessToken'
 
+
 class LinkedInAuthenticationComplete(AuthenticationComplete):
     """LinkedIn auth complete"""
+
 
 def includeme(config):
     config.add_directive('add_linkedin_login', add_linkedin_login)
     config.add_directive('setup_linkedin_login_from_settings',
                          add_linkedin_login_from_settings)
+
 
 def add_linkedin_login_from_settings(config, prefix='velruse.linkedin.'):
     settings = config.registry.settings
@@ -36,6 +39,7 @@ def add_linkedin_login_from_settings(config, prefix='velruse.linkedin.'):
     p.update('login_path')
     p.update('callback_path')
     config.add_linkedin_login(**p.kwargs)
+
 
 def add_linkedin_login(config,
                        consumer_key,
@@ -57,6 +61,7 @@ def add_linkedin_login(config,
                      factory=provider.callback)
 
     register_provider(config, name, provider)
+
 
 class LinkedInProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
