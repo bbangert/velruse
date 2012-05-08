@@ -16,7 +16,8 @@ Nice-to-Have
   passed directly into an application (via the environ) without any
   sub-requests.
 
-- OpenID doesn't seem to work with Google Hosted Apps.
+- OpenID doesn't seem to work with Google Hosted Apps. This looked like a bug
+  within the python-openid package though.
 
 - Improved testing.
 
@@ -31,8 +32,6 @@ Nice-to-Have
     such as ``velruse.providers.facebook.extract_fb_data()``.
 
   + Automate testing, possibly via Travis-CI or Jenkins.
-
-- Add an LDAP provider?
 
 - Support storing some state via the login URL.
 
