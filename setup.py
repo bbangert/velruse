@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 requires=[
     'python-openid',
@@ -34,7 +34,8 @@ setup(name='velruse',
       maintainer='Michael Merickel',
       maintainer_email='oss@m.merickel.org',
       url='velruse.readthedocs.org',
-      packages=['velruse'],
+      packages=find_packages(
+          exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
