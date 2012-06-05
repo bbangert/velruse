@@ -78,7 +78,7 @@ def default_setup(config):
     # setup backing storage
     storage_string = settings.get('store', 'memory')
     settings['store.store'] = storage_string
-    store = create_store_from_settings('store.')
+    store = create_store_from_settings(settings, prefix='store.')
     config.register_velruse_store(store)
 
 
@@ -140,7 +140,7 @@ def includeme(config):
 
     # configure requested providers
     for provider in find_providers(settings):
-        load_provider(provider)
+        load_provider(config, provider)
 
     # check for required settings
     if not settings.get('endpoint'):
