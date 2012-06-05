@@ -23,7 +23,7 @@ class LiveAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_live_login', add_live_login)
-    config.add_directive('setup_live_login_from_settings',
+    config.add_directive('add_live_login_from_settings',
                          add_live_login_from_settings)
 
 

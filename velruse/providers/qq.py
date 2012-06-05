@@ -23,7 +23,7 @@ class QQAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_qq_login', add_qq_login)
-    config.add_directive('setup_qq_login_from_settings',
+    config.add_directive('add_qq_login_from_settings',
                          add_qq_login_from_settings)
 
 

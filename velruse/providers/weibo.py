@@ -24,7 +24,7 @@ class WeiboAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_weibo_login', add_weibo_login)
-    config.add_directive('setup_weibo_login_from_settings',
+    config.add_directive('add_weibo_login_from_settings',
                          add_weibo_login_from_settings)
 
 

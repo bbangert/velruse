@@ -27,7 +27,7 @@ class LinkedInAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_linkedin_login', add_linkedin_login)
-    config.add_directive('setup_linkedin_login_from_settings',
+    config.add_directive('add_linkedin_login_from_settings',
                          add_linkedin_login_from_settings)
 
 

@@ -22,7 +22,7 @@ class RenrenAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_renren_login', add_renren_login)
-    config.add_directive('setup_renren_login_from_settings',
+    config.add_directive('add_renren_login_from_settings',
                          add_renren_login_from_settings)
 
 

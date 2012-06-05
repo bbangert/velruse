@@ -30,7 +30,7 @@ class DoubanAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_douban_login', add_douban_login)
-    config.add_directive('setup_douban_login_from_settings',
+    config.add_directive('add_douban_login_from_settings',
                          add_douban_login_from_settings)
 
 

@@ -25,7 +25,7 @@ class LastFMAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_lastfm_login', add_lastfm_login)
-    config.add_directive('setup_lastfm_login_from_settings',
+    config.add_directive('add_lastfm_login_from_settings',
                          add_lastfm_login_from_settings)
 
 

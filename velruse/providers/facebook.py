@@ -26,7 +26,7 @@ class FacebookAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_facebook_login', add_facebook_login)
-    config.add_directive('setup_facebook_login_from_settings',
+    config.add_directive('add_facebook_login_from_settings',
                          add_facebook_login_from_settings)
 
 

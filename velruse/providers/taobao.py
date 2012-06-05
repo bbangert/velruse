@@ -24,7 +24,7 @@ class TaobaoAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_taobao_login', add_taobao_login)
-    config.add_directive('setup_taobao_login_from_settings',
+    config.add_directive('add_taobao_login_from_settings',
                          add_taobao_login_from_settings)
 
 

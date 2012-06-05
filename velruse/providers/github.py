@@ -27,7 +27,7 @@ class GithubAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_github_login', add_github_login)
-    config.add_directive('setup_github_login_from_settings',
+    config.add_directive('add_github_login_from_settings',
                          add_github_login_from_settings)
 
 

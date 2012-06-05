@@ -26,7 +26,7 @@ class TwitterAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_twitter_login', add_twitter_login)
-    config.add_directive('setup_twitter_login_from_settings',
+    config.add_directive('add_twitter_login_from_settings',
                          add_twitter_login_from_settings)
 
 

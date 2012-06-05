@@ -33,7 +33,7 @@ class BitbucketAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_bitbucket_login', add_bitbucket_login)
-    config.add_directive('setup_bitbucket_login_from_settings',
+    config.add_directive('add_bitbucket_login_from_settings',
                          add_bitbucket_login_from_settings)
 
 
