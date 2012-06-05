@@ -140,7 +140,7 @@ def includeme(config):
 
     # configure requested providers
     for provider in find_providers(settings):
-        load_provider(provider)
+        load_provider(config, provider)
 
     # check for required settings
     if not settings.get('endpoint'):
