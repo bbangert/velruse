@@ -152,6 +152,86 @@ In addition to using velruse as a Pyramid plugin, you also have the option to co
 HTTP.  Velruse can potentially run as a separate web application, which has an api that makes it easy to
 authenticate with various providers, as well as obtain user credentials and profile information
 after a user has already been authenticated.  This allows virtually anyone to use velruse, regardless of their
-chosen language or framework.
+chosen language or framework.  The standalone app is a standard Pyramid application, so if you are
+familiar with the framework, you will feel right at home.  We are going to assume you have no experience
+with Pyramid just to be safe though.  We do, however, assume you have knowledge of WSGI.
+
+The first thing we need to do is provide the velruse standalone app with some information about our application's
+account details for each provider we are supporting.  Namely the consumer key and consumer secret of our app.
+These two values can be obtained by creating an application on
+each of the provider's websites, commonly found in the "developers" section.  Once you
+have obtained a consumer key and secret from each of the providers you wish to support,
+we need to tell velruse about them.  This can be done by creating creating an .ini file that will be used to serve
+the standalone app.  It could look something like the following:
+
+.. code-block:: ini
+
+    [server:main]
+    use = egg:Paste#http
+    host = 0.0.0.0
+    port = 80
+
+    [app:velruse]
+    use = egg:velruse
+
+    setup = myapp.setup_velruse
+
+    endpoint = http://example.com/logged_in
+
+    store = redis
+    store.host = localhost
+    store.port = 6379
+    store.db = 0
+    store.key_prefix = velruse_ustore
+
+    provider.facebook.consumer_key = KMfXjzsA2qVUcnnRn3vpnwWZ2pwPRFZdb
+    provider.facebook.consumer_secret = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
+    provider.facebook.scope = email
+
+    provider.tw.impl = twitter
+    provider.tw.consumer_key = ULZ6PkJbsqw2GxZWCIbOEBZdkrb9XwgXNjRy
+    provider.tw.consumer_secret = eoCrFwnpBWXjbim5dyG6EP7HzjhQzFsMAcQOEK
+
+Ok so that's a lot of stuff.  Let's go through each section.  The values in the '[server:main]' section are saying
+that we want to serve our app via the Paste web server, to bind to any ip address, and to run on port 80.  Next, we
+have a number of configuration options for our web app.  The important ones are as follows:
+
+setup
+    A module that includes a standard Pyramid includeme() function, which modifies the standalone app's configuration.
+endpoint
+    The url that velruse will redirect to after it finishes authenticating with a provider.
+store
+    The type of cache that would like velruse to use.
+store.host
+    The IP that you would like the cache to bind to.
+store.port
+    The port that you would like the cache to us.
+store.db
+
+store.key_prefix
+    The prefix to prepend to every key that is created in the cache.
+
+Finally, we define all of the provider-specific consumer keys and secrets that we talked about earlier.  Reference the
+providers page for the various settings that are possible for each provider.
+
+Once we are done configuring the velruse standalone app, we can serve it by simply typing:
+
+.. code-block:: bash
+
+    pserve example.ini
+
+This will start serving velruse at the specified IP and port in your .ini file.  We can then communicate with the standalone
+app, by sending HTTP requests to that IP/port.  The velruse api is quite simple, and it only consists of the following two routes:
+
+/login/{provider}
+    Authenticates with a provider, and redirects back to the url specified by the endpoint setting.
+/auth_info?format=json&token={token}
+    Obtains the profile and credential information for a user with the specified token.
+
+If you were to visit '/login/facebook', you would be prompted to authenticate with Facebook.  After completing the oauth process, velruse would then
+redirect to your endpoint using a POST request, with the token assigned to a user stored in the form data.  This token is what
+you use on subsequent requests to obtain authentication details about a user.  So if a user logs into your application, and velruse
+assigns a token of of the value 'token' to that user, then I can access everything velruse knows about that user by visiting
+'/auth_info?format=json&token=token'.
 
 .. _RPXNow: http://rpxnow.com/
