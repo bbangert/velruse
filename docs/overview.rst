@@ -11,7 +11,7 @@ etc.). Eventually, Velruse will include widgets similar to `RPXNow`_ that
 allow one to customize a login/registration widget so that a website
 user can select a preferred identity provider to use to sign-in. In the
 mean-time, effort is focused on increasing the available
-:term:`auth provider`s for the commonly used authentication schemes
+:term:`auth provider`'s for the commonly used authentication schemes
 and identity providers (Facebook, Google, OpenID, etc). Unlike other
 authentication libraries for use with web applications,
 a website using Velruse for authentication **does not have to be
