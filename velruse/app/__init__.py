@@ -46,7 +46,7 @@ def auth_denied_view(context, request):
 def auth_info_view(request):
     # TODO: insecure URL, must be protected behind a firewall
     storage = request.registry.velruse_store
-    token = request.get('token')
+    token = request.GET.get('token')
     try:
         return storage.retrieve(token)
     except KeyError:
