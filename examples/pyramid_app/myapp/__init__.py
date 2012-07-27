@@ -10,7 +10,7 @@ def login(request):
 
 @view_config(route_name='logged_in', renderer='json')
 def logged_in(request):
-    token = request.body.split("=")[1]
+    token = request.POST['token']
     payload = {'format': 'json', 'token': token}
     response = requests.get(request.host_url + '/velruse/auth_info', params=payload)
     return {'result': response.json}
