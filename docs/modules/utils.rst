@@ -3,10 +3,4 @@
 
 .. automodule:: velruse.utils
 
-Module Contents
----------------
-
-.. autofunction:: flat_url
-.. autofunction:: redirect_form
-.. autofunction:: generate_token
-.. autofunction:: splitlines
+   .. autofunction:: flat_url

@@ -3,10 +3,11 @@
 
 .. automodule:: velruse.providers.live
 
-Module Contents
----------------
+   .. autoclass:: LiveAuthenticationComplete
+      :show-inheritance:
 
-.. autoclass:: LiveAuthenticationComplete
-.. autofunction:: includeme
-.. autofunction:: live_login
-.. autofunction:: live_process
+   .. autofunction:: includeme
+
+   .. autofunction:: add_live_login
+
+   .. autofunction:: add_live_login_from_settings

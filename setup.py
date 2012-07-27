@@ -50,6 +50,6 @@ setup(name='velruse',
       },
       entry_points="""
       [paste.app_factory]
-      main = velruse.app:make_velruse_app
+      main = velruse.app:make_app
       """,
       )

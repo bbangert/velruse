@@ -1,16 +1,13 @@
-:mod:`velruse.providers.facebook_` -- Facebook Provider
-=======================================================
-
-
-Module Contents
----------------
+:mod:`velruse.providers.facebook` -- Facebook Provider
+======================================================
 
 .. automodule:: velruse.providers.facebook
 
-Module Contents
----------------
+   .. autoclass:: FacebookAuthenticationComplete
+      :show-inheritance:
 
-.. autoclass:: FacebookAuthenticationComplete
-.. autofunction:: includeme
-.. autofunction:: facebook_login
-.. autofunction:: facebook_process
+   .. autofunction:: includeme
+
+   .. autofunction:: add_facebook_login
+
+   .. autofunction:: add_facebook_login_from_settings

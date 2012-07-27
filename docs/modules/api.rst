@@ -1,9 +1,10 @@
-:mod:`velruse.api` -- Velruse API
-=================================
+:mod:`velruse` -- Velruse API
+=============================
 
-.. automodule:: velruse.api
+.. automodule:: velruse
 
-Module Contents
----------------
+   .. autoclass:: AuthenticationComplete
 
-.. autoclass:: AuthenticationComplete
+   .. autoclass:: AuthenticationDenied
+
+   .. autofunction:: login_url

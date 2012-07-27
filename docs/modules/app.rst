@@ -3,14 +3,8 @@
 
 .. automodule:: velruse.app
 
-Module Contents
----------------
+   .. autofunction:: default_setup
 
-.. autofunction :: auth_providers_list
-.. autofunction :: providers_lookup 
+   .. autofunction:: register_velruse_store
 
-Application Constructors
-************************
-
-.. autofunction:: make_app
-.. autofunction:: make_velruse_app
+   .. autofunction:: make_app

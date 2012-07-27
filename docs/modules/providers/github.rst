@@ -1,16 +1,13 @@
-:mod:`velruse.providers.github_` -- Github Provider
-=======================================================
-
-
-Module Contents
----------------
+:mod:`velruse.providers.github` -- Github Provider
+==================================================
 
 .. automodule:: velruse.providers.github
 
-Module Contents
----------------
+   .. autoclass:: GithubAuthenticationComplete
+      :show-inheritance:
 
-.. autoclass:: GithubAuthenticationComplete
-.. autofunction:: includeme
-.. autofunction:: github_login
-.. autofunction:: github_process
+   .. autofunction:: includeme
+
+   .. autofunction:: add_github_login
+
+   .. autofunction:: add_github_login_from_settings

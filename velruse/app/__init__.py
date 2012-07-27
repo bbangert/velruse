@@ -56,6 +56,24 @@ def auth_info_view(request):
 
 
 def default_setup(config):
+    """Configure Velruse's session factory and backend storage.
+
+    The default setup uses Pyramid's
+    ``UnencryptedCookieSessionFactoryConfig`` for storing session data.
+
+    Relevant settings:
+
+    ``session.secret`` controls the secret used when signing the session
+    cookies and will be randomly generated if unspecified.
+
+    ``session.cookie_name`` is the name of the cookie stored on a client's
+    browser and will default to 'velruse.session'.
+
+    ``store.*`` settings are used by the `anykeystore` library to construct
+    a storage backend for user credentials. If no storage settings are
+    specified then an in-memory storage backend will be used.
+
+    """
     from pyramid.session import UnencryptedCookieSessionFactoryConfig
 
     log.info('Using an unencrypted cookie-based session. This can be '
@@ -83,7 +101,14 @@ def default_setup(config):
 
 
 def register_velruse_store(config, storage):
-    """Add key/value store for velruse to the pyramid application."""
+    """Add key/value store for Velruse to the Pyramid application.
+
+    This function is registered with Pyramid and can be used via
+    ``config.register_velruse_store(storage)``.
+
+    ``storage`` should be an instance of an `anykeystore` backend.
+
+    """
     config.registry.velruse_store = storage
 
 settings_adapter = {
@@ -125,7 +150,7 @@ def load_provider(config, provider):
 
 
 def includeme(config):
-    """Add the velruse standalone app configuration to a pyramid app."""
+    """Add the Velruse standalone app configuration to a Pyramid app."""
     settings = config.registry.settings
     config.add_directive('register_velruse_store', register_velruse_store)
 
@@ -161,14 +186,11 @@ def includeme(config):
         renderer='json')
 
 
-def make_app(**settings):
-    config = Configurator(settings=settings)
-    config.include(includeme)
-    return config.make_wsgi_app()
+def make_app(global_conf, **settings):
+    """Construct a complete WSGI app.
 
-
-def make_velruse_app(global_conf, **settings):
-    """Construct a complete WSGI app ready to serve by Paste
+    This function is compatible with the `PasteDeploy` WSGI application factory
+    API, which is also used by Pyramid's ``pserve`` script.
 
     Example INI file:
 
@@ -212,4 +234,6 @@ def make_velruse_app(global_conf, **settings):
         static_files = true
 
     """
-    return make_app(**settings)
+    config = Configurator(settings=settings)
+    config.include(includeme)
+    return config.make_wsgi_app()

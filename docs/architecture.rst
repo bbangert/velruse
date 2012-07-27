@@ -4,8 +4,22 @@
 Architecture
 ============
 
-Velruse is designed as several sets of components that work together, and can
-be used individually for the authentication style desired.
+Velruse implements an API similar to `RPXNow`_ to standardize the
+way a web application handles user authentication. The standard flow of using
+Velruse looks like this:
+
+.. image:: _static/overview.png
+   :alt: Velruse Authentication flow
+   :align: center
+
+1. Website sends a POST to the :term:`auth provider`'s URL with an endpoint
+   that the user should be redirected back to when authentication is complete
+   and includes any additional parameters that the :term:`auth provider`
+   requires.
+
+2. When the :term:`auth provider` finishes the authentication, the user is
+   redirected back to the endpoint specified with a POST, which includes the
+   user's authentication data.
 
 
 Provider HTML Examples
@@ -13,11 +27,11 @@ Provider HTML Examples
 
 Every authentication provider that is available comes with a basic HTML 
 example illustrating the parameters it requires. The template generally 
-includes a logo when its a third party :term:`identity provider` to help
+includes a logo when it's a third party :term:`identity provider` to help
 a website user find the preferred authentication option.
 
 .. note::
-    
+
     While most websites will redirect to Velruse to handle the authentication
     for a user to login or register, the authentication can be done anytime
     for 'linking' an account to another provider as well.
@@ -31,35 +45,10 @@ listen to HTTP requests underneath their prefix, they can interact with other
 systems that require redirects to authenticate. When the Auth Provider is done
 it redirects back to the endpoint that it was provided with.
 
-Implementation Details
-----------------------
-
-Each :term:`auth provider` must be a callable. It will be called with a
-:class:`webob.Request` instance and must respond with a
-:class:`webob.Response` instance.
-
 The Auth Provider is expected to respond to a POST to `/login`, and then
 proceed with the necessary calls and/or redirects necessary to complete
-the authentication. The normalized user data should then be written to the
-store, and a token returned to the user.
+the authentication. Each provider is responsible for converting profile
+data into a format compatible with `Portable Contacts`_.
 
-Auth Provider's are usually setup under the :class:`~velruse.app.VelruseApp`
-WSGI app, which is a minimal WSGI application that can dispatch to several
-configured Auth Provider's based on a YAML configuration file.
-
-
-UserStore Backends
-==================
-
-User data that is retrieved is stored in a backend store. This can be
-a file store, in memory, or any other method to store a simple key/value
-association. The user data should persist long enough for the web application
-to retrieve it.
-
-
-Implementation Details
-----------------------
-
-UserStore backends need to implement the
-:class:`~velruse.store.interface.UserStore` interface to store and retrieve
-user information that is acquired by the Auth Provider.
+.. _Portable Contacts: http://portablecontacts.net/draft-spec.html
+.. _RPXNow: http://rpxnow.com/

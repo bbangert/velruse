@@ -1,17 +1,22 @@
-:mod:`velruse.providers.openidconsumer` -- OpenID Provider
-==========================================================
+:mod:`velruse.providers.openid` -- OpenID Provider
+==================================================
 
-.. automodule:: velruse.providers.openidconsumer
+.. automodule:: velruse.providers.openid
 
-Module Contents
----------------
+   .. autoclass:: OpenIDAuthenticationComplete
+      :show-inheritance:
+
+   .. autofunction:: includeme
+
+   .. autofunction:: add_openid_login
 
 
-.. autoclass:: AttribAccess
+..
+    .. autoclass:: AttribAccess
 
-.. autofunction:: extract_openid_data
-.. autofunction:: setup_openid
-.. autofunction:: includeme
-.. autoclass:: OpenIDAuthenticationComplete
-.. autoclass:: OpenIDConsumer
-    :members: __init__, _lookup_identifier, _update_authrequest, _get_access_token, login, _update_profile_data, process
+    .. autofunction:: extract_openid_data
+    .. autofunction:: setup_openid
+    .. autofunction:: includeme
+    .. autoclass:: OpenIDAuthenticationComplete
+    .. autoclass:: OpenIDConsumer
+        :members: __init__, _lookup_identifier, _update_authrequest, _get_access_token, login, _update_profile_data, process

@@ -9,7 +9,5 @@ Velruse Modules
 
    api
    app
-   baseconvert
-   errors
    providers/index
    utils

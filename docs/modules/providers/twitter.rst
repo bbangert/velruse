@@ -3,10 +3,11 @@
 
 .. automodule:: velruse.providers.twitter
 
-Module Contents
----------------
+   .. autoclass:: TwitterAuthenticationComplete
+      :show-inheritance:
 
-.. autoclass:: TwitterAuthenticationComplete
-.. autofunction:: includeme
-.. autofunction:: twitter_login
-.. autofunction:: twitter_process
+   .. autofunction:: includeme
+
+   .. autofunction:: add_twitter_login
+
+   .. autofunction:: add_twitter_login_from_settings
