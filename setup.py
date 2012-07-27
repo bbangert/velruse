@@ -8,10 +8,15 @@ requires=[
     'anykeystore',
 ]
 
-tests_require = requires + [
+testing_extras = [
     'nose',
     'nose-testconfig',
     'selenium',
+]
+
+docs_extras = [
+    'Sphinx',
+    'docutils',
 ]
 
 setup(name='velruse',
@@ -40,7 +45,8 @@ setup(name='velruse',
       zip_safe=False,
       install_requires=requires,
       extras_require={
-          'testing': tests_require,
+          'docs': docs_extras,
+          'testing': testing_extras,
       },
       entry_points="""
       [paste.app_factory]
