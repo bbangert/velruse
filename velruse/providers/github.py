@@ -106,13 +106,14 @@ class GithubProvider(object):
         access_token = parse_qs(r.content)['access_token'][0]
 
         # Retrieve profile data
-        graph_url = flat_url('https://github.com/api/v2/json/user/show',
+        graph_url = flat_url('https://api.github.com/user',
                              access_token=access_token)
-        r = requests.get(graph_url)
+        graph_headers = dict(Accept='application/vnd.github.v3+json')
+        r = requests.get(graph_url, headers=graph_headers)
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)['user']
+        data = loads(r.content)
 
         profile = {}
         profile['accounts'] = [{
