@@ -12,7 +12,7 @@ def login(request):
 def logged_in(request):
     token = request.body.split("=")[1]
     payload = {'format': 'json', 'token': token}
-    response = requests.get(request.host + '/velruse/auth_info', params=payload)
+    response = requests.get(request.host_url + '/velruse/auth_info', params=payload)
     return {'result': response.json}
 
 
