@@ -29,7 +29,9 @@ extensions = [
 ]
 
 intersphinx_mapping = {
-    'http://pythonpaste.org/webob/': None,
+    'pyramid': (
+        'http://docs.pylonsproject.org/projects/pyramid/en/latest/',
+        None),
 }
 
 # Add any paths that contain templates here, relative to this directory.
