@@ -1,6 +1,5 @@
 .. _architecture:
 
-============
 Architecture
 ============
 
@@ -22,8 +21,22 @@ Velruse looks like this:
    user's authentication data.
 
 
+Auth Providers
+--------------
+
+Auth Providers implement all the messy details of authentication. Since they
+listen to HTTP requests underneath their prefix, they can interact with other
+systems that require redirects to authenticate. When the Auth Provider is done
+it redirects back to the endpoint that it was provided with.
+
+The Auth Provider is expected to respond to a POST to ``/login``, and then
+proceed with the necessary calls and/or redirects necessary to complete
+the authentication. Each provider is responsible for converting profile
+data into a format compatible with `Portable Contacts`_.
+
+
 Provider HTML Examples
-======================
+----------------------
 
 Every authentication provider that is available comes with a basic HTML 
 example illustrating the parameters it requires. The template generally 
@@ -35,20 +48,6 @@ a website user find the preferred authentication option.
     While most websites will redirect to Velruse to handle the authentication
     for a user to login or register, the authentication can be done anytime
     for 'linking' an account to another provider as well.
-
-
-Auth Providers
-==============
-
-Auth Providers implement all the messy details of authentication. Since they
-listen to HTTP requests underneath their prefix, they can interact with other
-systems that require redirects to authenticate. When the Auth Provider is done
-it redirects back to the endpoint that it was provided with.
-
-The Auth Provider is expected to respond to a POST to `/login`, and then
-proceed with the necessary calls and/or redirects necessary to complete
-the authentication. Each provider is responsible for converting profile
-data into a format compatible with `Portable Contacts`_.
 
 .. _Portable Contacts: http://portablecontacts.net/draft-spec.html
 .. _RPXNow: http://rpxnow.com/
