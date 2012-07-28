@@ -68,25 +68,25 @@ the `Waitress`_ web server, to bind to any ip address, and to run on port 80.
 Next, we have a number of configuration options for our web app.  The
 important ones are as follows:
 
-setup
+``setup``
     A Python dotted-name describing the location of a callable. This
     callable must accept a Pyramid configurator object and use it
     to initialize a session factory as well as a backend storage mechanism.
 
-endpoint
+``endpoint``
     The url that velruse will redirect to after it finishes authenticating with
     a provider.
 
-store
+``store``
     The type of cache that you would like velruse to use. We've selected
     `Redis`_ but this could be any storage backend supported by the
     `anykeystore`_ library.
 
-store.*
+``store.*``
     The parameters within the store are dependent on the backend selected.
     See the `anykeystore`_ documentation for more details.
 
-provider.*
+``provider.*``
     The parameters for a specific provider. The format is
     ``provider.<identifier>.<setting>`` where ``identifier`` should be
     the shorthand name of one of the providers. The ``identifier`` can
@@ -110,11 +110,11 @@ This will start serving Velruse at the specified IP and port in your
 that IP/port.  The API is quite simple, and it only consists of the
 following two routes:
 
-/login/{provider}
+``/login/{provider}``
     Authenticates with a provider, and redirects back to the url specified by
     the endpoint setting.
 
-/auth_info?format=json&token={token}
+``/auth_info?format=json&token={token}``
     Obtains the profile and credential information for a user with the specified
     token.
 
