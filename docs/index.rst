@@ -49,6 +49,7 @@ Contents:
    architecture
    usage
    providers
+   api
    glossary
 
 Indices and tables
@@ -58,14 +59,6 @@ Indices and tables
 * :ref:`modindex`
 * :ref:`search`
 * :ref:`glossary`
-
-Module Listing
---------------
-
-.. toctree::
-    :maxdepth: 2
-
-    modules/index
 
 .. _Janrain Engage: http://www.janrain.com/products/engage
 .. _OpenID: http://openid.com/

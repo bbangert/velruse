@@ -1,5 +1,5 @@
-:mod:`velruse` -- Velruse API
-=============================
+:mod:`velruse`
+==============
 
 .. automodule:: velruse
 

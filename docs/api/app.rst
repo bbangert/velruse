@@ -1,5 +1,5 @@
-:mod:`velruse.app` -- Velruse App
-=================================
+:mod:`velruse.app`
+==================
 
 .. automodule:: velruse.app
 
