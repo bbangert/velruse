@@ -4,7 +4,7 @@
 Usage
 =====
 
-Velruse is implemented around the `Pyramid`_ web framework. Each provider
+Velruse is built around the `Pyramid`_ web framework. Each provider
 is implemented as a Pyramid addon via Pyramid's ``include`` mechanism. This
 means that it is very easy to integrate Velruse with a Pyramid application
 directly. When operating outside of Pyramid, Velruse contains a full
@@ -86,6 +86,15 @@ store.*
     The parameters within the store are dependent on the backend selected.
     See the `anykeystore`_ documentation for more details.
 
+provider.*
+    The parameters for a specific provider. The format is
+    ``provider.<identifier>.<setting>`` where ``identifier`` should be
+    the shorthand name of one of the providers. The ``identifier`` can
+    be anything, but if it is not the name of a provider then
+    ``provider.<identifier>.impl`` must point to something. This allows
+    you to configure multiple endpoints using the same provider (e.g.
+    maybe one endpoint for login only, and another for authorization later).
+
 Finally, we define all of the provider-specific consumer keys and secrets that
 we talked about earlier.  Reference the providers page for the various settings
 that are possible.
@@ -120,10 +129,10 @@ we can access everything Velruse knows about that user by visiting
 
 .. warning::
 
-   The '/auth_info' URL should be considered sensitive only trusted services
-   should be allowed access. If an attacker intercepts a an authentication
-   token, they could potentially query '/auth_info' and learn all of the
-   credentials about the user.
+   The ``/auth_info`` URL should be considered sensitive and only trusted
+   services should be allowed access. If an attacker intercepts a an
+   authentication token, they could potentially query ``/auth_info`` and
+   learn all of the credentials for the user.
 
 
 Using in a Pyramid App
