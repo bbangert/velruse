@@ -50,15 +50,18 @@ Contents:
    usage
    providers
    api
-   glossary
 
 Indices and tables
 ==================
 
 * :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 * :ref:`glossary`
+
+.. toctree::
+   :hidden:
+
+   glossary
 
 .. _Janrain Engage: http://www.janrain.com/products/engage
 .. _OpenID: http://openid.com/
