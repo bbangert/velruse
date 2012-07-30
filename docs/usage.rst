@@ -12,7 +12,7 @@ WSGI Pyramid app that can be run via any WSGI server. The app exposes an
 HTTP API which speaks language-agnostic JSON. This allows the
 Velruse app to run independently of the rest of your web stack.
 
-Velruse as a Service
+As a Service
 ====================
 
 Velruse will run as a standalone web application which has an API that
@@ -31,7 +31,7 @@ values can be obtained by creating an application on each of the provider's
 websites, commonly found in the "developers" section. Once you have obtained
 a consumer key and secret from each of the providers you wish to support,
 we need to tell Velruse about them.  This can be done by creating
-creating an .ini file that will be used to serve the standalone app.
+an .ini file that will be used to serve the standalone app.
 It could look something like the following:
 
 .. code-block:: ini
@@ -135,12 +135,12 @@ we can access everything Velruse knows about that user by visiting
    learn all of the credentials for the user.
 
 
-Using in a Pyramid App
+As a Pyramid Plugin
 ======================
 
 The standalone Velruse application is simply a Pyramid application that
 is configured using Velruse's Pyramid plugin. To use Velruse in your own
-Pyramid applications you simply have to include include the providers you
+Pyramid applications you simply have to include the providers you
 want in your configuration:
 
 .. code-block:: python
@@ -223,14 +223,7 @@ specify a more specific context like so:
         renderer='myapp:templates/result.mako',
     )
     def fb_login_complete_view(request):
-        context = request.context
-        result = {
-            'profile': context.profile,
-            'credentials': context.credentials,
-        }
-        return {
-            'result': json.dumps(result, indent=4),
-        }
+        pass
 
 It is possible to create many views. Only the most specific view will be
 invoked for the matching provider.
