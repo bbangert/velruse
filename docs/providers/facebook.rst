@@ -23,57 +23,65 @@ Facebook Developer Links:
 Settings
 --------
 
-Whether you are using velruse as a standalone app or as a Pyramid plugin, you will
+Whether you are using Velruse as a standalone app or as a Pyramid plugin, you will
 need to add the following settings to an .ini file.  If you are using the standalone
 app, you will need to add them to the .ini file that serves the standalone app.
-If you are using velruse as a Pyramid plugin, you will need to add them to your
+If you are using Velruse as a Pyramid plugin, you will need to add them to your
 Pyramid app's .ini file.
 
-``velruse.facebook.consumer_key``
+``consumer_key``
     Facebook App Id
-``velruse.facebook.consumer_secret``
+``consumer_secret``
     Facebook secret
-``velruse.facebook.scope``
-    Optional comma-separated list of extended permissions.
+``scope``
+    Optional comma-separated list of extended permissions. The scope is used
+    to request access to additional Facebook properties known as
+    `Extended Permissions <http://developers.facebook.com/docs/authentication/permissions>`_.
+    It should be a comma-separated list.
 
-As a Service
-------------
+Initiating a Login Attempt
+--------------------------
 
-If you are using the velruse standalone app, you will need to create a form in your
-application that will send a POST request to velruse. Like so:
+The client will send a POST request to the Velruse login URL. This can
+be done by adding a form to your website that the user clicks.
 
 .. code-block:: html
 
-    <form action="/velruse/facebook/auth" method="post">
+    <form action="/velruse/facebook/login" method="post">
         <input type="hidden" name="scope" value="publish_stream,create_event" />
         <input type="submit" value="Login with Facebook" />
     </form>
 
-It is important to notice this line, as it defines the Facebook scope:
-
-.. code-block:: html
-
-    <input type="hidden" name="scope" value="publish_stream,create_event" />
-
-The scope is used in the authenticating request to access additional Facebook properties known
-as `Extended Permissions <http://developers.facebook.com/docs/authentication/permissions>`_.
-It should be a comma-separated list.
-
-As a Pyramid Plugin
--------------------
-
-If you are using velruse as a Pyramid plugin, you will need to generate the login url for
-the Facebook provider, and add two views to your application.  To generate the login url, you
-will use the :func:`velruse.login_url` function like so:
+If you are using Velruse as a Pyramid plugin, you can generate the login url
+for the Facebook provider programmatically via the :func:`velruse.login_url`
+function:
 
 .. code-block:: python
 
     login_url(request, 'facebook')
 
-This is normally done in a view of your application, or potentially in one of your templates.
-This is the url a user will need to visit to begin the authentication process.  After that,
-you need to provide a way for your app to handle a successful and failed login.  To do this,
-define the following views in your app:
+Handling a Login Attempt From The Standalone App
+------------------------------------------------
+
+When running Velruse as a standalone application, it will execute a POST
+back to the configured ``endpoint`` URL on your site. The POST
+parameter will contain a ``token`` which can be used to request the
+user credentials or errors from Velruse.
+
+..
+   Possibly provide an example in some other language, or flask
+   or django of how to handle the login attempts.
+   It might be better to just have a link to some common location
+   where we show how to handle velruse login attempts.
+
+Handling a Login Attempt In Your Pyramid App
+--------------------------------------------
+
+Integrating the provider directly into your Pyramid application gives you
+full control over handling the client's login attempt. There are two
+possible paths a login attempt will take. Either it is successful or
+denied. These can be handled by adding two separate views to your
+Pyramid application.
 
 .. code-block:: python
 
@@ -117,6 +125,9 @@ And the credentials will look something like this:
     {
         'stuff': 'stuff'
     }
+
+Pyramid API
+-----------
 
 .. automodule:: velruse.providers.facebook
 
