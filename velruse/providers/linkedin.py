@@ -66,7 +66,7 @@ def add_linkedin_login(config,
 class LinkedInProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
-        self.type = 'linded_in'
+        self.type = 'linked_in'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
 
