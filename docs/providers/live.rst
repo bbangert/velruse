@@ -22,13 +22,13 @@ Windows Live Developer Links:
 
 Settings
 --------
-velruse.live.client_id
+``client_id``
     Component Application ID
 
-velruse.live.client_secret
+``client_secret``
     Component Secret Key
 
-velruse.live.scope
+``scope``
     Delegated auth Offers, e.g. `Contacts.View`
     The `Offers` parameter is optional to invoke Delegated Authentication.
 
@@ -40,7 +40,7 @@ Complete Example:
 .. code-block:: html
 
     <form action="/velruse/live/auth" method="post">
-    <input type="submit" value="Login with Windows Live" />
+        <input type="submit" value="Login with Windows Live" />
     </form>
 
 

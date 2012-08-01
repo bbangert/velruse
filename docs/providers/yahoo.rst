@@ -29,9 +29,9 @@ the ``Realm`` and ``Store`` configuration values.
 
 The following parameters are only required if using the OAuth hybrid:
 
-velruse.yahoo.consumer_key
+``consumer_key``
     Yahoo consumer key
-velruse.yahoo.consumer_secret
+``consumer_secret``
     Yahoo secret
 
 
@@ -47,8 +47,8 @@ Complete Example:
 .. code-block:: html
 
     <form action="/velruse/yahoo/login" method="post">
-    <input type="hidden" name="oauth" value="true" />
-    <input type="submit" value="Login with Yahoo" />
+        <input type="hidden" name="oauth" value="true" />
+        <input type="submit" value="Login with Yahoo" />
     </form>
 
 

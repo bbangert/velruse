@@ -76,9 +76,9 @@ Complete Example:
 .. code-block:: html
 
     <form action="/velruse/google/login" method="post">
-    <input type="hidden" name="popup_mode" value="popup" />
-    <input type="hidden" name="oauth_scope" value="http://www.google.com/m8/feeds/" />
-    <input type="submit" value="Login with Google" />
+        <input type="hidden" name="popup_mode" value="popup" />
+        <input type="hidden" name="oauth_scope" value="http://www.google.com/m8/feeds/" />
+        <input type="submit" value="Login with Google" />
     </form>
 
 

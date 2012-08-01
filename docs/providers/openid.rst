@@ -18,9 +18,9 @@ OpenID Developer Links:
 
 Settings
 --------
-velruse.openid.realm
+``realm``
     Domain for your website, e.g. `http://yourdomain.com/`
-velruse.openid.store
+``store``
     A class from which the OpenID store will be instantiated.
 
 .. note::
@@ -39,8 +39,8 @@ Complete Example:
 .. code-block:: html
 
     <form action="/velruse/openid/login" method="post">
-    <input type="text" name="openid_identifier" />
-    <input type="submit" value="Login with OpenID" />
+        <input type="text" name="openid_identifier" />
+        <input type="submit" value="Login with OpenID" />
     </form>
 
 .. automodule:: velruse.providers.openid
