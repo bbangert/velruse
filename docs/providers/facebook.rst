@@ -16,9 +16,7 @@ Facebook Developer Links:
 * `Developer Group (View apps, create app)
   <http://www.facebook.com/#!/developers/>`_
 * `Facebook Application Management
-  <http://www.facebook.com/developers/#!/developers/apps.php>`_
-* `Create new Facebook Application
-  <http://www.facebook.com/developers/createapp.php>`_
+  <https://developers.facebook.com/apps>`_
 
 
 Settings

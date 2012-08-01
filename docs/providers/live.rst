@@ -19,9 +19,9 @@ Windows Live Developer Links:
 * `Windows Live OAuth 2.0 SDK
   <http://msdn.microsoft.com/en-us/library/hh243647.aspx>`_
 
+
 Settings
 --------
-
 velruse.live.client_id
     Component Application ID
 
@@ -32,9 +32,9 @@ velruse.live.scope
     Delegated auth Offers, e.g. `Contacts.View`
     The `Offers` parameter is optional to invoke Delegated Authentication.
 
+
 POST Parameters
 ---------------
-
 Complete Example:
 
 .. code-block:: html
@@ -43,6 +43,9 @@ Complete Example:
     <input type="submit" value="Login with Windows Live" />
     </form>
 
+
+Pyramid API
+-----------
 .. automodule:: velruse.providers.live
 
    .. autoclass:: LiveAuthenticationComplete

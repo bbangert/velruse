@@ -22,9 +22,9 @@ Google Developer Links:
 * `Google OAuth scope parameters
   <http://code.google.com/apis/gdata/faq.html#AuthScopes>`_
 
+
 Settings
 --------
-
 The Google provider requires that an OpenID provider requires at least a
 realm to be provided. The realm must be a containing namespace for the callback
 URL.
@@ -50,9 +50,9 @@ Other useful params for add_google_login:
     be valid. If this domain is *not a valid DNS name*, Google will also
     consider it invalid.
 
+
 POST Parameters
 ---------------
-
 The Google provider accepts an oauth_scope argument, which is used in
 the authenticating request to access additional Google API's. Each API
 has an authentication scope, defined on the
@@ -81,6 +81,9 @@ Complete Example:
     <input type="submit" value="Login with Google" />
     </form>
 
+
+Pyramid API
+-----------
 .. automodule:: velruse.providers.google
 
    .. autoclass:: GoogleAuthenticationComplete

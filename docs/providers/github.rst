@@ -7,12 +7,12 @@ It requires a Github Application to have been created to use.
 Github Links:
 
 * `Register a New Github Application
-  <https://github.com/account/applications/new>`_
-* `Github OAuth API <http://develop.github.com/p/oauth.html>`_
+  <https://github.com/settings/applications/new>`_
+* `Github OAuth API <http://developer.github.com/v3/oauth/>`_
+
 
 Settings
 --------
-
 velruse.github.consumer_key
     github application consumer key
 velruse.github.consumer_secret
@@ -20,9 +20,9 @@ velruse.github.consumer_secret
 velruse.github.scope
     github application scope
 
+
 POST Parameters
 ---------------
-
 Complete Example:
 
 .. code-block:: html
@@ -34,7 +34,6 @@ Complete Example:
 
 Pyramid API
 -----------
-
 .. automodule:: velruse.providers.github
 
    .. autoclass:: GithubAuthenticationComplete
