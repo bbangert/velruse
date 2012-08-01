@@ -63,6 +63,7 @@ def add_weibo_login(config,
 class WeiboProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
+        self.type = 'weibo'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
 
@@ -88,7 +89,9 @@ class WeiboProvider(object):
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error_reason', 'No reason provided.')
-            return AuthenticationDenied(reason)
+            return AuthenticationDenied(reason,
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         # Now retrieve the access token with the code
         r = requests.post(
@@ -126,4 +129,7 @@ class WeiboProvider(object):
         }
 
         cred = {'oauthAccessToken': access_token}
-        return WeiboAuthenticationComplete(profile=profile, credentials=cred)
+        return WeiboAuthenticationComplete(profile=profile,
+                                           credentials=cred,
+                                           provider_name=self.name,
+                                           provider_type=self.type)

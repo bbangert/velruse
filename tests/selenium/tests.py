@@ -105,7 +105,7 @@ class TestGithub(ProviderTests, unittest.TestCase):
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('github').submit()
-        self.assertEqual(browser.title, u'Log in \xb7 GitHub')
+        self.assertEqual(browser.title, u'Sign in \xb7 GitHub')
         form = browser.find_element_by_id('login')
         login = form.find_element_by_name('login')
         login.send_keys(self.login)

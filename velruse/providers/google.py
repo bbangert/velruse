@@ -83,7 +83,7 @@ class GoogleConsumer(OpenIDConsumer):
         authentication.
 
         """
-        OpenIDConsumer.__init__(self, name, realm, storage,
+        OpenIDConsumer.__init__(self, name, 'google', realm, storage,
                                 context=GoogleAuthenticationComplete)
         self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
