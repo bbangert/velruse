@@ -64,6 +64,7 @@ def add_qq_login(config,
 class QQProvider(object):
     def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
+        self.type = 'qq'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
@@ -86,7 +87,9 @@ class QQProvider(object):
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error', 'No reason provided.')
-            return AuthenticationDenied(reason)
+            return AuthenticationDenied(reason,
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         # Now retrieve the access token with the code
         access_url = flat_url(
@@ -129,4 +132,7 @@ class QQProvider(object):
         }
 
         cred = {'oauthAccessToken': access_token}
-        return QQAuthenticationComplete(profile=profile, credentials=cred)
+        return QQAuthenticationComplete(profile=profile,
+                                        credentials=cred,
+                                        provider_name=self.name,
+                                        provider_type=self.type)

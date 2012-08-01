@@ -67,7 +67,7 @@ class YahooConsumer(OpenIDConsumer):
         authentication.
 
         """
-        OpenIDConsumer.__init__(self, name, realm, storage,
+        OpenIDConsumer.__init__(self, name, 'yahoo', realm, storage,
                                 context=YahooAuthenticationComplete)
         self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret

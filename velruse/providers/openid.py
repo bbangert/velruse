@@ -114,11 +114,13 @@ class OpenIDConsumer(object):
     """
     def __init__(self,
                  name,
+                 _type=None,
                  realm=None,
                  storage=None,
                  context=AuthenticationComplete):
         self.openid_store = storage
         self.name = name
+        self.type = _type
         self.context = context
         self.realm_override = realm
 
@@ -252,7 +254,9 @@ class OpenIDConsumer(object):
         info = oidconsumer.complete(request.params, return_to)
 
         if info.status in [consumer.FAILURE, consumer.CANCEL]:
-            return AuthenticationDenied("OpenID failure")
+            return AuthenticationDenied("OpenID failure",
+                                        provider_name=self.name,
+                                        provider_type=self.type)
         elif info.status == consumer.SUCCESS:
             openid_identity = info.identity_url
             if info.endpoint.canonicalID:
@@ -278,7 +282,10 @@ class OpenIDConsumer(object):
                 # See if we need to update our profile data with an OAuth call
                 self._update_profile_data(request, user_data, cred)
 
-            return self.context(profile=user_data, credentials=cred)
+            return self.context(profile=user_data,
+                                credentials=cred,
+                                provider_name=self.name,
+                                provider_type=self.type)
         else:
             raise ThirdPartyFailure("OpenID failed.")
 
