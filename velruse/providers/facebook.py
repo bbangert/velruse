@@ -67,6 +67,7 @@ def add_facebook_login(config,
 class FacebookProvider(object):
     def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
+        self.type = 'facebook'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
@@ -96,7 +97,9 @@ class FacebookProvider(object):
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error_reason', 'No reason provided.')
-            return AuthenticationDenied(reason)
+            return AuthenticationDenied(reason=reason,
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         # Now retrieve the access token with the code
         access_url = flat_url(
@@ -123,7 +126,9 @@ class FacebookProvider(object):
 
         cred = {'oauthAccessToken': access_token}
         return FacebookAuthenticationComplete(profile=profile,
-                                              credentials=cred)
+                                              credentials=cred,
+                                              provider_name=self.name,
+                                              provider_type=self.type)
 
 
 def extract_fb_data(data):

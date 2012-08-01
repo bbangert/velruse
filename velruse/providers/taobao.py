@@ -63,6 +63,7 @@ def add_taobao_login(config,
 class TaobaoProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
+        self.type = 'taobao'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
 
@@ -82,7 +83,9 @@ class TaobaoProvider(object):
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error', 'No reason provided.')
-            return AuthenticationDenied(reason)
+            return AuthenticationDenied(reason,
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         # Now retrieve the access token with the code
         r = requests.post('https://oauth.taobao.com/token',
@@ -129,4 +132,7 @@ class TaobaoProvider(object):
         }
 
         cred = {'oauthAccessToken': access_token}
-        return TaobaoAuthenticationComplete(profile=profile, credentials=cred)
+        return TaobaoAuthenticationComplete(profile=profile,
+                                            credentials=cred,
+                                            provider_name=self.name,
+                                            provider_type=self.type)

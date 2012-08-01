@@ -72,6 +72,7 @@ def add_bitbucket_login(config,
 class BitbucketProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
+        self.type = 'bitbucket'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
 
@@ -105,7 +106,9 @@ class BitbucketProvider(object):
     def callback(self, request):
         """Process the bitbucket redirect"""
         if 'denied' in request.GET:
-            return AuthenticationDenied("User denied authentication")
+            return AuthenticationDenied("User denied authentication",
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         request_token = oauth.Token.from_string(request.session['token'])
         verifier = request.GET.get('oauth_verifier')
@@ -147,4 +150,6 @@ class BitbucketProvider(object):
             }
         profile['displayName'] = profile['name']['formatted']
         return BitbucketAuthenticationComplete(profile=profile,
-                                               credentials=cred)
+                                               credentials=cred,
+                                               provider_name=self.name,
+                                               provider_type=self.type)

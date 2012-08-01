@@ -63,6 +63,7 @@ def add_renren_login(config,
 class RenrenProvider(object):
     def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
+        self.type = 'renren'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
@@ -85,7 +86,9 @@ class RenrenProvider(object):
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error', 'No reason provided.')
-            return AuthenticationDenied(reason)
+            return AuthenticationDenied(reason,
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         access_url = flat_url(
             'https://graph.renren.com/oauth/token',
@@ -111,4 +114,7 @@ class RenrenProvider(object):
 
         cred = {'oauthAccessToken': access_token}
 
-        return RenrenAuthenticationComplete(profile=profile, credentials=cred)
+        return RenrenAuthenticationComplete(profile=profile,
+                                            credentials=cred,
+                                            provider_name=self.name,
+                                            provider_type=self.type)

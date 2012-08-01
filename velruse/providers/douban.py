@@ -69,6 +69,7 @@ def add_douban_login(config,
 class DoubanProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
+        self.type = 'douban'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
 
@@ -102,7 +103,9 @@ class DoubanProvider(object):
     def callback(self, request):
         """Process the douban redirect"""
         if 'denied' in request.GET:
-            return AuthenticationDenied("User denied authentication")
+            return AuthenticationDenied("User denied authentication",
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         request_token = oauth.Token.from_string(request.session['token'])
 
@@ -131,4 +134,7 @@ class DoubanProvider(object):
             'displayName': user_data['title']['$t'],
             'preferredUsername': user_data['title']['$t'],
         }
-        return DoubanAuthenticationComplete(profile=profile, credentials=cred)
+        return DoubanAuthenticationComplete(profile=profile,
+                                            credentials=cred,
+                                            provider_name=self.name,
+                                            provider_type=self.type)
