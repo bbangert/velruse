@@ -4,7 +4,7 @@ Github - :mod:`velruse.providers.github`
 The Github provider combines authentication with OAuth authorization.
 It requires a Github Application to have been created to use.
 
-github Links:
+Github Links:
 
 * `Register a New Github Application
   <https://github.com/account/applications/new>`_
@@ -30,6 +30,10 @@ Complete Example:
     <form action="/velruse/github/login" method="post">
     <input type="submit" value="Login with Twitter" />
     </form>
+
+
+Pyramid API
+-----------
 
 .. automodule:: velruse.providers.github
 

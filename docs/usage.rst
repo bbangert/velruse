@@ -110,7 +110,7 @@ This will start serving Velruse at the specified IP and port in your
 that IP/port.  The API is quite simple, and it only consists of the
 following two routes:
 
-``/login/{provider}``
+``/{provider}/login``
     Authenticates with a provider, and redirects back to the url specified by
     the endpoint setting.
 
@@ -118,14 +118,6 @@ following two routes:
     Obtains the profile and credential information for a user with the specified
     token.
 
-If you were to visit '/login/facebook', you would be prompted to authenticate
-with Facebook.  After completing the OAuth process, Velruse would then
-redirect to your endpoint using a POST request, with the token assigned to a
-user stored in the form data. This token can be used to obtain authentication
-details about the user.  So if a user logs into your application,
-and Velruse assigns a token of the value 'token' to that user, then
-we can access everything Velruse knows about that user by visiting
-'/auth_info?format=json&token=e7dd296289c0436e8112abe2a2d42fd6'.
 
 .. warning::
 
@@ -134,6 +126,60 @@ we can access everything Velruse knows about that user by visiting
    authentication token, they could potentially query ``/auth_info`` and
    learn all of the credentials for the user.
 
+
+Initiating a Login Attempt
+--------------------------
+In order to get a user to begin the OAuth process, we need to have them visit
+the login url we generated earlier.  We can do this by adding a form to our app,
+that the use clicks on.  This will send a POST request to velruse, telling it to
+begin the OAuth process. An example of such a form is given below.
+
+.. code-block:: html
+
+    <form action="/velruse/facebook/login" method="post">
+        <input type="hidden" name="scope" value="publish_stream,create_event" />
+        <input type="submit" value="Login with Facebook" />
+    </form>
+
+
+Handling a Login Attempt
+------------------------
+After completing the OAuth process, Velruse would then
+redirect to your endpoint using a POST request, with the token assigned to a
+user stored in the form data. This token can be used to obtain authentication
+details about the user.  An example of how to obtain the token in the endpoint
+view of an application is given below.
+
+.. code-block:: python
+
+    # sample callback view in flask
+    @app.route('/logged_in', methods=['POST'])
+    def login_callback():
+        # token is stored in the form data
+        token = request.form['token']
+        return render_template('result.html', result=token)
+
+As you can see, the token is stored in the form data of the request.  We can then use the
+``/auth_info`` route to obtain a user's authentication details.  So if we were passed a
+token with a value of 't0k3n', then we can access everything Velruse knows about
+that user by visiting '/auth_info?format=json&token=t0k3n'.  We can further add to our
+previous example to make make such a call.
+
+.. code-block:: python
+
+    # sample callback view in flask
+    @app.route('/logged_in', methods=['POST'])
+    def login_callback():
+        token = request.form['token']
+
+        # the request must contain 'format' and 'token' params
+        payload = {'format': 'json', 'token': token}
+        # sending a GET request to /auth_info
+        response = requests.get(request.host_url + 'velruse/auth_info', params=payload)
+        return render_template('result.html', result=response.json)
+
+This example is using the `Requests <http://docs.python-requests.org/en/latest/index.html>`_ library.
+So the credentials would be the value of `response.json`.
 
 As a Pyramid Plugin
 ======================
@@ -148,26 +194,14 @@ want in your configuration:
     config.include('velruse.providers.google')
     config.add_google_login(realm='http://www.example.com/')
 
-After Velruse is included in your app, you can easily generate a login url
-for any particular provider.  This is accomplished by calling the
-:func:`velruse.login_url` like so:
-
-.. code-block:: python
-
-    login_url(request, 'google')
-
-In this case, :func:`velruse.login_url` will generate a url like
-http://www.example.com/login/google. A user can then be directed to that url
-when they need to authenticate through the Google provider.  This is commonly
-done in the form of a link or a button on the login page of your app.  At this
-stage, if you were to visit the aforementioned url, you would find that the
-third party provider would error out. This makes sense, because we haven't
-given Velruse the consumer key nor the consumer secret for our application.
-These two values can be obtained by creating an application on each of the
-provider's websites, commonly found in the "Developer" section.  Once you
-have obtained a consumer key and secret from each of the providers you wish to
-support, we need to tell velruse about them.  We can easily do this by adding
-them to our app's .ini files.  You can use the following example as a guide:
+Much like the standalone app, we need to provide Velruse with some information
+about our account details for each provider we are supporting. Namely the consumer
+key and consumer secret of our app. These two values can be obtained by creating an
+application on each of the provider's websites, commonly found in the "developers"
+section.  Once you have obtained a consumer key and secret from each of the providers
+you wish to support, we need to tell velruse about them.  We can easily do
+this by adding them to our app's .ini files.  You can use the following example
+as a guide:
 
 .. code-block:: ini
 
@@ -179,6 +213,25 @@ them to our app's .ini files.  You can use the following example as a guide:
     provider.tw.consumer_key = ULZ6PkJbeqwgGxZaCIbdEBZekrbgXwgXajRl
     provider.tw.consumer_secret = eoCrewnpdWXjfim5ayGgEPeHzjcQzFsqAchOEa
 
+
+Initiating a Login Attempt
+--------------------------
+After Velruse is included in your app, you can easily generate a login url
+for any particular provider.  This is accomplished by calling the
+:func:`velruse.login_url` like so:
+
+.. code-block:: python
+
+    login_url(request, 'google')
+
+In this case, :func:`velruse.login_url` will generate a url like
+http://www.example.com/login/google. A user can then be directed to that url
+when they need to authenticate through the Google provider.  This is commonly
+done in the form of a link or a button on the login page of your app.
+
+
+Handling a Login Attempt
+------------------------
 The workflow is the same as with the standalone application except that
 the endpoints used within your own application and the credentials are
 passed directly to your own Pyramid views. Once the user has visited the
