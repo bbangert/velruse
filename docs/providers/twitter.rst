@@ -11,27 +11,30 @@ Twitter Developer Links:
 * `Register a New Twitter Application <http://dev.twitter.com/apps/new>`_
 * `Twitter OAuth API <http://dev.twitter.com/doc>`_
 
+
 Settings
 --------
-
-velruse.twitter.consumer_key
+``consumer_key``
     Twitter application consumer key
-velruse.twitter.consumer_secret
+``consumer_secret``
     Twitter application secret
-velruse.twitter.authorization
+``authorization``
     github application scope
+
 
 POST Parameters
 ---------------
-
 Complete Example:
 
 .. code-block:: html
 
     <form action="/velruse/twitter/login" method="post">
-    <input type="submit" value="Login with Twitter" />
+        <input type="submit" value="Login with Twitter" />
     </form>
 
+
+Pyramid API
+-----------
 .. automodule:: velruse.providers.twitter
 
    .. autoclass:: TwitterAuthenticationComplete
