@@ -39,6 +39,8 @@ def add_github_login_from_settings(config, prefix='velruse.github.'):
     p.update('scope')
     p.update('login_path')
     p.update('callback_path')
+    p.update('secure')
+    p.update('domain')
     config.add_github_login(**p.kwargs)
 
 
