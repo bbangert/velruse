@@ -65,6 +65,7 @@ def add_twitter_login(config,
 class TwitterProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
+        self.type = 'twitter'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
 
@@ -100,7 +101,9 @@ class TwitterProvider(object):
     def callback(self, request):
         """Process the Twitter redirect"""
         if 'denied' in request.GET:
-            return AuthenticationDenied("User denied authentication")
+            return AuthenticationDenied("User denied authentication",
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         request_token = oauth.Token.from_string(request.session['token'])
         verifier = request.GET.get('oauth_verifier')
@@ -128,4 +131,6 @@ class TwitterProvider(object):
         cred = {'oauthAccessToken': access_token['oauth_token'][0],
                 'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
         return TwitterAuthenticationComplete(profile=profile,
-                                             credentials=cred)
+                                             credentials=cred,
+                                             provider_name=self.name,
+                                             provider_type=self.type)

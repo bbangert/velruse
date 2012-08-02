@@ -64,6 +64,7 @@ def add_live_login(config,
 class LiveProvider(object):
     def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
+        self.type = 'live'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
@@ -89,7 +90,9 @@ class LiveProvider(object):
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error_reason', 'No reason provided.')
-            return AuthenticationDenied(reason)
+            return AuthenticationDenied(reason,
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         # Now retrieve the access token with the code
         access_url = flat_url(
@@ -120,7 +123,9 @@ class LiveProvider(object):
         if 'refresh_token' in data:
             cred['oauthRefreshToken'] = data['refresh_token']
         return LiveAuthenticationComplete(profile=profile,
-                                          credentials=cred)
+                                          credentials=cred,
+                                          provider_name=self.name,
+                                          provider_type=self.type)
 
 
 def extract_live_data(data):

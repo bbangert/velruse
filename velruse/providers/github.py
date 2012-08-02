@@ -64,6 +64,7 @@ def add_github_login(config,
 class GithubProvider(object):
     def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
+        self.type = 'github'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
@@ -86,7 +87,9 @@ class GithubProvider(object):
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error', 'No reason provided.')
-            return AuthenticationDenied(reason)
+            return AuthenticationDenied(reason=reason,
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         # Now retrieve the access token with the code
         access_url = flat_url(
@@ -127,4 +130,6 @@ class GithubProvider(object):
 
         cred = {'oauthAccessToken': access_token}
         return GithubAuthenticationComplete(profile=profile,
-                                            credentials=cred)
+                                            credentials=cred,
+                                            provider_name=self.name,
+                                            provider_type=self.type)

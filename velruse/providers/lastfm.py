@@ -64,6 +64,7 @@ def add_lastfm_login(config,
 class LastfmProvider(object):
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
+        self.type = 'lastfm'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
 
@@ -84,7 +85,9 @@ class LastfmProvider(object):
         token = request.GET.get('token')
         if not token:
             reason = request.GET.get('error_reason', 'No reason provided.')
-            return AuthenticationDenied(reason)
+            return AuthenticationDenied(reason,
+                                        provider_name=self.name,
+                                        provider_type=self.type)
 
         # Now establish a session with the token
         params = {
@@ -140,7 +143,9 @@ class LastfmProvider(object):
         if larger:
             profile['photos'].append({'type': '', 'value': larger})
         return LastFMAuthenticationComplete(profile=profile,
-                                            credentials=cred)
+                                            credentials=cred,
+                                            provider_name=self.name,
+                                            provider_type=self.type)
 
 
 def sign_call(params, secret):

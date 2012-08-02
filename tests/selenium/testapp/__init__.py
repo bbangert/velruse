@@ -18,6 +18,7 @@ def login_view(request):
         'providers': request.registry.settings['login_providers'],
     }
 
+
 @view_config(
     context='velruse.AuthenticationComplete',
     renderer='testapp:templates/result.mako',
@@ -32,6 +33,7 @@ def login_complete_view(request):
         'result': json.dumps(result, indent=4),
     }
 
+
 @view_config(
     context='velruse.AuthenticationDenied',
     renderer='testapp:templates/result.mako',
@@ -40,6 +42,7 @@ def login_denied_view(request):
     return {
         'result': 'denied',
     }
+
 
 def main(global_conf, **settings):
     session_factory = UnencryptedCookieSessionFactoryConfig('seekrit')
@@ -56,52 +59,52 @@ def main(global_conf, **settings):
     if 'facebook' in providers:
         config.include('velruse.providers.facebook')
         config.add_facebook_login(
-            settings['facebook.app_id'],
-            settings['facebook.app_secret'],
+            settings['velruse.facebook.app_id'],
+            settings['velruse.facebook.app_secret'],
         )
 
     if 'github' in providers:
         config.include('velruse.providers.github')
         config.add_github_login(
-            settings['github.app_id'],
-            settings['github.app_secret'],
+            settings['velruse.github.app_id'],
+            settings['velruse.github.app_secret'],
         )
 
     if 'twitter' in providers:
         config.include('velruse.providers.twitter')
         config.add_twitter_login(
-            settings['twitter.consumer_key'],
-            settings['twitter.consumer_secret'],
+            settings['velruse.twitter.consumer_key'],
+            settings['velruse.twitter.consumer_secret'],
         )
 
     if 'live' in providers:
         config.include('velruse.providers.live')
         config.add_live_login(
-            settings['live.client_id'],
-            settings['live.client_secret'],
+            settings['velruse.live.client_id'],
+            settings['velruse.live.client_secret'],
         )
 
     if 'bitbucket' in providers:
         config.include('velruse.providers.bitbucket')
         config.add_bitbucket_login(
-            settings['bitbucket.consumer_key'],
-            settings['bitbucket.consumer_secret'],
+            settings['velruse.bitbucket.consumer_key'],
+            settings['velruse.bitbucket.consumer_secret'],
         )
 
     if 'google' in providers:
         config.include('velruse.providers.google')
         config.add_google_login(
-            realm=settings['google.realm'],
-            consumer_key=settings['google.consumer_key'],
-            consumer_secret=settings['google.consumer_secret'],
+            realm=settings['velruse.google.realm'],
+            consumer_key=settings['velruse.google.consumer_key'],
+            consumer_secret=settings['velruse.google.consumer_secret'],
         )
 
     if 'yahoo' in providers:
         config.include('velruse.providers.yahoo')
         config.add_yahoo_login(
-            realm=settings['yahoo.realm'],
-            consumer_key=settings['yahoo.consumer_key'],
-            consumer_secret=settings['yahoo.consumer_secret'],
+            realm=settings['velruse.yahoo.realm'],
+            consumer_key=settings['velruse.yahoo.consumer_key'],
+            consumer_secret=settings['velruse.yahoo.consumer_secret'],
         )
 
     config.scan(__name__)
