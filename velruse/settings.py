@@ -14,6 +14,14 @@ class ProviderSettings(object):
         key = self.prefix + src
         if key in self.settings:
             value = self.settings[key]
+
+            # if value is equal to 'false' or 'true'
+            # cast it as a boolean
+            if value == 'true':
+                value = True
+            elif value == 'false':
+                value = False
+
             self.kwargs[dst] = value
         elif required:
             raise KeyError('missing required setting "%s"' % key)
