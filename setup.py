@@ -9,6 +9,7 @@ requires=[
 ]
 
 testing_extras = [
+    'unittest2',
     'nose',
     'nose-testconfig',
     'selenium',
