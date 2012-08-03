@@ -20,7 +20,7 @@ docs_extras = [
 ]
 
 setup(name='velruse',
-      version='0.3dev',
+      version='0.3b1',
       description=(
           'Simplifying third-party authentication for web applications.'),
       long_description='',
@@ -37,8 +37,8 @@ setup(name='velruse',
       author='Ben Bangert',
       author_email='ben@groovie.org',
       maintainer='Michael Merickel',
-      maintainer_email='oss@m.merickel.org',
-      url='velruse.readthedocs.org',
+      maintainer_email='michael@merickel.org',
+      url='http://velruse.readthedocs.org/en/latest/index.html',
       packages=find_packages(
           exclude=['*.tests', '*.tests.*', 'tests.*', 'tests']),
       include_package_data=True,
