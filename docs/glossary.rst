@@ -11,7 +11,7 @@ Glossary
         specific set of URL's for interaction and redirects back to the
         designated endpoint when the authentication is finished.
     
-    end_point
+    endpoint
         The end_point is a standard parameter used with velruse authentication
         to indicate where velruse should POST the token to when the user
         has finished.
