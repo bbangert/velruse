@@ -48,7 +48,7 @@ def add_yahoo_login(config,
                              consumer_key, consumer_secret)
 
     config.add_route(provider.login_route, login_path)
-    config.add_view(provider.login, route_name=provider.login_route,
+    config.add_view(provider, attr='login', route_name=provider.login_route,
                     permission=NO_PERMISSION_REQUIRED)
 
     config.add_route(provider.callback_route, callback_path,
