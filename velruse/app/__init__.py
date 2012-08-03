@@ -22,6 +22,8 @@ def auth_complete_view(context, request):
         context.profile['birthday'] = \
                 context.profile['birthday'].strftime('%Y-%m-%d')
     result_data = {
+        'provider_type': context.provider_type,
+        'provider_name': context.provider_name,
         'profile': context.profile,
         'credentials': context.credentials,
     }
@@ -35,8 +37,9 @@ def auth_denied_view(context, request):
     token = generate_token()
     storage = request.registry.velruse_store
     error_dict = {
-        'code': getattr(context, 'code', None),
-        'description': context.message,
+        'provider_type': context.provider_type,
+        'provider_name': context.provider_name,
+        'error': context.reason,
     }
     storage.store(token, error_dict, expires=300)
     form = redirect_form(endpoint, token)
