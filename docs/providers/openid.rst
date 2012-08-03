@@ -15,12 +15,12 @@ OpenID Developer Links:
 * `Attribute Exchange 1.0
   <http://openid.net/specs/openid-attribute-exchange-1_0.html>`_
 
+
 Settings
 --------
-
-velruse.openid.realm
+``realm``
     Domain for your website, e.g. `http://yourdomain.com/`
-velruse.openid.store
+``store``
     A class from which the OpenID store will be instantiated.
 
 .. note::
@@ -28,9 +28,9 @@ velruse.openid.store
     The OpenID store is a different store to the Velruse store.
     Please see the :mod:`python-openid` documentation for details.
 
+
 POST Parameters
 ---------------
-
 The OpenID provider accepts `openid_identifier` which should designate
 the OpenID identifer being claimed to authenticate.
 
@@ -39,8 +39,8 @@ Complete Example:
 .. code-block:: html
 
     <form action="/velruse/openid/login" method="post">
-    <input type="text" name="openid_identifier" />
-    <input type="submit" value="Login with OpenID" />
+        <input type="text" name="openid_identifier" />
+        <input type="submit" value="Login with OpenID" />
     </form>
 
 .. automodule:: velruse.providers.openid
@@ -52,9 +52,9 @@ Complete Example:
 
    .. autofunction:: add_openid_login
 
-OpenID Extensions
------------------
 
+Pyramid API
+-----------
 .. automodule:: velruse.providers.oid_extensions
 
    .. autoclass:: UIRequest
