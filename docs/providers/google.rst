@@ -25,23 +25,15 @@ Google Developer Links:
 
 Settings
 --------
-The Google provider requires that an OpenID provider requires at least a
-realm to be provided. The realm must be a containing namespace for the callback
-URL.
 
-.. code-block:: python
-
-    config.include('velruse.providers.google')
-    config.add_google_login(realm='http://www.example.com/')
-
-Other useful params for add_google_login:
-
-* consumer_key: OAuth 1.0 key
-* consumer_secret: OAuth 1.0 secret
-* scope: OAuth 1.0 scope
-* login_path: path for login handler (default: /login/google)
-* callback_path: path for callback handler (default: /login/google/callback)
-* name: Unique identifier for this provider (default: google)
+``realm``
+    Required. The realm must be a containing namespace for the callback URL.
+``consumer_key``
+    OAuth 1.0 key.
+``consumer_secret``
+    OAuth 1.0 secret.
+``scope``
+    OAuth 1.0 scope.
 
 .. warning::
 

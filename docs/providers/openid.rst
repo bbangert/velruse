@@ -19,7 +19,7 @@ OpenID Developer Links:
 Settings
 --------
 ``realm``
-    Domain for your website, e.g. `http://yourdomain.com/`
+    Domain for your website, e.g. ``http://yourdomain.com/``
 ``store``
     A class from which the OpenID store will be instantiated.
 
@@ -43,6 +43,9 @@ Complete Example:
         <input type="submit" value="Login with OpenID" />
     </form>
 
+Pyramid API
+-----------
+
 .. automodule:: velruse.providers.openid
 
    .. autoclass:: OpenIDAuthenticationComplete
@@ -53,18 +56,16 @@ Complete Example:
    .. autofunction:: add_openid_login
 
 
-Pyramid API
------------
-.. automodule:: velruse.providers.oid_extensions
-
-   .. autoclass:: UIRequest
-       :members:
-
-   .. autoclass:: OAuthRequest
-       :members:
-
 ..
-    .. autoclass:: AttribAccess
+    .. automodule:: velruse.providers.oid_extensions
+
+       .. autoclass:: UIRequest
+           :members:
+
+       .. autoclass:: OAuthRequest
+           :members:
+
+       .. autoclass:: AttribAccess
 
     .. autofunction:: extract_openid_data
     .. autofunction:: setup_openid
