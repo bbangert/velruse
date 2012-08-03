@@ -156,16 +156,17 @@ def extract_fb_data(data):
 
     tz = data.get('timezone')
     if tz:
-        parts = str(tz).split(':')
+        parts = str(tz).split('.')
         if len(parts) > 1:
             h, m = parts
+            m = str(int(m)*60)
         else:
             h, m = parts[0], '00'
         if 1 < len(h) < 3:
             h = '%s0%s' % (h[0], h[1])  # e.g. -5 --> -05
         elif len(h) == 1:
             h = h[0]
-        data['utfOffset'] = ':'.join([h, m])
+        profile['utcOffset'] = '%+03d:%02d' % (h, m)
     bday = data.get('birthday')
     if bday:
         try:
