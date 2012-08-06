@@ -3,6 +3,7 @@ from json import loads
 from urlparse import parse_qs
 
 import requests
+import uuid
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -12,6 +13,7 @@ from velruse.api import (
     AuthenticationDenied,
     register_provider,
 )
+from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
 from velruse.settings import ProviderSettings
 from velruse.utils import flat_url
@@ -92,15 +94,22 @@ class GithubProvider(object):
     def login(self, request):
         """Initiate a github login"""
         scope = request.POST.get('scope', self.scope)
+        request.session['state'] = state = uuid.uuid4().hex
         gh_url = flat_url(
             '%s://%s/login/oauth/authorize' % (self.protocol, self.domain),
             scope=scope,
             client_id=self.consumer_key,
-            redirect_uri=request.route_url(self.callback_route))
+            redirect_uri=request.route_url(self.callback_route),
+            state=state)
         return HTTPFound(location=gh_url)
 
     def callback(self, request):
         """Process the github redirect"""
+        if request.GET.get('state') != request.session.get('state'):
+            raise CSRFError(
+                'CSRF Validation check failed. Request state %s is not '
+                'the same as session state %s' % (
+                    request.GET.get('state'), request.session.get('state')))
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error', 'No reason provided.')
