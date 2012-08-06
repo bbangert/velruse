@@ -3,6 +3,7 @@ from json import loads
 from urlparse import parse_qs
 
 import requests
+import uuid
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
