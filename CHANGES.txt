@@ -1,0 +1,32 @@
+0.3b2 (2012-08-06)
+==================
+
+GitHub
+------
+
+- Add CSRF checks to the provider as they started requiring the OAuth
+  state variable to be used.
+
+0.3b1 (2012-08-03)
+==================
+
+- Complete rewrite of the Velruse internal API. It is now written as a
+  fully supported Pyramid plugin.
+
+- Overhaul of documentation.
+
+  + Individually documented the standalone service application and
+    the Pyramid plugin API.
+
+- Removed support for Twitter's authorization API. This will be brought
+  back in a future release.
+
+- Added support for several new OAuth2.0 providers.
+
+  + douban
+  + github
+  + linkedin
+  + qq
+  + renren (http://renren.com)
+  + taobao
+  + weibo
