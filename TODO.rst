@@ -1,13 +1,6 @@
 Velruse TODO
 ============
 
-Next Release
-------------
-
-- Fix the Flask example to work with a Velruse standalone app.
-
-- Document the standalone app.
-
 Nice-to-Have
 ------------
 
