@@ -30,3 +30,13 @@ GitHub
   + renren (http://renren.com)
   + taobao
   + weibo
+
+0.2a1 (2011-05-25)
+==================
+
+- Minor bug fixes.
+
+0.1 (2010-04-30)
+================
+
+- Initial release.
