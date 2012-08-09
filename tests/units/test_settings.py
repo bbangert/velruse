@@ -1,4 +1,4 @@
-import unittest2 as unittest
+from velruse.testing import unittest
 
 class TestProviderSettings(unittest.TestCase):
 

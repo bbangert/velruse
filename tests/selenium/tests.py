@@ -1,11 +1,11 @@
 import json
 import os
-import unittest2 as unittest
 from ConfigParser import ConfigParser
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 
+from velruse.testing import unittest
 
 config = {}
 browser = None  # populated in setUpModule
