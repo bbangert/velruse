@@ -1,7 +1,7 @@
-from velruse.testing import unittest
+from velruse.testing import TestCase
 
 
-class TestBaseEncoding(unittest.TestCase):
+class TestBaseEncoding(TestCase):
 
     def test_encode(self):
         from velruse.app.baseconvert import base_encode

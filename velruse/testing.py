@@ -9,3 +9,8 @@ except ImportError: # pragma: no cover
         import unittest
     else:
         raise
+
+TestCase = unittest.TestCase
+skip = unittest.skip
+skipIf = unittest.skipIf
+skipUnless = unittest.skipUnless

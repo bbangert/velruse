@@ -1,6 +1,6 @@
-from velruse.testing import unittest
+from velruse.testing import TestCase
 
-class TestProviderSettings(unittest.TestCase):
+class TestProviderSettings(TestCase):
 
     def _makeOne(self, settings, prefix=''):
         from velruse.settings import ProviderSettings
