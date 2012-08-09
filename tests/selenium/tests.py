@@ -5,7 +5,8 @@ from ConfigParser import ConfigParser
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 
-from velruse.testing import unittest
+from velruse.testing import SkipTest
+from velruse.testing import TestCase
 
 config = {}
 browser = None  # populated in setUpModule
@@ -41,12 +42,12 @@ class ProviderTests(object):
     @classmethod
     def require_provider(cls, name):
         if name not in config.get('test_providers', []):
-            raise unittest.SkipTest('tests not enabled for "%s"' % name)
+            raise SkipTest('tests not enabled for "%s"' % name)
 
 def find_login_url(config, key):
     return config.get(key, config['default_login_url'])
 
-class TestFacebook(ProviderTests, unittest.TestCase):
+class TestFacebook(ProviderTests, TestCase):
     """
     TODO: look into adding multiple tests using test users with varying
           levels of functionality.
@@ -88,7 +89,7 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         self.assertTrue('verifiedEmail' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-class TestGithub(ProviderTests, unittest.TestCase):
+class TestGithub(ProviderTests, TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -122,7 +123,7 @@ class TestGithub(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-class TestTwitter(ProviderTests, unittest.TestCase):
+class TestTwitter(ProviderTests, TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -158,7 +159,7 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-class TestBitbucket(ProviderTests, unittest.TestCase):
+class TestBitbucket(ProviderTests, TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -196,7 +197,7 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-class TestGoogle(ProviderTests, unittest.TestCase):
+class TestGoogle(ProviderTests, TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -230,7 +231,7 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-class TestYahoo(ProviderTests, unittest.TestCase):
+class TestYahoo(ProviderTests, TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -270,7 +271,7 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
 
-class TestWindowsLive(ProviderTests, unittest.TestCase):
+class TestWindowsLive(ProviderTests, TestCase):
 
     @classmethod
     def setUpClass(cls):
@@ -303,6 +304,3 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
-if __name__ == '__main__':
-    unittest.main()

@@ -11,6 +11,8 @@ except ImportError: # pragma: no cover
         raise
 
 TestCase = unittest.TestCase
+
 skip = unittest.skip
 skipIf = unittest.skipIf
 skipUnless = unittest.skipUnless
+SkipTest = unittest.SkipTest
