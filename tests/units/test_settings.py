@@ -3,7 +3,7 @@ from velruse.testing import unittest
 class TestProviderSettings(unittest.TestCase):
 
     def _makeOne(self, settings, prefix):
-        from velruse.utils import ProviderSettings
+        from velruse.settings import ProviderSettings
         return ProviderSettings(settings, prefix=prefix)
 
     def test_it(self):

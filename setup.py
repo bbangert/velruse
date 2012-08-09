@@ -50,6 +50,7 @@ setup(name='velruse',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
+      test_suite='tests',
       extras_require={
           'docs': docs_extras,
           'testing': testing_extras,
