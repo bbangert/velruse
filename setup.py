@@ -21,7 +21,7 @@ docs_extras = [
 ]
 
 setup(name='velruse',
-      version='0.3b3',
+      version='1.0',
       description=(
           'Simplifying third-party authentication for web applications.'),
       long_description='',

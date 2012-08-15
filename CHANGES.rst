@@ -1,3 +1,14 @@
+1.0 (2012-08-14)
+================
+
+Version 0.3 is classified as an older release than the previous 0.20
+in the semantic versioning scheme. Thus 0.3 was a brownbag and 1.0 will
+correct that issue.
+
+This release is also an opportunity to promote Velruse's new API and
+provide confidence that it will try to maintain backward compatibility
+going forward.
+
 0.3b3 (2012-08-06)
 ==================
 
@@ -36,8 +47,8 @@ GitHub
   + taobao
   + weibo
 
-0.2a1 (2011-05-25)
-==================
+0.20a1 (2011-05-25)
+===================
 
 - Minor bug fixes.
 
