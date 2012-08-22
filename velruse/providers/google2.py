@@ -93,10 +93,14 @@ class Google2Provider(object):
 
     def login(self, request):
         """Initiate a google login"""
-        self.scope = ' '.join(request.POST.getall('scope')) or self.scope
+        scope = ' '.join(request.POST.getall('scope')) or self.scope
+
+        if request.POST.get('end_point'):
+            request.session['endpoint'] = request.POST['end_point']
+
         auth_url = flat_url(
             '%s://%s/o/oauth2/auth' % (self.protocol, self.domain),
-            scope=self.scope,
+            scope=scope,
             response_type='code',
             client_id=self.consumer_key,
             redirect_uri=request.route_url(self.callback_route),
@@ -130,16 +134,12 @@ class Google2Provider(object):
 
         # Retrieve profile data if scopes allow
         profile = {}
-        if (self.profile_scope in self.scope and
-            self.email_scope in self.scope):
-            user_url = flat_url(
-                    '%s://www.googleapis.com/oauth2/v1/userinfo' % self.protocol,
-                    access_token=access_token)
-            r = requests.get(user_url)
-            if r.status_code != 200:
-                raise ThirdPartyFailure("Status %s: %s" % (
-                    r.status_code, r.content))
+        user_url = flat_url(
+                '%s://www.googleapis.com/oauth2/v1/userinfo' % self.protocol,
+                access_token=access_token)
+        r = requests.get(user_url)
 
+        if r.status_code == 200:
             data = loads(r.content)
             profile['accounts'] = [{
                 'domain': self.domain,
