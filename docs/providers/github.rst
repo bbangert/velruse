@@ -28,7 +28,7 @@ Complete Example:
 .. code-block:: html
 
     <form action="/velruse/github/login" method="post">
-        <input type="submit" value="Login with Twitter" />
+        <input type="submit" value="Login with Github" />
     </form>
 
 
