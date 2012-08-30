@@ -1,3 +1,9 @@
+1.0.1 (2012-08-30)
+==================
+
+- [facebook] Modified handling of timezone offsets in user profiles to be more
+  robust to different "minute" values.
+
 1.0 (2012-08-14)
 ================
 
@@ -17,11 +23,8 @@ going forward.
 0.3b2 (2012-08-06)
 ==================
 
-GitHub
-------
-
-- Add CSRF checks to the provider as they started requiring the OAuth
-  state variable to be used.
+- [github] Add CSRF checks to the provider as they started requiring the
+  OAuth state variable to be used.
 
 0.3b1 (2012-08-03)
 ==================
