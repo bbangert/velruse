@@ -156,13 +156,11 @@ def extract_fb_data(data):
 
     tz = data.get('timezone')
     if tz:
-        parts = str(tz).split('.')
-        if len(parts) > 1:
-            h, m = parts
-            m = str(int(m) * 60)
-        else:
-            h, m = parts[0], '00'
-        profile['utcOffset'] = '{h:+03d}:{m:02d}'.format(h=int(h), m=int(m))
+        # -5.5 -> -05:30
+        offset = float(tz)
+        h = int(offset)
+        m = int(abs(offset - h) * 60)
+        profile['utcOffset'] = '{h:+03d}:{m:02d}'.format(h=h, m=m)
     bday = data.get('birthday')
     if bday:
         try:
