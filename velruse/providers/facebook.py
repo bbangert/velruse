@@ -162,10 +162,6 @@ def extract_fb_data(data):
             m = str(int(m) * 60)
         else:
             h, m = parts[0], '00'
-        if 1 < len(h) < 3:
-            h = '%s0%s' % (h[0], h[1])  # e.g. -5 --> -05
-        elif len(h) == 1:
-            h = h[0]
         profile['utcOffset'] = '{h:+03d}:{m:02d}'.format(h=int(h), m=int(m))
     bday = data.get('birthday')
     if bday:
