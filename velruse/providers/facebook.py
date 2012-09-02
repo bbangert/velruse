@@ -44,7 +44,7 @@ def add_facebook_login_from_settings(config, prefix='velruse.facebook.'):
 def add_facebook_login(config,
                        consumer_key,
                        consumer_secret,
-                       scope=None,
+                       scope='',
                        login_path='/login/facebook',
                        callback_path='/login/facebook/callback',
                        name='facebook'):
