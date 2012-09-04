@@ -95,6 +95,8 @@ class Google2Provider(object):
         """Initiate a google login"""
         scope = ' '.join(request.POST.getall('scope')) or self.scope
 
+        approval_prompt = request.POST.get('approval_prompt', 'auto')
+
         if request.POST.get('end_point'):
             request.session['endpoint'] = request.POST['end_point']
 
@@ -104,6 +106,7 @@ class Google2Provider(object):
             response_type='code',
             client_id=self.consumer_key,
             redirect_uri=request.route_url(self.callback_route),
+            approval_prompt=approval_prompt,
             access_type='offline')
         return HTTPFound(location=auth_url)
 
