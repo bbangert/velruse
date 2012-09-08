@@ -119,7 +119,7 @@ settings_adapter = {
     'douban': 'add_douban_login_from_settings',
     'facebook': 'add_facebook_login_from_settings',
     'github': 'add_github_login_from_settings',
-    'google2': 'add_google2_login_from_settings',
+    'google': 'add_google_oauth2_login_from_settings',
     'lastfm': 'add_lastfm_login_from_settings',
     'linkedin': 'add_linkedin_login_from_settings',
     'live': 'add_live_login_from_settings',
