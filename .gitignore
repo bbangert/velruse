@@ -14,3 +14,6 @@ associations
 openid_data
 env
 
+# PyCharm users, please keep your data locally.
+.idea/
+
