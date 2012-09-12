@@ -3,26 +3,30 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from velruse.api import register_provider
 from velruse.settings import ProviderSettings
 
-from hybrid import GoogleConsumer
-from oauth2 import GoogleOAuth2Provider
+from .hybrid import GoogleConsumer
+from .oauth2 import GoogleOAuth2Provider
 
 
 def includeme(config):
     config.add_directive('add_google_login', add_google_login)
-    config.add_directive('add_google_oauth2_login_from_settings',
-                         add_google_oauth2_login_from_settings)
+    config.add_directive('add_google_login_from_settings',
+                         add_google_login_from_settings)
 
 
-def add_google_oauth2_login_from_settings(config, prefix='velruse.google.'):
+def add_google_login_from_settings(config, prefix='velruse.google.'):
     settings = config.registry.settings
-    p = ProviderSettings(settings, prefix)
-    if settings.get(prefix + 'protocol') == 'oauth2':
+    protocol = settings.get(prefix + 'protocol', 'hybrid')
+    if protocol == 'oauth2':
+        p = ProviderSettings(settings, prefix)
         p.update('consumer_key', required=True)
         p.update('consumer_secret', required=True)
         p.update('scope')
         p.update('login_path')
         p.update('callback_path')
         config.add_google_login(protocol='oauth2', **p.kwargs)
+    else:
+        raise ValueError('cannot automatically load google provider from '
+                         'settings, unsupported protocol')
 
 
 def add_google_login(config,
@@ -39,17 +43,43 @@ def add_google_login(config,
     """
     Add a Google login provider to the application.
 
-    Supports two protocols: OAuth2 and Hybrid (OAuth + OpenID).
+    A Google provider can be configured to use different protocols to
+    authenticate with Google. If ``protocol`` is ``hybrid`` (the default)
+    then it will use OpenID+OAuth. Otherwise, if ``protocol`` is ``oauth2``
+    then authentication will happen via Google's OAuth2 endpoints.
 
-    OpenID parameters: attrs, realm, storage
+    The OpenID+OAuth (hybrid) protocol can be configured for purely
+    authentication by specifying only OpenID parameters. If you also wish
+    to authorize your application to access the user's information you
+    may specify OAuth credentials.
 
-    OAuth parameters: consumer_key, consumer_secret, scope
+    - OpenID parameters
+      + ``attrs``
+      + ``realm``
+      + ``storage``
+    - OAuth parameters
+      + ``consumer_key``
+      + ``consumer_secret``
+      + ``scope``
+
+    The OAuth2 endpoint only requires the ``consumer_key`` and
+    ``consumer_secret`` with an optional ``scope``.
     """
     if protocol == 'oauth2':
-        provider = GoogleOAuth2Provider(name, consumer_key, consumer_secret, scope)
+        provider = GoogleOAuth2Provider(
+            name,
+            consumer_key,
+            consumer_secret,
+            scope)
     else:
-        provider = GoogleConsumer(name, attrs, realm, storage,
-                                  consumer_key, consumer_secret, scope)
+        provider = GoogleConsumer(
+            name,
+            attrs,
+            realm,
+            storage,
+            consumer_key,
+            consumer_secret,
+            scope)
 
 
     config.add_route(provider.login_route, login_path)
