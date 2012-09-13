@@ -1,5 +1,6 @@
 """Google Authentication Views"""
 from json import loads
+import uuid
 
 import requests
 
@@ -9,6 +10,7 @@ from velruse.api import (
     AuthenticationComplete,
     AuthenticationDenied,
 )
+from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
 from velruse.utils import flat_url
 
@@ -47,7 +49,8 @@ class GoogleOAuth2Provider(object):
     def login(self, request):
         """Initiate a google login"""
         scope = ' '.join(request.POST.getall('scope')) or self.scope
-
+        request.session['state'] = state = uuid.uuid4().hex
+        
         approval_prompt = request.POST.get('approval_prompt', 'auto')
 
         auth_url = flat_url(
@@ -57,11 +60,22 @@ class GoogleOAuth2Provider(object):
             client_id=self.consumer_key,
             redirect_uri=request.route_url(self.callback_route),
             approval_prompt=approval_prompt,
-            access_type='offline')
+            access_type='offline',
+            state=state)
         return HTTPFound(location=auth_url)
 
     def callback(self, request):
         """Process the google redirect"""
+        sess_state = request.session.get('state')
+        req_state = request.GET.get('state')
+        if not sess_state or sess_state != req_state:
+            raise CSRFError(
+                'CSRF Validation check failed. Request state {req_state} is not '
+                'the same as session state {sess_state}'.format(
+                    req_state=req_state,
+                    sess_state=sess_state
+                )
+            )
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error', 'No reason provided.')
