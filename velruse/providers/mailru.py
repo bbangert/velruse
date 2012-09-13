@@ -114,7 +114,8 @@ class MailRuProvider(object):
 
     def callback(self, request):
         """Process the MailRu redirect"""
-        if request.GET.get('state') != request.session.get('state'):
+        state = request.session.get('state')
+        if not state or state != request.GET.get('state'):
             raise CSRFError(
                 'CSRF Validation check failed. Request state {req_state} is not '
                 'the same as session state {sess_state}'.format(
