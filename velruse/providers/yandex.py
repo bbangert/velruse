@@ -99,12 +99,14 @@ class YandexProvider(object):
 
     def callback(self, request):
         """Process the Yandex redirect"""
-        if request.GET.get('state') != request.session.get('state'):
+        sess_state = request.session.get('state')
+        req_state = request.GET.get('state')
+        if not sess_state or sess_state != req_state:
             raise CSRFError(
                 'CSRF Validation check failed. Request state {req_state} is not '
                 'the same as session state {sess_state}'.format(
-                    req_state=request.GET.get('state'),
-                    sess_state=request.session.get('state')
+                    req_state=req_state,
+                    sess_state=sess_state
                 )
             )
         code = request.GET.get('code')

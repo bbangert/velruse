@@ -105,11 +105,16 @@ class GithubProvider(object):
 
     def callback(self, request):
         """Process the github redirect"""
-        if request.GET.get('state') != request.session.get('state'):
+        sess_state = request.session.get('state')
+        req_state = request.GET.get('state')
+        if not sess_state or sess_state != req_state:
             raise CSRFError(
-                'CSRF Validation check failed. Request state %s is not '
-                'the same as session state %s' % (
-                    request.GET.get('state'), request.session.get('state')))
+                'CSRF Validation check failed. Request state {req_state} is not '
+                'the same as session state {sess_state}'.format(
+                    req_state=req_state,
+                    sess_state=sess_state
+                )
+            )
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error', 'No reason provided.')
