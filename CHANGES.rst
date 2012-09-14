@@ -1,6 +1,16 @@
-next release
-============
+1.0.2 (2012-09-13)
+==================
 
+- [facebook,github,weibo] Fix bug in CSRF checking where Velruse would pass
+  the CSRF check if a session had not been started.
+
+- [google] Added support for Google's OAuth2.0 protocol.
+
+- [mailru] Added a new provider for mail.ru.
+
+- [vk] Added a new provider for vk.com (Vkontakte).
+
+- [yandex] Added a new provider for yandex.ru.
 
 1.0.1 (2012-08-30)
 ==================
