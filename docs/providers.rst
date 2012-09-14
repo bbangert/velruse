@@ -14,6 +14,9 @@ as a part of the velruse standalone application.
    providers/github
    providers/google
    providers/live
+   providers/mailru
    providers/openid
    providers/twitter
+   providers/vk
    providers/yahoo
+   providers/yandex
