@@ -18,7 +18,7 @@ from velruse.utils import flat_url
 GOOGLE_OAUTH2_DOMAIN = 'accounts.google.com'
 
 
-class Google2AuthenticationComplete(AuthenticationComplete):
+class GoogleOAuth2AuthenticationComplete(AuthenticationComplete):
     """Google OAuth 2.0 auth complete"""
 
 

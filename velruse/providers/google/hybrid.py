@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 
 
-class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
+class GoogleOpenIDAuthenticationComplete(OpenIDAuthenticationComplete):
     """Google auth complete"""
 
 
@@ -46,7 +46,7 @@ class GoogleConsumer(OpenIDConsumer):
 
         """
         OpenIDConsumer.__init__(self, name, 'google', realm, storage,
-                                context=GoogleAuthenticationComplete)
+                                context=GoogleOpenIDAuthenticationComplete)
         self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
         self.oauth_scope = oauth_scope

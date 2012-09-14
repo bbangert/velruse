@@ -3,8 +3,13 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 from velruse.api import register_provider
 from velruse.settings import ProviderSettings
 
-from .hybrid import GoogleConsumer
+from .hybrid import GoogleConsumer, GoogleOpenIDAuthenticationComplete
 from .oauth2 import GoogleOAuth2Provider
+
+
+# bw compat 1.0.2
+GoogleConsumer = GoogleConsumer
+GoogleAuthenticationComplete = GoogleOpenIDAuthenticationComplete
 
 
 def includeme(config):
