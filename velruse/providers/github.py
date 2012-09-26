@@ -151,8 +151,9 @@ class GithubProvider(object):
             'username':data['login'],
             'userid':data['id']
         }]
-        profile['displayName'] = data['name']
+        
         profile['preferredUsername'] = data['login']
+        profile['displayName'] = data.get('name',profile['preferredUsername'])
 
         # We don't add this to verifiedEmail because ppl can change email
         # addresses without verifying them
