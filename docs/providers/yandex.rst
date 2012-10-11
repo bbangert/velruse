@@ -19,15 +19,16 @@ Yandex Links (Russian):
 
 Settings
 --------
+
 ``consumer_key``
     Yandex Application ID
 ``consumer_secret``
     Yandex Application password
 
 
-
 POST Parameters
 ---------------
+
 Complete Example:
 
 .. code-block:: html
@@ -39,6 +40,7 @@ Complete Example:
 
 Pyramid API
 -----------
+
 .. automodule:: velruse.providers.yandex
 
    .. autoclass:: YandexAuthenticationComplete

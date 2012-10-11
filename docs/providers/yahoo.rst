@@ -17,6 +17,7 @@ Yahoo Developer Links:
 
 Settings
 --------
+
 Like Google, the Yahoo provider requires that an OpenID provider
 configuration be present in your configuration file in order to provide
 the ``Realm`` and ``Store`` configuration values.
@@ -37,6 +38,7 @@ The following parameters are only required if using the OAuth hybrid:
 
 POST Parameters
 ---------------
+
 Since Yahoo declares the scope of OAuth with the application, you only
 need to provide the `oauth` POST parameter if you want OAuth to take
 place (which requires a Yahoo application to be created, and configured
@@ -54,6 +56,7 @@ Complete Example:
 
 Pyramid API
 -----------
+
 .. automodule:: velruse.providers.yahoo
 
    .. autoclass:: YahooAuthenticationComplete

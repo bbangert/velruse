@@ -20,11 +20,6 @@ VK Developer Links:
 
 Settings
 --------
-Whether you are using Velruse as a standalone app or as a Pyramid plugin, you will
-need to add the following settings to an .ini file.  If you are using the standalone
-app, you will need to add them to the .ini file that serves the standalone app.
-If you are using Velruse as a Pyramid plugin, you will need to add them to your
-Pyramid app's .ini file.
 
 ``consumer_key``
     VK Application ID
@@ -51,6 +46,7 @@ Complete Example:
 
 Pyramid API
 -----------
+
 .. automodule:: velruse.providers.vk
 
    .. autoclass:: VKAuthenticationComplete

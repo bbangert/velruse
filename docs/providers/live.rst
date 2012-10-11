@@ -22,6 +22,7 @@ Windows Live Developer Links:
 
 Settings
 --------
+
 ``client_id``
     Component Application ID
 
@@ -35,6 +36,7 @@ Settings
 
 POST Parameters
 ---------------
+
 Complete Example:
 
 .. code-block:: html
@@ -46,6 +48,7 @@ Complete Example:
 
 Pyramid API
 -----------
+
 .. automodule:: velruse.providers.live
 
    .. autoclass:: LiveAuthenticationComplete

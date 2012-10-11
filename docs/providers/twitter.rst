@@ -14,16 +14,16 @@ Twitter Developer Links:
 
 Settings
 --------
+
 ``consumer_key``
     Twitter application consumer key
 ``consumer_secret``
     Twitter application secret
-``authorization``
-    github application scope
 
 
 POST Parameters
 ---------------
+
 Complete Example:
 
 .. code-block:: html
@@ -35,6 +35,7 @@ Complete Example:
 
 Pyramid API
 -----------
+
 .. automodule:: velruse.providers.twitter
 
    .. autoclass:: TwitterAuthenticationComplete

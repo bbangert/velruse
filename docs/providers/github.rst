@@ -13,6 +13,7 @@ Github Links:
 
 Settings
 --------
+
 ``consumer_key``
     github application consumer key
 ``consumer_secret``
@@ -23,6 +24,7 @@ Settings
 
 POST Parameters
 ---------------
+
 Complete Example:
 
 .. code-block:: html
@@ -34,6 +36,7 @@ Complete Example:
 
 Pyramid API
 -----------
+
 .. automodule:: velruse.providers.github
 
    .. autoclass:: GithubAuthenticationComplete

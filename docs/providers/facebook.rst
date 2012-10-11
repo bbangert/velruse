@@ -21,11 +21,6 @@ Facebook Developer Links:
 
 Settings
 --------
-Whether you are using Velruse as a standalone app or as a Pyramid plugin, you will
-need to add the following settings to an .ini file.  If you are using the standalone
-app, you will need to add them to the .ini file that serves the standalone app.
-If you are using Velruse as a Pyramid plugin, you will need to add them to your
-Pyramid app's .ini file.
 
 ``consumer_key``
     Facebook App Id
@@ -40,6 +35,7 @@ Pyramid app's .ini file.
 
 POST parameters
 ---------------
+
 The Facebook provider accepts a scope argument, which is used in the
 authenticating request to access additional Facebook properties known
 as `Extended Permissions
@@ -62,6 +58,7 @@ Complete Example:
 
 Pyramid API
 -----------
+
 .. automodule:: velruse.providers.facebook
 
    .. autoclass:: FacebookAuthenticationComplete

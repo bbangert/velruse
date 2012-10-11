@@ -18,6 +18,7 @@ Mail.ru Links (Russian):
 
 Settings
 --------
+
 ``consumer_key``
     Mail.ru Site/Application ID
 ``consumer_secret``
@@ -27,6 +28,7 @@ Settings
 
 POST Parameters
 ---------------
+
 Complete Example:
 
 .. code-block:: html
@@ -38,6 +40,7 @@ Complete Example:
 
 Pyramid API
 -----------
+
 .. automodule:: velruse.providers.mailru
 
    .. autoclass:: MailRuAuthenticationComplete

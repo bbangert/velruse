@@ -1,10 +1,14 @@
-1.0.2 (2012-09-13)
-==================
+next release
+============
 
 - [facebook,github,weibo] Fix bug in CSRF checking where Velruse would pass
   the CSRF check if a session had not been started.
 
-- [google] Added support for Google's OAuth2.0 protocol.
+- [google_hybrid] Renamed the Google OpenID+OAuth1.0 hybrid module to
+  ``google_hybrid``. There are bw-compat shims left in
+  ``velruse.providers.google``. This will be deprecated in a future release.
+
+- [google_oauth2] Added support for Google's OAuth2.0 protocol.
 
 - [mailru] Added a new provider for mail.ru.
 

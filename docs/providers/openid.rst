@@ -18,6 +18,7 @@ OpenID Developer Links:
 
 Settings
 --------
+
 ``realm``
     Domain for your website, e.g. ``http://yourdomain.com/``
 ``store``
@@ -31,6 +32,7 @@ Settings
 
 POST Parameters
 ---------------
+
 The OpenID provider accepts `openid_identifier` which should designate
 the OpenID identifer being claimed to authenticate.
 
