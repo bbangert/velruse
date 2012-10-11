@@ -5,22 +5,64 @@ import uuid
 import requests
 
 from pyramid.httpexceptions import HTTPFound
+from pyramid.security import NO_PERMISSION_REQUIRED
 
 from velruse.api import (
     AuthenticationComplete,
     AuthenticationDenied,
+    register_provider,
 )
 from velruse.exceptions import CSRFError
 from velruse.exceptions import ThirdPartyFailure
+from velruse.settings import ProviderSettings
 from velruse.utils import flat_url
 
 
 GOOGLE_OAUTH2_DOMAIN = 'accounts.google.com'
 
 
-class GoogleOAuth2AuthenticationComplete(AuthenticationComplete):
+class GoogleAuthenticationComplete(AuthenticationComplete):
     """Google OAuth 2.0 auth complete"""
 
+def add_google_login_from_settings(config, prefix='velruse.google.'):
+    settings = config.registry.settings
+    p = ProviderSettings(settings, prefix)
+    p.update('consumer_key', required=True)
+    p.update('consumer_secret', required=True)
+    p.update('scope')
+    p.update('login_path')
+    p.update('callback_path')
+    config.add_google_oauth2_login(**p.kwargs)
+
+def add_google_login(config,
+                     attrs=None,
+                     realm=None,
+                     storage=None,
+                     consumer_key=None,
+                     consumer_secret=None,
+                     scope=None,
+                     login_path='/login/google',
+                     callback_path='/login/google/callback',
+                     name='google'):
+    """
+    Add a Google login provider to the application supporting the new
+    OAuth2 protocol.
+    """
+    provider = GoogleOAuth2Provider(
+        name,
+        consumer_key,
+        consumer_secret,
+        scope)
+
+    config.add_route(provider.login_route, login_path)
+    config.add_view(provider, attr='login', route_name=provider.login_route,
+                    permission=NO_PERMISSION_REQUIRED)
+
+    config.add_route(provider.callback_route, callback_path,
+                     use_global_views=True,
+                     factory=provider.callback)
+
+    register_provider(config, name, provider)
 
 class GoogleOAuth2Provider(object):
 
@@ -120,7 +162,7 @@ class GoogleOAuth2Provider(object):
 
         cred = {'oauthAccessToken': access_token,
                 'oauthRefreshToken': refresh_token}
-        return Google2AuthenticationComplete(profile=profile,
-                                             credentials=cred,
-                                             provider_name=self.name,
-                                             provider_type=self.type)
+        return GoogleAuthenticationComplete(profile=profile,
+                                            credentials=cred,
+                                            provider_name=self.name,
+                                            provider_type=self.type)

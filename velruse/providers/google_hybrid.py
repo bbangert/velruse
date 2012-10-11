@@ -14,6 +14,9 @@ from urlparse import parse_qs
 import oauth2 as oauth
 from openid.extensions import ax
 
+from pyramid.security import NO_PERMISSION_REQUIRED
+
+from velruse.api import register_provider
 from velruse.providers.oid_extensions import OAuthRequest
 from velruse.providers.oid_extensions import UIRequest
 from velruse.providers.openid import (
@@ -28,9 +31,57 @@ log = logging.getLogger(__name__)
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 
 
-class GoogleOpenIDAuthenticationComplete(OpenIDAuthenticationComplete):
+class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
     """Google auth complete"""
 
+def includeme(config):
+    config.add_directive('add_google_hybrid_login', add_google_login)
+
+def add_google_login(config,
+                     attrs=None,
+                     realm=None,
+                     storage=None,
+                     consumer_key=None,
+                     consumer_secret=None,
+                     scope=None,
+                     login_path='/login/google',
+                     callback_path='/login/google/callback',
+                     name='google'):
+    """
+    Add a Google login provider to the application using the OpenID+OAuth
+    hybrid protocol.  This protocol can be configured for purely
+    authentication by specifying only OpenID parameters. If you also wish
+    to authorize your application to access the user's information you
+    may specify OAuth credentials.
+
+    - OpenID parameters
+      + ``attrs``
+      + ``realm``
+      + ``storage``
+    - OAuth parameters
+      + ``consumer_key``
+      + ``consumer_secret``
+      + ``scope``
+    """
+    provider = GoogleConsumer(
+        name,
+        attrs,
+        realm,
+        storage,
+        consumer_key,
+        consumer_secret,
+        scope)
+
+
+    config.add_route(provider.login_route, login_path)
+    config.add_view(provider, attr='login', route_name=provider.login_route,
+                    permission=NO_PERMISSION_REQUIRED)
+
+    config.add_route(provider.callback_route, callback_path,
+                     use_global_views=True,
+                     factory=provider.callback)
+
+    register_provider(config, name, provider)
 
 class GoogleConsumer(OpenIDConsumer):
     openid_attributes = [
@@ -46,7 +97,7 @@ class GoogleConsumer(OpenIDConsumer):
 
         """
         OpenIDConsumer.__init__(self, name, 'google', realm, storage,
-                                context=GoogleOpenIDAuthenticationComplete)
+                                context=GoogleAuthenticationComplete)
         self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
         self.oauth_scope = oauth_scope
