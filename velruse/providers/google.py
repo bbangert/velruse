@@ -2,5 +2,7 @@
 from .google_hybrid import (
     add_google_login,
     GoogleAuthenticationComplete,
-    includeme,
 )
+
+def includeme(config):
+    config.add_directive('add_google_login', add_google_login)
