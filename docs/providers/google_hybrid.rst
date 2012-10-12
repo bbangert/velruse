@@ -75,9 +75,9 @@ Pyramid API
 
 .. automodule:: velruse.providers.google_hybrid
 
-   .. autoclass:: GoogleHybridAuthenticationComplete
+   .. autoclass:: GoogleAuthenticationComplete
       :show-inheritance:
 
    .. autofunction:: includeme
 
-   .. autofunction:: add_google_hybrid_login
+   .. autofunction:: add_google_login

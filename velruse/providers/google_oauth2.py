@@ -24,6 +24,11 @@ GOOGLE_OAUTH2_DOMAIN = 'accounts.google.com'
 class GoogleAuthenticationComplete(AuthenticationComplete):
     """Google OAuth 2.0 auth complete"""
 
+def includeme(config):
+    config.add_directive('add_google_oauth2_login', add_google_login)
+    config.add_directive('add_google_oauth2_login_from_settings',
+                         add_google_login_from_settings)
+
 def add_google_login_from_settings(config, prefix='velruse.google.'):
     settings = config.registry.settings
     p = ProviderSettings(settings, prefix)

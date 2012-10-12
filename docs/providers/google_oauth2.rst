@@ -47,9 +47,9 @@ Pyramid API
 
 .. automodule:: velruse.providers.google_oauth2
 
-   .. autoclass:: GoogleOAuth2AuthenticationComplete
+   .. autoclass:: GoogleAuthenticationComplete
       :show-inheritance:
 
    .. autofunction:: includeme
 
-   .. autofunction:: add_google_oauth2_login
+   .. autofunction:: add_google_login
