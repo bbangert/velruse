@@ -1,5 +1,12 @@
-next release
-============
+1.0.3 (2012-10-11)
+==================
+
+- [google_hybrid] Modified the type of the
+  :class:`~velruse.providers.google_hybrid.GoogleAuthenticationComplete`
+  to be ``google_hybrid`` instead of ``google``.
+
+1.0.2 (2012-10-11)
+==================
 
 - [facebook,github,weibo] Fix bug in CSRF checking where Velruse would pass
   the CSRF check if a session had not been started.
