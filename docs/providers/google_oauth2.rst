@@ -1,22 +1,12 @@
-Google OAuth2.0
-===============
-
-Google provides both basic OpenID using Attribute Exchange 2.0, as well
-as a OpenID+OAuth hybrid that authenticates a user and completes OAuth
-authentication to provide API access to Google services.
-
-To use Google authentication, registering an application is *not*
-necessary unless you wish to request OAuth tokens to access Google
-services.
+Google OAuth2.0 - :mod:`velruse.providers.google_oauth2`
+========================================================
 
 Google Developer Links:
 
 * `Google Application Management
   <https://www.google.com/accounts/ManageDomains>`_
-* `Google OpenID Documentation
-  <http://code.google.com/apis/accounts/docs/OpenID.html>`_
-* `Google OAuth scope parameters
-  <http://code.google.com/apis/gdata/faq.html#AuthScopes>`_
+* `Configuring OAuth2.0 in Your Application
+  <https://developers.google.com/accounts/docs/OAuth2>`_
 
 
 Settings

@@ -1,4 +1,3 @@
-"""Google Authentication Views"""
 from json import loads
 import uuid
 
@@ -25,6 +24,17 @@ class GoogleAuthenticationComplete(AuthenticationComplete):
     """Google OAuth 2.0 auth complete"""
 
 def includeme(config):
+    """Activate the ``google_oauth2`` Pyramid plugin via
+    ``config.include('velruse.providers.google_oauth2')``. After included,
+    two new methods will be available to configure new providers.
+
+    ``config.add_google_oauth2_login()``
+        See :func:`~velruse.providers.google_oauth2.add_google_login`
+        for the supported options.
+
+    ``config.add_google_oauth2_login_from_settings()``
+
+    """
     config.add_directive('add_google_oauth2_login', add_google_login)
     config.add_directive('add_google_oauth2_login_from_settings',
                          add_google_login_from_settings)
@@ -40,9 +50,6 @@ def add_google_login_from_settings(config, prefix='velruse.google.'):
     config.add_google_oauth2_login(**p.kwargs)
 
 def add_google_login(config,
-                     attrs=None,
-                     realm=None,
-                     storage=None,
                      consumer_key=None,
                      consumer_secret=None,
                      scope=None,

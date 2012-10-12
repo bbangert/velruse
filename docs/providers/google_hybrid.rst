@@ -1,5 +1,5 @@
-Google Hybrid (OpenID+OAuth)
-============================
+Google Hybrid (OpenID+OAuth) - :mod:`velruse.providers.google_hybrid`
+=====================================================================
 
 Google provides both basic OpenID using Attribute Exchange 2.0, as well
 as a OpenID+OAuth hybrid that authenticates a user and completes OAuth

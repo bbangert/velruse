@@ -1,5 +1,5 @@
-Google - :mod:`velruse.providers.google`
-========================================
+Google
+======
 
 Velruse supports authentication and authorizing users with Google services
 using both their hybrid OpenID+OAuth1.0 and their OAuth2.0 protocols. Users

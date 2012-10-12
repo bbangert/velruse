@@ -1,10 +1,3 @@
-"""Google Responder
-
-A Google responder that authenticates against Google using OpenID, or
-optionally can use OpenId+OAuth hybrid protocol to request access to
-Google Apps using OAuth2.
-
-"""
 from __future__ import absolute_import
 
 import logging
@@ -35,6 +28,15 @@ class GoogleAuthenticationComplete(OpenIDAuthenticationComplete):
     """Google auth complete"""
 
 def includeme(config):
+    """Activate the ``google_hybrid`` Pyramid plugin via
+    ``config.include('velruse.providers.google_hybrid')``. After included,
+    a new method will be available to configure new providers.
+
+    ``config.add_google_hybrid_login()``
+        See :func:`~velruse.providers.google_hybrid.add_google_login`
+        for the supported options.
+
+    """
     config.add_directive('add_google_hybrid_login', add_google_login)
 
 def add_google_login(config,
@@ -96,7 +98,7 @@ class GoogleConsumer(OpenIDConsumer):
         authentication.
 
         """
-        OpenIDConsumer.__init__(self, name, 'google', realm, storage,
+        OpenIDConsumer.__init__(self, name, 'google_hybrid', realm, storage,
                                 context=GoogleAuthenticationComplete)
         self.oauth_key = oauth_key
         self.oauth_secret = oauth_secret
