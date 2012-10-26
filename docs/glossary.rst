@@ -5,6 +5,7 @@ Glossary
 
 
 .. glossary::
+    :sorted:
 
     auth provider
         A class implementing the Marco responder pattern that listens to a

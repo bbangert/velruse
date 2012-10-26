@@ -50,10 +50,6 @@ Contents:
    usage
    providers
    api
-
-.. toctree::
-   :maxdepth: 1
-
    changes
 
 Indices and tables
