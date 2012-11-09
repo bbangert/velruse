@@ -1,0 +1,8 @@
+include README.rst
+include LICENSE.txt
+include TODO.rst
+include CHANGES.rst
+
+graft docs
+graft examples
+gract tests
