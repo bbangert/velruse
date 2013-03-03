@@ -5,4 +5,4 @@ include CHANGES.rst
 
 graft docs
 graft examples
-gract tests
+graft tests
