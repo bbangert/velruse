@@ -167,7 +167,10 @@ class GoogleOAuth2Provider(object):
                 'username': data['email'],
                 'userid': data['id']
             }]
-            profile['displayName'] = data['name']
+            if 'name' in data:
+                profile['displayName'] = data['name']
+            else:
+                profile['displayName'] = data['email']
             profile['preferredUsername'] = data['email']
             profile['verifiedEmail'] = data['email']
             profile['emails'] = [{'value': data['email']}]
