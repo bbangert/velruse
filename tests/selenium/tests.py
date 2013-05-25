@@ -1,11 +1,14 @@
 import json
 import os
-import unittest2 as unittest
-from ConfigParser import ConfigParser
+try:
+    import unittest2 as unittest
+except ImportError:
+    import unittest
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 
+from velruse._compat import ConfigParser
 
 config = {}
 browser = None  # populated in setUpModule
@@ -102,10 +105,11 @@ class TestGithub(ProviderTests, unittest.TestCase):
         browser.delete_all_cookies()
 
     def test_it(self):
+        from velruse._compat import u
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('github').submit()
-        self.assertEqual(browser.title, u'Sign in \xb7 GitHub')
+        self.assertEqual(browser.title, u('Sign in \xb7 GitHub'))
         form = browser.find_element_by_id('login')
         login = form.find_element_by_name('login')
         login.send_keys(self.login)

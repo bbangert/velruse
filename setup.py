@@ -1,19 +1,29 @@
+import sys
+
 from setuptools import setup, find_packages
 
+PY3 = sys.version_info[0] >= 3
+
 requires=[
-    'python-openid',
     'oauth2',
     'pyramid',
     'requests',
     'anykeystore',
 ]
 
+if PY3:
+    requires.append('python3-openid')
+else:
+    requires.append('python-openid')
+
 testing_extras = [
-    'unittest2',
     'nose',
     'nose-testconfig',
     'selenium',
 ]
+
+if sys.version_info < (2, 7):
+    testing_extras.append('unittest2')
 
 docs_extras = [
     'Sphinx',
@@ -30,8 +40,12 @@ setup(name='velruse',
           'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: MIT License',
+          'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.2',
+          'Programming Language :: Python :: 3.3',
           'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
           'Framework :: Pyramid',
       ],
