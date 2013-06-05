@@ -21,3 +21,8 @@ try:
     from ConfigParser import ConfigParser
 except ImportError: #pragma NO COVER Python >= 3.0
     from configparser import ConfigParser
+
+try:
+    from urlparse import parse_qs
+except ImportError:
+    from urllib.parse import parse_qs
