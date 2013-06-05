@@ -1,9 +1,13 @@
 import json
 import os
+import unittest
 try:
-    import unittest2 as unittest
+    from unittest import SkipTest
 except ImportError:
-    import unittest
+    from unittest2 import SkipTest as SkipTest_u2
+    from nose.plugins.skip import SkipTest as SkipTest_nose
+    class SkipTest(SkipTest_u2, SkipTest_nose):
+        pass
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -44,7 +48,7 @@ class ProviderTests(object):
     @classmethod
     def require_provider(cls, name):
         if name not in config.get('test_providers', []):
-            raise unittest.SkipTest('tests not enabled for "%s"' % name)
+            raise SkipTest('tests not enabled for "%s"' % name)
 
 def find_login_url(config, key):
     return config.get(key, config['default_login_url'])
