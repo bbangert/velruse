@@ -1,6 +1,5 @@
 """LinkedIn Authentication Views"""
 from json import loads
-from urlparse import parse_qs
 
 import oauth2 as oauth
 import requests
@@ -8,13 +7,14 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import (
+from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
-from velruse.exceptions import ThirdPartyFailure
-from velruse.settings import ProviderSettings
+from ..exceptions import ThirdPartyFailure
+from ..settings import ProviderSettings
+from .._compat import parse_qs
 
 
 REQUEST_URL = 'https://api.linkedin.com/uas/oauth/requestToken'
