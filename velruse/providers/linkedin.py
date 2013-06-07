@@ -143,8 +143,11 @@ class LinkedInProvider(object):
         profile['name'] = {
             'givenName': data['firstName'],
             'familyName': data['lastName'],
-            'formatted': '%s %s' % (data['firstName'], data['lastName'])
+            'formatted': '%s %s' % (data['firstName'], data['lastName']),
         }
+        if data.get('pictureUrl'):
+            profile['photos'] = [{'value': data.get('pictureUrl')}]
+
         profile['accounts'] = [{
             'domain':'linkedin.com',
             'userid':data['id']
