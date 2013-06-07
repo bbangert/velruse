@@ -3,6 +3,7 @@ from urlparse import parse_qs
 
 import oauth2 as oauth
 import requests
+import json
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -18,7 +19,7 @@ from velruse.settings import ProviderSettings
 
 REQUEST_URL = 'https://api.twitter.com/oauth/request_token'
 ACCESS_URL = 'https://api.twitter.com/oauth/access_token'
-
+DATA_URL = 'https://api.twitter.com/1/users/show.json?screen_name=%s'
 
 class TwitterAuthenticationComplete(AuthenticationComplete):
     """Twitter auth complete"""
@@ -115,6 +116,7 @@ class TwitterProvider(object):
         consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
 
         client = oauth.Client(consumer, request_token)
+        
         resp, content = client.request(ACCESS_URL, "POST")
         if resp['status'] != '200':
             raise ThirdPartyFailure("Status %s: %s" % (resp['status'], content))
@@ -127,6 +129,20 @@ class TwitterProvider(object):
             'userid':access_token['user_id'][0]
         }]
         profile['displayName'] = access_token['screen_name'][0]
+
+        resp, content = client.request(DATA_URL % access_token['screen_name'][0], "GET")
+        if resp['status'] == '200':
+            # replace display name with the full name, and take additional data
+            profile_data = json.loads(content)
+            profile['preferredUsername'] = profile['displayName']
+            profile['displayName'] = profile_data.get('name') or profile['displayName']
+            profile['name'] = {'formatted': profile['displayName']}
+            if profile_data.get('url'):
+                profile['urls'] = [{'value': profile_data.get('url')}]
+            if profile_data.get('location'):
+                profile['addresses'] = [{'formatted': profile_data.get('location')}]
+            if profile_data.get('profile_image_url'):
+                profile['photos'] = [{'value': profile_data.get('profile_image_url')}]
 
         cred = {'oauthAccessToken': access_token['oauth_token'][0],
                 'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
