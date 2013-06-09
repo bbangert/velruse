@@ -6,15 +6,15 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import (
+from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
-from velruse.exceptions import CSRFError
-from velruse.exceptions import ThirdPartyFailure
-from velruse.settings import ProviderSettings
-from velruse.utils import flat_url
+from ..exceptions import CSRFError
+from ..exceptions import ThirdPartyFailure
+from ..settings import ProviderSettings
+from ..utils import flat_url
 
 
 GOOGLE_OAUTH2_DOMAIN = 'accounts.google.com'

@@ -1,22 +1,20 @@
-from __future__ import absolute_import
-
-import logging
 from json import loads
-from urlparse import parse_qs
+import logging
 
 import oauth2 as oauth
 from openid.extensions import ax
 
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import register_provider
-from velruse.providers.oid_extensions import OAuthRequest
-from velruse.providers.oid_extensions import UIRequest
-from velruse.providers.openid import (
+from ..api import register_provider
+from ..providers.oid_extensions import OAuthRequest
+from ..providers.oid_extensions import UIRequest
+from ..providers.openid import (
     attributes,
     OpenIDAuthenticationComplete,
     OpenIDConsumer,
 )
+from .._compat import parse_qs
 
 
 log = logging.getLogger(__name__)
