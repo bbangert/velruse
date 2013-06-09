@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 PY3 = sys.version_info[0] >= 3
 
-requires=[
+requires = [
     'oauth2',
     'pyramid',
     'requests',
@@ -18,12 +18,8 @@ else:
 
 testing_extras = [
     'nose',
-    'nose-testconfig',
     'selenium',
 ]
-
-if sys.version_info < (2, 7):
-    testing_extras.append('unittest2')
 
 docs_extras = [
     'Sphinx',
@@ -60,6 +56,8 @@ setup(name='velruse',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
+      tests_require=testing_extras,
+      test_suite='nose.collector',
       extras_require={
           'docs': docs_extras,
           'testing': testing_extras,

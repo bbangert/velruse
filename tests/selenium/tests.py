@@ -1,13 +1,8 @@
 import json
 import os
 import unittest
-try:
-    from unittest import SkipTest
-except ImportError:
-    from unittest2 import SkipTest as SkipTest_u2
-    from nose.plugins.skip import SkipTest as SkipTest_nose
-    class SkipTest(SkipTest_u2, SkipTest_nose):
-        pass
+
+from nose.plugins.skip import SkipTest
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
@@ -311,6 +306,3 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
-if __name__ == '__main__':
-    unittest.main()
