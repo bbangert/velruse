@@ -116,7 +116,7 @@ class OpenIDConsumer(object):
                  _type=None,
                  realm=None,
                  storage=None,
-                 context=AuthenticationComplete):
+                 context=OpenIDAuthenticationComplete):
         self.openid_store = storage
         self.name = name
         self.type = _type
