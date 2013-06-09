@@ -93,7 +93,7 @@ def add_openid_login(config,
     `openid.store.interface.OpenIDStore` protocol. This will default
     to `openid.store.memstore.MemoryStore`.
     """
-    provider = OpenIDConsumer(name, realm, storage)
+    provider = OpenIDConsumer(name, realm=realm, storage=storage)
 
     config.add_route(provider.login_route, login_path)
     config.add_view(provider, attr='login', route_name=provider.login_route,
