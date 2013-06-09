@@ -1,4 +1,3 @@
-import logging
 import os
 
 from anykeystore import create_store_from_settings
@@ -11,7 +10,7 @@ from velruse.app.utils import generate_token
 from velruse.app.utils import redirect_form
 
 
-log = logging.getLogger(__name__)
+log = __import__('logging').getLogger(__name__)
 
 
 def auth_complete_view(context, request):

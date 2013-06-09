@@ -1,8 +1,5 @@
-from __future__ import absolute_import
-
 import datetime
 import re
-import logging
 
 from openid.consumer import consumer
 from openid.extensions import ax
@@ -12,16 +9,18 @@ from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import (
+from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
-from velruse.exceptions import MissingParameter
-from velruse.exceptions import ThirdPartyFailure
+from ..exceptions import (
+    MissingParameter,
+    ThirdPartyFailure,
+)
 
 
-log = logging.getLogger(__name__)
+log = __import__('logging').getLogger(__name__)
 
 # Setup our attribute objects that we'll be requesting
 ax_attributes = dict(

@@ -1,17 +1,23 @@
+import sys
+
 from setuptools import setup, find_packages
 
-requires=[
-    'python-openid',
+PY3 = sys.version_info[0] >= 3
+
+requires = [
     'oauth2',
     'pyramid',
     'requests',
     'anykeystore',
 ]
 
+if PY3:
+    requires.append('python3-openid')
+else:
+    requires.append('python-openid')
+
 testing_extras = [
-    'unittest2',
     'nose',
-    'nose-testconfig',
     'selenium',
 ]
 
@@ -30,8 +36,12 @@ setup(name='velruse',
           'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: MIT License',
+          'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.2',
+          'Programming Language :: Python :: 3.3',
           'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
           'Framework :: Pyramid',
       ],
@@ -46,6 +56,8 @@ setup(name='velruse',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
+      tests_require=testing_extras,
+      test_suite='nose.collector',
       extras_require={
           'docs': docs_extras,
           'testing': testing_extras,

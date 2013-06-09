@@ -1,11 +1,13 @@
 import json
 import os
-import unittest2 as unittest
-from ConfigParser import ConfigParser
+import unittest
+
+from nose.plugins.skip import SkipTest
 
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 
+from velruse._compat import ConfigParser
 
 config = {}
 browser = None  # populated in setUpModule
@@ -41,7 +43,7 @@ class ProviderTests(object):
     @classmethod
     def require_provider(cls, name):
         if name not in config.get('test_providers', []):
-            raise unittest.SkipTest('tests not enabled for "%s"' % name)
+            raise SkipTest('tests not enabled for "%s"' % name)
 
 def find_login_url(config, key):
     return config.get(key, config['default_login_url'])
@@ -102,10 +104,11 @@ class TestGithub(ProviderTests, unittest.TestCase):
         browser.delete_all_cookies()
 
     def test_it(self):
+        from velruse._compat import u
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('github').submit()
-        self.assertEqual(browser.title, u'Sign in \xb7 GitHub')
+        self.assertEqual(browser.title, u('Sign in \xb7 GitHub'))
         form = browser.find_element_by_id('login')
         login = form.find_element_by_name('login')
         login.send_keys(self.login)
@@ -303,6 +306,3 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
-
-if __name__ == '__main__':
-    unittest.main()

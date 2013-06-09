@@ -1,3 +1,12 @@
+Unreleased
+==========
+
+- Minimal Py3k compatibility;
+
+  - Switch dependency to 'python3-openid' for Py3k.
+
+  - Use my 'py3' branch of 'python-oauth2'.
+
 1.0.3 (2012-10-11)
 ==================
 
