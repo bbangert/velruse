@@ -1,5 +1,4 @@
 from json import loads
-import logging
 
 import oauth2 as oauth
 from openid.extensions import ax
@@ -17,7 +16,8 @@ from ..providers.openid import (
 from .._compat import parse_qs
 
 
-log = logging.getLogger(__name__)
+log = __import__('logging').getLogger(__name__)
+
 
 GOOGLE_OAUTH = 'https://www.google.com/accounts/OAuthGetAccessToken'
 

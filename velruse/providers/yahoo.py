@@ -1,5 +1,3 @@
-import logging
-
 import oauth2 as oauth
 from openid.extensions import ax
 
@@ -14,7 +12,8 @@ from ..providers.openid import (
 from .._compat import parse_qs
 
 
-log = logging.getLogger(__name__)
+log = __import__('logging').getLogger(__name__)
+
 
 YAHOO_OAUTH = 'https://api.login.yahoo.com/oauth/v2/get_token'
 

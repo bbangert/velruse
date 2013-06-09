@@ -1,6 +1,5 @@
 import datetime
 import re
-import logging
 
 from openid.consumer import consumer
 from openid.extensions import ax
@@ -15,11 +14,13 @@ from ..api import (
     AuthenticationDenied,
     register_provider,
 )
-from ..exceptions import MissingParameter
-from ..exceptions import ThirdPartyFailure
+from ..exceptions import (
+    MissingParameter,
+    ThirdPartyFailure,
+)
 
 
-log = logging.getLogger(__name__)
+log = __import__('logging').getLogger(__name__)
 
 # Setup our attribute objects that we'll be requesting
 ax_attributes = dict(

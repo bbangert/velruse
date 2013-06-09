@@ -1,7 +1,6 @@
 #XXX This module needs updating to use the patterns in e.g. the 'facebook'
 #    provider.
 import urlparse
-import logging
 
 from routes import Mapper
 import httplib2
@@ -10,7 +9,7 @@ import webob.exc as exc
 
 import velruse.utils as utils
 
-log = logging.getLogger(__name__)
+log = __import__('logging').getLogger(__name__)
 
 REQUEST_URL = 'https://identi.ca/api/oauth/request_token'
 ACCESS_URL = 'https://identi.ca/api/oauth/access_token'
