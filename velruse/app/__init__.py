@@ -120,6 +120,7 @@ settings_adapter = {
     'facebook': 'add_facebook_login_from_settings',
     'github': 'add_github_login_from_settings',
     'google': 'add_google_login_from_settings',
+    'google_oauth2': 'add_google_oauth2_login_from_settings',
     'lastfm': 'add_lastfm_login_from_settings',
     'linkedin': 'add_linkedin_login_from_settings',
     'live': 'add_live_login_from_settings',
