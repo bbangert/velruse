@@ -1,5 +1,4 @@
 """Twitter Authentication Views"""
-from urlparse import parse_qs
 
 import oauth2 as oauth
 import requests
@@ -7,13 +6,14 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import (
+from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
-)
-from velruse.exceptions import ThirdPartyFailure
-from velruse.settings import ProviderSettings
+    )
+from ..exceptions import ThirdPartyFailure
+from ..settings import ProviderSettings
+from .._compat import parse_qs
 
 
 REQUEST_URL = 'https://api.twitter.com/oauth/request_token'
@@ -52,7 +52,8 @@ def add_twitter_login(config,
     provider = TwitterProvider(name, consumer_key, consumer_secret)
 
     config.add_route(provider.login_route, login_path)
-    config.add_view(provider, attr='login', route_name=provider.login_route,
+    config.add_view(provider, attr='login',
+                    route_name=provider.login_route,
                     permission=NO_PERMISSION_REQUIRED)
 
     config.add_route(provider.callback_route, callback_path,
@@ -77,11 +78,13 @@ class TwitterProvider(object):
         # Create the consumer and client, make the request
         consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
         sigmethod = oauth.SignatureMethod_HMAC_SHA1()
-        params = {'oauth_callback': request.route_url(self.callback_route)}
+        params = {
+        'oauth_callback': request.route_url(self.callback_route)}
 
         # We go through some shennanigans here to specify a callback url
         oauth_request = oauth.Request.from_consumer_and_token(consumer,
-            http_url=REQUEST_URL, parameters=params)
+                                                              http_url=REQUEST_URL,
+                                                              parameters=params)
         oauth_request.sign_request(sigmethod, consumer, None)
         r = requests.get(REQUEST_URL, headers=oauth_request.to_header())
 
@@ -117,19 +120,21 @@ class TwitterProvider(object):
         client = oauth.Client(consumer, request_token)
         resp, content = client.request(ACCESS_URL, "POST")
         if resp['status'] != '200':
-            raise ThirdPartyFailure("Status %s: %s" % (resp['status'], content))
-        access_token = dict(parse_qs(content))
+            raise ThirdPartyFailure(
+                "Status %s: %s" % (resp['status'], content))
+        access_token = dict(parse_qs(content.decode('utf-8')))
 
         # Setup the normalized contact info
         profile = {}
         profile['accounts'] = [{
-            'domain':'twitter.com',
-            'userid':access_token['user_id'][0]
-        }]
+                                   'domain': 'twitter.com',
+                                   'userid': access_token['user_id'][0]
+                               }]
         profile['displayName'] = access_token['screen_name'][0]
 
         cred = {'oauthAccessToken': access_token['oauth_token'][0],
-                'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
+                'oauthAccessTokenSecret':
+                    access_token['oauth_token_secret'][0]}
         return TwitterAuthenticationComplete(profile=profile,
                                              credentials=cred,
                                              provider_name=self.name,

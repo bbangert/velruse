@@ -11,14 +11,15 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import (
+from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
-from velruse.exceptions import CSRFError, ThirdPartyFailure
-from velruse.settings import ProviderSettings
-from velruse.utils import flat_url
+from ..exceptions import CSRFError, ThirdPartyFailure
+from ..settings import ProviderSettings
+from ..utils import flat_url
+from .._compat import u
 
 
 
@@ -192,7 +193,8 @@ def extract_normalize_vk_data(data):
         profile['name']['givenName'] = data['first_name']
     if data['last_name']:
         profile['name']['familyName'] = data['last_name']
-    profile['displayName'] = u'{} {}'.format(data['first_name'], data['last_name']).strip()
+    profile['displayName'] = u('{} {}').format(
+                                data['first_name'], data['last_name']).strip()
     
     # Gender
     gender = FIELD_SEX.get(data.get('sex'))

@@ -1,5 +1,3 @@
-from __future__ import absolute_import
-
 import datetime
 import re
 import logging
@@ -12,13 +10,13 @@ from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-from velruse.api import (
+from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
-from velruse.exceptions import MissingParameter
-from velruse.exceptions import ThirdPartyFailure
+from ..exceptions import MissingParameter
+from ..exceptions import ThirdPartyFailure
 
 
 log = logging.getLogger(__name__)

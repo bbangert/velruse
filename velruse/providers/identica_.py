@@ -1,3 +1,5 @@
+#XXX This module needs updating to use the patterns in e.g. the 'facebook'
+#    provider.
 import urlparse
 import logging
 

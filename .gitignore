@@ -17,3 +17,6 @@ env
 # PyCharm users, please keep your data locally.
 .idea/
 
+.tox
+nosetests.xml
+coverage.xml
