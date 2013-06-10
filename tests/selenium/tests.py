@@ -41,9 +41,7 @@ def setUpModule():
 
     app = get_app(inipath)
     port = int(config['app_port'])
-    server = StopableWSGIServer(app, port=port)
-    server.run()
-    server.wait()
+    server = StopableWSGIServer.create(app, port=port)
 
     driver = config.get('selenium.driver', 'firefox')
     browser = {
