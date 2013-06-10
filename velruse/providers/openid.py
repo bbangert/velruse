@@ -21,6 +21,7 @@ from ..exceptions import (
     ThirdPartyFailure,
 )
 
+NO_ARG = object()
 
 log = __import__('logging').getLogger(__name__)
 
@@ -117,7 +118,7 @@ class OpenIDConsumer(object):
                  name,
                  _type=None,
                  realm=None,
-                 storage=None,
+                 storage=NO_ARG,
                  context=OpenIDAuthenticationComplete):
         self.openid_store = storage
         self.name = name
@@ -128,10 +129,10 @@ class OpenIDConsumer(object):
         self.login_route = 'velruse.%s-url' % name
         self.callback_route = 'velruse.%s-callback' % name
 
-    _openid_store = None
+    _openid_store = NO_ARG
 
     def _get_openid_store(self):
-        if self._openid_store is None:
+        if self._openid_store is NO_ARG:
             from openid.store.memstore import MemoryStore
             self._openid_store = MemoryStore()
         return self._openid_store
