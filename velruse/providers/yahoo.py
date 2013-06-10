@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 import oauth2 as oauth
 from openid.extensions import ax
 
