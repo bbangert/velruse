@@ -4,28 +4,46 @@ import unittest
 
 from nose.plugins.skip import SkipTest
 
+from pyramid.paster import get_app
+
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
+
+from webtest.http import StopableWSGIServer
 
 from velruse._compat import ConfigParser
 
 config = {}
 browser = None  # populated in setUpModule
+server = None  # populated in setUpModule
 
 def splitlines(s):
-    return filter(None, [c.strip() for x in s.splitlines()
-                                   for c in x.split(', ')])
+    return filter(None, [c.strip()
+                         for x in s.splitlines()
+                         for c in x.split(', ')])
 
 def setUpModule():
-    global browser, config
+    global browser, server
 
-    inipath = os.environ.get('TEST_INI', 'testing.ini')
-    if os.path.isfile(inipath):
-        parser = ConfigParser()
-        parser.read(inipath)
+    inipath = os.path.abspath(
+        os.environ.get('TEST_INI', 'testing.ini'))
+    if not os.path.isfile(inipath):
+        raise RuntimeError(
+            'Cannot find INI file to setup selenium tests. '
+            'Please specify the path via the TEST_INI environment variable '
+            'or by adding a testing.ini file to the current directory.')
 
-        config = dict(parser.items('testconfig'))
-        config['test_providers'] = splitlines(config['test_providers'])
+    parser = ConfigParser()
+    parser.read(inipath)
+
+    config.update(parser.items('testconfig'))
+    config['test_providers'] = splitlines(config['test_providers'])
+
+    app = get_app(inipath)
+    port = int(config['app_port'])
+    server = StopableWSGIServer(app, port=port)
+    server.run()
+    server.wait()
 
     driver = config.get('selenium.driver', 'firefox')
     browser = {
@@ -37,6 +55,8 @@ def setUpModule():
 def tearDownModule():
     if browser is not None:
         browser.quit()
+    if server is not None:
+        server.shutdown()
 
 class ProviderTests(object):
 
@@ -44,6 +64,9 @@ class ProviderTests(object):
     def require_provider(cls, name):
         if name not in config.get('test_providers', []):
             raise SkipTest('tests not enabled for "%s"' % name)
+
+    def setUp(self):
+        browser.delete_all_cookies()
 
 def find_login_url(config, key):
     return config.get(key, config['default_login_url'])
@@ -63,9 +86,6 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         cls.password = config['facebook.password']
         cls.app = config['facebook.app']
         cls.login_url = find_login_url(config, 'facebook.login_url')
-
-    def setUp(self):
-        browser.delete_all_cookies()
 
     def test_it(self):
         browser.get(self.login_url)
@@ -100,9 +120,6 @@ class TestGithub(ProviderTests, unittest.TestCase):
         cls.app = config['github.app']
         cls.login_url = find_login_url(config, 'github.login_url')
 
-    def setUp(self):
-        browser.delete_all_cookies()
-
     def test_it(self):
         from velruse._compat import u
         browser.get(self.login_url)
@@ -134,9 +151,6 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         cls.password = config['twitter.password']
         cls.app = config['twitter.app']
         cls.login_url = find_login_url(config, 'twitter.login_url')
-
-    def setUp(self):
-        browser.delete_all_cookies()
 
     def test_it(self):
         browser.get(self.login_url)
@@ -170,9 +184,6 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         cls.password = config['bitbucket.password']
         cls.app = config['bitbucket.app']
         cls.login_url = find_login_url(config, 'bitbucket.login_url')
-
-    def setUp(self):
-        browser.delete_all_cookies()
 
     def test_it(self):
         browser.get(self.login_url)
@@ -208,9 +219,6 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         cls.password = config['google.password']
         cls.login_url = find_login_url(config, 'google.login_url')
 
-    def setUp(self):
-        browser.delete_all_cookies()
-
     def test_it(self):
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
@@ -241,9 +249,6 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         cls.login = config['yahoo.login']
         cls.password = config['yahoo.password']
         cls.login_url = find_login_url(config, 'yahoo.login_url')
-
-    def setUp(self):
-        browser.delete_all_cookies()
 
     def test_it(self):
         browser.get(self.login_url)
@@ -281,9 +286,6 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         cls.login = config['live.login']
         cls.password = config['live.password']
         cls.login_url = find_login_url(config, 'live.login_url')
-
-    def setUp(self):
-        browser.delete_all_cookies()
 
     def test_it(self):
         browser.get(self.login_url)

@@ -19,6 +19,7 @@ else:
 testing_extras = [
     'nose',
     'selenium',
+    'webtest',
 ]
 
 docs_extras = [

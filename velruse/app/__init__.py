@@ -113,6 +113,7 @@ def register_velruse_store(config, storage):
     """
     config.registry.velruse_store = storage
 
+
 settings_adapter = {
     'bitbucket': 'add_bitbucket_login_from_settings',
     'douban': 'add_douban_login_from_settings',
