@@ -10,7 +10,7 @@ from velruse import login_url
 @view_config(
     name='login',
     request_method='GET',
-    renderer='testapp:templates/login.mako',
+    renderer='{}:templates/login.mako'.format(__name__),
 )
 def login_view(request):
     return {
@@ -21,7 +21,7 @@ def login_view(request):
 
 @view_config(
     context='velruse.AuthenticationComplete',
-    renderer='testapp:templates/result.mako',
+    renderer='{}:templates/result.mako'.format(__name__),
 )
 def login_complete_view(request):
     context = request.context
@@ -36,7 +36,7 @@ def login_complete_view(request):
 
 @view_config(
     context='velruse.AuthenticationDenied',
-    renderer='testapp:templates/result.mako',
+    renderer='{}:templates/result.mako'.format(__name__),
 )
 def login_denied_view(request):
     return {

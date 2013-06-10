@@ -89,7 +89,7 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('facebook').submit()
-        self.assertEqual(browser.title, 'Log In | Facebook')
+        self.assertTrue('Facebook' in browser.title)
         form = browser.find_element_by_id('login_form')
         login = form.find_element_by_name('email')
         login.send_keys(self.login)
@@ -119,17 +119,22 @@ class TestGithub(ProviderTests, unittest.TestCase):
         cls.login_url = find_login_url(config, 'github.login_url')
 
     def test_it(self):
-        from velruse._compat import u
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('github').submit()
-        self.assertEqual(browser.title, u('Sign in \xb7 GitHub'))
+        self.assertEqual(browser.title,
+                         b'Sign in \xc2\xb7 GitHub'.decode('utf-8'))
         form = browser.find_element_by_id('login')
         login = form.find_element_by_name('login')
         login.send_keys(self.login)
         passwd = form.find_element_by_name('password')
         passwd.send_keys(self.password)
         form.find_element_by_name('commit').submit()
+        if browser.title == 'Authorize access to your account':
+            WebDriverWait(browser, 10).until(
+                lambda driver: driver.find_element_by_name('authorize'))
+            btn = browser.find_element_by_name('authorize')
+            btn.click()
         WebDriverWait(browser, 10).until(
             lambda driver: driver.find_element_by_id('result'))
         self.assertEqual(browser.title, 'Result Page')
