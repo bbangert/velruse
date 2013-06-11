@@ -21,7 +21,7 @@ from ..exceptions import (
     ThirdPartyFailure,
 )
 
-NO_ARG = object()
+STATELESS = object()
 
 log = __import__('logging').getLogger(__name__)
 
@@ -92,8 +92,8 @@ def add_openid_login(config,
     Add a OpenID login provider to the application.
 
     `storage` should be an object conforming to the
-    `openid.store.interface.OpenIDStore` protocol. This will default
-    to `openid.store.memstore.MemoryStore`.
+    `openid.store.interface.OpenIDStore` protocol or :const:`.STATELESS`.
+    This will default to `openid.store.memstore.MemoryStore`.
     """
     provider = OpenIDConsumer(name, realm=realm, storage=storage)
 
@@ -118,7 +118,7 @@ class OpenIDConsumer(object):
                  name,
                  _type=None,
                  realm=None,
-                 storage=NO_ARG,
+                 storage=None,
                  context=OpenIDAuthenticationComplete):
         self.openid_store = storage
         self.name = name
@@ -129,12 +129,14 @@ class OpenIDConsumer(object):
         self.login_route = 'velruse.%s-url' % name
         self.callback_route = 'velruse.%s-callback' % name
 
-    _openid_store = NO_ARG
+    _openid_store = None
 
     def _get_openid_store(self):
-        if self._openid_store is NO_ARG:
+        if self._openid_store is None:
             from openid.store.memstore import MemoryStore
             self._openid_store = MemoryStore()
+        elif self._openid_store is STATELESS:
+            return None
         return self._openid_store
 
     def _set_openid_store(self, val):
