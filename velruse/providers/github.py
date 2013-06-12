@@ -1,21 +1,21 @@
 """Github Authentication Views"""
-from json import loads
+import uuid
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
 import requests
-import uuid
 
 from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
+from ..compat import parse_qsl
 from ..exceptions import CSRFError
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
-from .._compat import parse_qs
 
 
 class GithubAuthenticationComplete(AuthenticationComplete):
@@ -108,8 +108,8 @@ class GithubProvider(object):
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is not '
-                'the same as session state {sess_state}'.format(
+                'CSRF Validation check failed. Request state {req_state} is '
+                'not the same as session state {sess_state}'.format(
                     req_state=req_state,
                     sess_state=sess_state
                 )
@@ -132,7 +132,7 @@ class GithubProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        access_token = parse_qs(r.content)['access_token'][0]
+        access_token = dict(parse_qsl(r.content))['access_token']
 
         # Retrieve profile data
         graph_url = flat_url('%s://api.%s/user' % (self.protocol, self.domain),
@@ -142,22 +142,22 @@ class GithubProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)
+        data = r.json()
 
         profile = {}
         profile['accounts'] = [{
-            'domain':self.domain,
-            'username':data['login'],
-            'userid':data['id']
+            'domain': self.domain,
+            'username': data['login'],
+            'userid': data['id']
         }]
-        
+
         profile['preferredUsername'] = data['login']
-        profile['displayName'] = data.get('name',profile['preferredUsername'])
+        profile['displayName'] = data.get('name', profile['preferredUsername'])
 
         # We don't add this to verifiedEmail because ppl can change email
         # addresses without verifying them
         if 'email' in data:
-            profile['emails'] = [{'value':data['email']}]
+            profile['emails'] = [{'value': data['email']}]
 
         cred = {'oauthAccessToken': access_token}
         return GithubAuthenticationComplete(profile=profile,

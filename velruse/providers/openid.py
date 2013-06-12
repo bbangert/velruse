@@ -390,8 +390,9 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     birthday = attribs.get('birthday')
     if birthday:
         try:
-            ud['birthday'] = datetime.datetime.strptime(
-                    birthday, '%Y-%m-%d').date()
+            # confirm that the date is valid
+            date = datetime.datetime.strptime(birthday, '%Y-%m-%d').date()
+            ud['birthday'] = date.strftime('%Y-%m-%d')
         except ValueError:
             pass
 

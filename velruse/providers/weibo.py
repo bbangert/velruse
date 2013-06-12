@@ -1,6 +1,5 @@
 """Sina Microblogging weibo.com Authentication Views"""
 import uuid
-from json import loads
 
 import requests
 
@@ -39,11 +38,11 @@ def add_weibo_login_from_settings(config, prefix='velruse.weibo.'):
 
 
 def add_weibo_login(config,
-                     consumer_key,
-                     consumer_secret,
-                     login_path='/login/weibo',
-                     callback_path='/login/weibo/callback',
-                     name='weibo'):
+                    consumer_key,
+                    consumer_secret,
+                    login_path='/login/weibo',
+                    callback_path='/login/weibo/callback',
+                    name='weibo'):
     """
     Add a Weibo login provider to the application.
     """
@@ -85,8 +84,8 @@ class WeiboProvider(object):
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is not '
-                'the same as session state {sess_state}'.format(
+                'CSRF Validation check failed. Request state {req_state} is '
+                'not the same as session state {sess_state}'.format(
                     req_state=req_state,
                     sess_state=sess_state
                 )
@@ -112,22 +111,22 @@ class WeiboProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)
+        data = r.json()
         access_token = data['access_token']
         uid = data['uid']
 
         # Retrieve profile data
         graph_url = flat_url('https://api.weibo.com/2/users/show.json',
-                                access_token=access_token,
-                                uid=uid)
+                             access_token=access_token,
+                             uid=uid)
         r = requests.get(graph_url)
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)
+        data = r.json()
 
         profile = {
-            'accounts': [{'domain':'weibo.com', 'userid':data['id']}],
+            'accounts': [{'domain': 'weibo.com', 'userid': data['id']}],
             'gender': data.get('gender'),
             'displayName': data['screen_name'],
             'preferredUsername': data['name'],

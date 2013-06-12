@@ -1,11 +1,10 @@
 """Last.fm Authentication Views"""
 from hashlib import md5
-from json import loads
-
-import requests
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
@@ -101,7 +100,7 @@ class LastfmProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)
+        data = r.json()
 
         session = data['session']
         cred = {
@@ -115,7 +114,7 @@ class LastfmProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)['user']
+        data = r.json()['user']
         profile = {
             'displayName': data['name'],
             'gender': 'male' if data['gender'] == 'm' else 'female',

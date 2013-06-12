@@ -4,12 +4,12 @@ VK is considered to be the #1 social network
 (with more than a 100 million active users) in Russia.
 You may see the developer docs at http://vk.com/developers.php#devstep2
 """
-import json
 import uuid
-import requests
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
@@ -20,7 +20,6 @@ from ..exceptions import CSRFError, ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
 from .._compat import u
-
 
 
 PROVIDER_NAME = 'vk'
@@ -40,7 +39,8 @@ class VKAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_vk_login', add_vk_login)
-    config.add_directive('add_vk_login_from_settings', add_vk_login_from_settings)
+    config.add_directive('add_vk_login_from_settings',
+                         add_vk_login_from_settings)
 
 
 def add_vk_login_from_settings(config, prefix='velruse.vk.'):
@@ -81,7 +81,7 @@ def add_vk_login(
 
 
 class VKProvider(object):
-    
+
     def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
         self.type = PROVIDER_NAME
@@ -91,7 +91,6 @@ class VKProvider(object):
 
         self.login_route = 'velruse.{name}-login'.format(name=name)
         self.callback_route = 'velruse.{name}-callback'.format(name=name)
-
 
     def login(self, request):
         """Initiate a VK login"""
@@ -105,22 +104,22 @@ class VKProvider(object):
             state=state)
         return HTTPFound(location=fb_url)
 
-
     def callback(self, request):
         """Process the VK redirect"""
         sess_state = request.session.get('state')
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is not '
-                'the same as session state {sess_state}'.format(
+                'CSRF Validation check failed. Request state {req_state} is '
+                'not the same as session state {sess_state}'.format(
                     req_state=req_state,
                     sess_state=sess_state
                 )
             )
         code = request.GET.get('code')
         if not code:
-            reason = request.GET.get('error_description', 'No reason provided.')
+            reason = request.GET.get('error_description',
+                                     'No reason provided.')
             return AuthenticationDenied(
                 reason=reason,
                 provider_name=self.name,
@@ -141,18 +140,18 @@ class VKProvider(object):
                     status=r.status_code, content=r.content
                 )
             )
-        data =json.loads(r.content)
+        data = r.json()
         access_token = data['access_token']
-        
+
         # Retrieve profile data
         graph_url = flat_url(
             PROVIDER_USER_PROFILE_URL,
             access_token=access_token,
             uids=data['user_id'],
             fields=(
-                'first_name,last_name,nickname,domain,sex,bdate,city,country,timezone,'
-                'photo,photo_medium,photo_big,photo_rec,has_mobile,mobile_phone,home_phone,'
-                'rate,contacts,education'
+                'first_name,last_name,nickname,domain,sex,bdate,city,country,'
+                'timezone,photo,photo_medium,photo_big,photo_rec,has_mobile,'
+                'mobile_phone,home_phone,rate,contacts,education'
             )
         )
         r = requests.get(graph_url)
@@ -162,7 +161,7 @@ class VKProvider(object):
                     status=r.status_code, content=r.content
                 )
             )
-        vk_profile = json.loads(r.content)['response'][0]
+        vk_profile = r.json()['response'][0]
         vk_profile['uid'] = data['user_id']
         profile = extract_normalize_vk_data(vk_profile)
         cred = {'oauthAccessToken': access_token}
@@ -194,13 +193,13 @@ def extract_normalize_vk_data(data):
     if data['last_name']:
         profile['name']['familyName'] = data['last_name']
     profile['displayName'] = u('{} {}').format(
-                                data['first_name'], data['last_name']).strip()
-    
+        data['first_name'], data['last_name']).strip()
+
     # Gender
     gender = FIELD_SEX.get(data.get('sex'))
     if gender:
         profile['gender'] = gender
-    
+
     # Photos
     road_map = [
         [
@@ -223,7 +222,7 @@ def extract_normalize_vk_data(data):
                 'value': photo,
                 'type': image_type
             })
-    
+
     # Phones
     road_map = [
         [
@@ -242,7 +241,7 @@ def extract_normalize_vk_data(data):
                 'value': phone,
                 'type': phone_type
             })
-    
+
     # Now strip out empty values
     for k, v in profile.items():
         if not v or (isinstance(v, list) and not v[0]):

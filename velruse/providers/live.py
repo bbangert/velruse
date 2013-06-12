@@ -1,11 +1,10 @@
 """Live Authentication Views"""
 import datetime
-from json import loads
-
-import requests
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
@@ -106,7 +105,7 @@ class LiveProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)
+        data = r.json()
         access_token = data['access_token']
 
         # Retrieve profile data
@@ -116,7 +115,7 @@ class LiveProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        live_profile = loads(r.content)
+        live_profile = r.json()
         profile = extract_live_data(live_profile)
 
         cred = {'oauthAccessToken': access_token}
@@ -132,7 +131,7 @@ def extract_live_data(data):
     """Extract and normalize Windows Live Connect data"""
     emails = data.get('emails', {})
     profile = {
-        'accounts': [{'domain':'live.com', 'userid':data['id']}],
+        'accounts': [{'domain': 'live.com', 'userid': data['id']}],
         'gender': data.get('gender'),
         'verifiedEmail': emails.get('preferred'),
         'updated': data.get('updated_time'),
@@ -165,9 +164,10 @@ def extract_live_data(data):
     if 'birth_day' in data:
         try:
             profile['birthday'] = datetime.date(
-                    int(data['birth_year']),
-                    int(data['birth_month']),
-                    int(data['birth_day']))
+                int(data['birth_year']),
+                int(data['birth_month']),
+                int(data['birth_day']),
+            ).strftime('%Y-%m-%d')
         except ValueError:
             pass
     return profile

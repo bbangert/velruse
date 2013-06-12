@@ -1,10 +1,9 @@
-from json import loads
 import uuid
-
-import requests
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
@@ -104,7 +103,7 @@ class GoogleOAuth2Provider(object):
         """Initiate a google login"""
         scope = ' '.join(request.POST.getall('scope')) or self.scope
         request.session['state'] = state = uuid.uuid4().hex
-        
+
         approval_prompt = request.POST.get('approval_prompt', 'auto')
 
         auth_url = flat_url(
@@ -124,8 +123,8 @@ class GoogleOAuth2Provider(object):
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is not '
-                'the same as session state {sess_state}'.format(
+                'CSRF Validation check failed. Request state {req_state} is '
+                'not the same as session state {sess_state}'.format(
                     req_state=req_state,
                     sess_state=sess_state
                 )
@@ -138,30 +137,30 @@ class GoogleOAuth2Provider(object):
                                         provider_type=self.type)
 
         # Now retrieve the access token with the code
-        r = requests.post('%s://%s/o/oauth2/token' % (self.protocol, self.domain),
-                          data={
-                              'client_id': self.consumer_key,
-                              'client_secret': self.consumer_secret,
-                              'redirect_uri': request.route_url(self.callback_route),
-                              'code': code,
-                              'grant_type': 'authorization_code'
-                          })
+        r = requests.post(
+            '%s://%s/o/oauth2/token' % (self.protocol, self.domain),
+            dict(client_id=self.consumer_key,
+                 client_secret=self.consumer_secret,
+                 redirect_uri=request.route_url(self.callback_route),
+                 code=code,
+                 grant_type='authorization_code'),
+        )
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        token_data = loads(r.content)
+        token_data = r.json()
         access_token = token_data['access_token']
         refresh_token = token_data.get('refresh_token')
 
         # Retrieve profile data if scopes allow
         profile = {}
         user_url = flat_url(
-                '%s://www.googleapis.com/oauth2/v1/userinfo' % self.protocol,
-                access_token=access_token)
+            '%s://www.googleapis.com/oauth2/v1/userinfo' % self.protocol,
+            access_token=access_token)
         r = requests.get(user_url)
 
         if r.status_code == 200:
-            data = loads(r.content)
+            data = r.json()
             profile['accounts'] = [{
                 'domain': self.domain,
                 'username': data['email'],

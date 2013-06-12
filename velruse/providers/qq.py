@@ -1,20 +1,20 @@
 """QQ Authentication Views"""
-from json import loads
-
-import requests
+import json
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
+from ..compat import parse_qsl
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
-from .._compat import parse_qs
 
 
 class QQAuthenticationComplete(AuthenticationComplete):
@@ -103,7 +103,7 @@ class QQProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        access_token = parse_qs(r.content)['access_token'][0]
+        access_token = dict(parse_qsl(r.content))['access_token']
 
         # Retrieve profile data
         graph_url = flat_url('https://graph.qq.com/oauth2.0/me',
@@ -112,21 +112,22 @@ class QQProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content[10:-3])
+        data = json.loads(r.content[10:-3])
         openid = data.get('openid', '')
 
-        user_info_url = flat_url('https://graph.qq.com/user/get_user_info',
-                access_token=access_token,
-                oauth_consumer_key=self.consumer_key,
-                openid=openid)
+        user_info_url = flat_url(
+            'https://graph.qq.com/user/get_user_info',
+            access_token=access_token,
+            oauth_consumer_key=self.consumer_key,
+            openid=openid)
         r = requests.get(user_info_url)
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)
+        data = r.json()
 
         profile = {
-            'accounts': [{'domain':'qq.com', 'userid':openid}],
+            'accounts': [{'domain': 'qq.com', 'userid': openid}],
             'displayName': data['nickname'],
             'preferredUsername': data['nickname'],
         }

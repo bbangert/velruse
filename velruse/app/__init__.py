@@ -17,9 +17,6 @@ def auth_complete_view(context, request):
     endpoint = request.registry.settings.get('endpoint')
     token = generate_token()
     storage = request.registry.velruse_store
-    if 'birthday' in context.profile:
-        context.profile['birthday'] = \
-                context.profile['birthday'].strftime('%Y-%m-%d')
     result_data = {
         'provider_type': context.provider_type,
         'provider_name': context.provider_name,

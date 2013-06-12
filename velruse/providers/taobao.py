@@ -1,12 +1,11 @@
 """Taobao Authentication Views"""
 from hashlib import md5
-from json import loads
 import time
-
-import requests
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
@@ -88,45 +87,49 @@ class TaobaoProvider(object):
                                         provider_type=self.type)
 
         # Now retrieve the access token with the code
-        r = requests.post('https://oauth.taobao.com/token',
-                dict(grant_type='authorization_code',
-                     client_id=self.consumer_key,
-                     client_secret=self.consumer_secret,
-                     redirect_uri=request.route_url(self.callback_route),
-                     code=code))
+        r = requests.post(
+            'https://oauth.taobao.com/token',
+            dict(grant_type='authorization_code',
+                 client_id=self.consumer_key,
+                 client_secret=self.consumer_secret,
+                 redirect_uri=request.route_url(self.callback_route),
+                 code=code))
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)
+        data = r.json()
         access_token = data['access_token']
 
         # Retrieve profile data
         params = {
-                'method': 'taobao.user.get',
-                'timestamp': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),
-                'format': 'json',
-                'app_key': self.consumer_key,
-                'v': '2.0',
-                'sign_method': 'md5',
-                'fields': 'user_id,nick',
-                'session': access_token
-                }
-        src = self.consumer_secret\
-                + ''.join(["%s%s" % (k, v) for k, v in sorted(params.items())])\
-                + self.consumer_secret
+            'method': 'taobao.user.get',
+            'timestamp': time.strftime('%Y-%m-%d %H:%M:%S', time.localtime()),
+            'format': 'json',
+            'app_key': self.consumer_key,
+            'v': '2.0',
+            'sign_method': 'md5',
+            'fields': 'user_id,nick',
+            'session': access_token,
+        }
+        src = (
+            self.consumer_secret
+            + ''.join(["%s%s" % (k, v) for k, v in sorted(params.items())])
+            + self.consumer_secret
+        )
         params['sign'] = md5(src).hexdigest().upper()
         get_user_info_url = flat_url('http://gw.api.taobao.com/router/rest',
                                      **params)
         r = requests.get(get_user_info_url)
         if r.status_code != 200:
-            raise ThirdPartyFailure("Status %s: %s" % (r.status_code, r.content))
-        data = loads(r.content)
+            raise ThirdPartyFailure("Status %s: %s" % (
+                r.status_code, r.content))
+        data = r.json()
 
         username = data['user_get_response']['user']['nick']
         userid = data['user_get_response']['user']['user_id']
 
         profile = {
-            'accounts': [{'domain':'taobao.com', 'userid':userid}],
+            'accounts': [{'domain': 'taobao.com', 'userid': userid}],
             'displayName': username,
             'preferredUsername': username,
         }

@@ -8,6 +8,7 @@ from openid.extensions import ax
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from ..api import register_provider
+from ..compat import parse_qsl
 from ..providers.oid_extensions import OAuthRequest
 from ..providers.oid_extensions import UIRequest
 from ..providers.openid import (
@@ -15,7 +16,6 @@ from ..providers.openid import (
     OpenIDAuthenticationComplete,
     OpenIDConsumer,
 )
-from .._compat import parse_qs
 
 
 log = __import__('logging').getLogger(__name__)
@@ -182,9 +182,9 @@ class GoogleConsumer(OpenIDConsumer):
                 resp['status'], content)
             return
 
-        access_token = dict(parse_qs(content))
+        access_token = dict(parse_qsl(content))
 
         return {
-            'oauthAccessToken': access_token['oauth_token'][0],
-            'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]
+            'oauthAccessToken': access_token['oauth_token'],
+            'oauthAccessTokenSecret': access_token['oauth_token_secret'],
         }

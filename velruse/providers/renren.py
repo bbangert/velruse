@@ -1,10 +1,8 @@
 """Renren Authentication Views"""
-from json import loads
-
-import requests
-
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
@@ -102,7 +100,7 @@ class RenrenProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = loads(r.content)
+        data = r.json()
         access_token = data['access_token']
         profile = {
             'accounts': [

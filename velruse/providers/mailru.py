@@ -2,14 +2,14 @@
 
 You may see developer docs on http://api.mail.ru/docs/guides/oauth/
 """
-import json
-import uuid
-import requests
 import hashlib
 import re
+import uuid
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
@@ -19,7 +19,6 @@ from ..api import (
 from ..exceptions import CSRFError, ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
-
 
 
 PROVIDER_NAME = 'mailru'
@@ -33,10 +32,10 @@ FIELD_SEX = {
     0: 'male',
     1: 'female'
 }
-# Mail.ru provides a birthday information in form of 'dd.mm.yyyy' which is a regular
-# representation of dates in Russia.
-# Therefore, we must convert it into ISO 8601 in order to follow the Portable Contacts'
-# birthday format.
+# Mail.ru provides a birthday information in form of 'dd.mm.yyyy' which is a
+# regular representation of dates in Russia.
+# Therefore, we must convert it into ISO 8601 in order to follow the
+# Portable Contacts' birthday format.
 FIELD_BIRTHDAY_RE = re.compile('(?P<dd>\d{2})\.(?P<mm>\d{2})\.(?P<yyyy>\d{4})')
 
 
@@ -46,7 +45,8 @@ class MailRuAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_mailru_login', add_mailru_login)
-    config.add_directive('add_mailru_login_from_settings', add_mailru_login_from_settings)
+    config.add_directive('add_mailru_login_from_settings',
+                         add_mailru_login_from_settings)
 
 
 def add_mailru_login_from_settings(config, prefix='velruse.mailru.'):
@@ -87,7 +87,7 @@ def add_mailru_login(
 
 
 class MailRuProvider(object):
-    
+
     def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
         self.type = PROVIDER_NAME
@@ -97,7 +97,6 @@ class MailRuProvider(object):
 
         self.login_route = 'velruse.{name}-login'.format(name=name)
         self.callback_route = 'velruse.{name}-callback'.format(name=name)
-
 
     def login(self, request):
         """Initiate a MailRu login"""
@@ -111,14 +110,13 @@ class MailRuProvider(object):
             state=state)
         return HTTPFound(location=auth_url)
 
-
     def callback(self, request):
         """Process the MailRu redirect"""
         state = request.session.get('state')
         if not state or state != request.GET.get('state'):
             raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is not '
-                'the same as session state {sess_state}'.format(
+                'CSRF Validation check failed. Request state {req_state} is '
+                'not the same as session state {sess_state}'.format(
                     req_state=request.GET.get('state'),
                     sess_state=request.session.get('state')
                 )
@@ -146,11 +144,11 @@ class MailRuProvider(object):
                     status=r.status_code, content=r.content
                 )
             )
-        data =json.loads(r.content)
+        data = r.json()
         access_token = data['access_token']
-        
+
         # Retrieve profile data.
-        
+
         # Mail.ru API requires a special parameter 'sig' which must be composed
         # by the following sequence
         signature = hashlib.md5(
@@ -165,7 +163,7 @@ class MailRuProvider(object):
                 secret_key=self.consumer_secret
             )
         ).hexdigest()
-        
+
         # Read more about the following params on
         # http://api.mail.ru/docs/guides/restapi/#params
         profile_url = flat_url(
@@ -183,7 +181,7 @@ class MailRuProvider(object):
                     status=r.status_code, content=r.content
                 )
             )
-        profile = json.loads(r.content)[0]
+        profile = r.json()[0]
         profile = extract_normalize_mailru_data(profile)
         cred = {'oauthAccessToken': access_token}
         return MailRuAuthenticationComplete(
@@ -210,20 +208,20 @@ def extract_normalize_mailru_data(data):
         'photos': [],
         'addresses': []
     }
-    
+
     # Names
     nickname = data.get('nick')
     if nickname:
-         profile['preferredUsername'] = nickname
-    
+        profile['preferredUsername'] = nickname
+
     first_name = data.get('first_name')
     if first_name:
         profile['name']['givenName'] = first_name
-    
+
     last_name = data.get('last_name')
     if last_name:
         profile['name']['familyName'] = last_name
-    
+
     if first_name and last_name:
         profile['displayName'] = u'{} {}'.format(first_name, last_name).strip()
     elif first_name:
@@ -233,13 +231,13 @@ def extract_normalize_mailru_data(data):
     elif nickname:
         profile['displayName'] = nickname
     else:
-        profile['displayName'] = 'Mail.ru user {uid}'.format(uid=data['uid']) 
-    
+        profile['displayName'] = 'Mail.ru user {uid}'.format(uid=data['uid'])
+
     # Birthday
     match = FIELD_BIRTHDAY_RE.match(data.get('birthday', ''))
     if match:
         profile['birthday'] = '{yyyy}-{mm}-{dd}'.format(**match.groupdict())
-    
+
     # Email
     email = data.get('email')
     if email:
@@ -247,14 +245,14 @@ def extract_normalize_mailru_data(data):
             'value': email,
             'primary': True
         }]
-    
+
     # URLs
     link = data.get('link')
     if link:
         profile['urls'] = [{
             'value': link
         }]
-    
+
     # Photos
     if data.get('has_pic'):
         road_map = [
@@ -282,7 +280,7 @@ def extract_normalize_mailru_data(data):
                     'value': photo,
                     'type': image_type
                 })
-    
+
     # Location
     location = data.get('location', {})
     country = location.get('country', {}).get('name')
@@ -297,7 +295,7 @@ def extract_normalize_mailru_data(data):
         if city:
             address['locality'] = city
         profile['addresses'].append(address)
-    
+
     # Now strip out empty values
     for k, v in profile.items():
         if not v or (isinstance(v, list) and not v[0]):

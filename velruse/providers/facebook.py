@@ -1,7 +1,6 @@
 """Facebook Authentication Views"""
 import datetime
 import uuid
-from json import loads
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -12,11 +11,11 @@ from ..api import (
     AuthenticationDenied,
     register_provider,
 )
+from ..compat import parse_qsl
 from ..exceptions import CSRFError
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
-from .._compat import parse_qs
 
 
 class FacebookAuthenticationComplete(AuthenticationComplete):
@@ -92,8 +91,8 @@ class FacebookProvider(object):
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is not '
-                'the same as session state {sess_state}'.format(
+                'CSRF Validation check failed. Request state {req_state} is '
+                'not the same as session state {sess_state}'.format(
                     req_state=req_state,
                     sess_state=sess_state
                 )
@@ -116,7 +115,7 @@ class FacebookProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        access_token = parse_qs(r.content)['access_token'][0]
+        access_token = dict(parse_qsl(r.content))['access_token']
 
         # Retrieve profile data
         graph_url = flat_url('https://graph.facebook.com/me',
@@ -125,7 +124,7 @@ class FacebookProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        fb_profile = loads(r.content)
+        fb_profile = r.json()
         profile = extract_fb_data(fb_profile)
 
         cred = {'oauthAccessToken': access_token}
@@ -149,14 +148,14 @@ def extract_fb_data(data):
             nick = last
 
     profile = {
-        'accounts': [{'domain':'facebook.com', 'userid':data['id']}],
+        'accounts': [{'domain': 'facebook.com', 'userid': data['id']}],
         'displayName': data['name'],
         'verifiedEmail': data.get('email') if data.get('verified') else False,
         'gender': data.get('gender'),
         'preferredUsername': nick or data['name'],
     }
     if data.get('email'):
-        profile['emails'] = [{'value':data.get('email')}]
+        profile['emails'] = [{'value': data.get('email')}]
 
     tz = data.get('timezone')
     if tz:
@@ -169,7 +168,8 @@ def extract_fb_data(data):
     if bday:
         try:
             mth, day, yr = bday.split('/')
-            profile['birthday'] = datetime.date(int(yr), int(mth), int(day))
+            date = datetime.date(int(yr), int(mth), int(day))
+            profile['birthday'] = date.strftime('%Y-%m-%d')
         except ValueError:
             pass
     name = {}

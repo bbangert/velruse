@@ -2,12 +2,12 @@
 
 You may see developer docs at http://api.yandex.com/oauth/
 """
-import json
 import uuid
-import requests
 
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
+import requests
 
 from ..api import (
     AuthenticationComplete,
@@ -17,7 +17,6 @@ from ..api import (
 from ..exceptions import CSRFError, ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
-
 
 
 PROVIDER_NAME = 'yandex'
@@ -32,7 +31,8 @@ class YandexAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_yandex_login', add_yandex_login)
-    config.add_directive('add_yandex_login_from_settings', add_yandex_login_from_settings)
+    config.add_directive('add_yandex_login_from_settings',
+                         add_yandex_login_from_settings)
 
 
 def add_yandex_login_from_settings(config, prefix='velruse.yandex.'):
@@ -71,19 +71,20 @@ def add_yandex_login(
 
 
 class YandexProvider(object):
-    
+
     def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
         self.type = PROVIDER_NAME
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.login_route = 'velruse.{name}-login'.format(name=name)
-        # Yandex doesn't support redirect_uri and scope parameters in query string.
-        # You must define the Callback URI and the Scope fields manually in 
+        # Yandex doesn't support redirect_uri and scope parameters in
+        # the query string.
+        # You must define the Callback URI and the Scope fields manually in
         # application's settings page at https://oauth.yandex.ru/client/my
-        # The following attribute is left intact in order to preserve API consistency.
+        # The following attribute is left intact in order to preserve API
+        # consistency.
         self.callback_route = 'velruse.{name}-callback'.format(name=name)
-
 
     def login(self, request):
         """Initiate a Yandex login"""
@@ -96,15 +97,14 @@ class YandexProvider(object):
         )
         return HTTPFound(location=auth_url)
 
-
     def callback(self, request):
         """Process the Yandex redirect"""
         sess_state = request.session.get('state')
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is not '
-                'the same as session state {sess_state}'.format(
+                'CSRF Validation check failed. Request state {req_state} is '
+                'not the same as session state {sess_state}'.format(
                     req_state=req_state,
                     sess_state=sess_state
                 )
@@ -131,9 +131,9 @@ class YandexProvider(object):
                     status=r.status_code, content=r.content
                 )
             )
-        data =json.loads(r.content)
+        data = r.json()
         access_token = data['access_token']
-        
+
         # Retrieve profile data
         profile_url = flat_url(
             PROVIDER_USER_PROFILE_URL,
@@ -147,7 +147,7 @@ class YandexProvider(object):
                     status=r.status_code, content=r.content
                 )
             )
-        profile = json.loads(r.content)
+        profile = r.json()
         profile = extract_normalize_yandex_data(profile)
         cred = {'oauthAccessToken': access_token}
         return YandexAuthenticationComplete(
@@ -170,21 +170,25 @@ def extract_normalize_yandex_data(data):
         'birthday': data.get('birthday'),
         'gender': data.get('sex'),
     }
-    
+
     email = data.get('default_email')
     if email:
         profile['emails'] = [{
             'value': email,
             'primary': True
         }]
-    
+
     display_name = data.get('display_name')
     if display_name:
         profile['preferredUsername'] = display_name
         profile['nickname'] = display_name
     real_name = data.get('real_name')
-    profile['displayName'] =  real_name or display_name or 'Yandex user #{id}'.format(id=data['id'])
-        
+    profile['displayName'] = (
+        real_name
+        or display_name
+        or 'Yandex user #{id}'.format(id=data['id'])
+    )
+
     # Now strip out empty values
     for k, v in profile.items():
         if not v or (isinstance(v, list) and not v[0]):
