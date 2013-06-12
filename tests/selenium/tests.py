@@ -174,11 +174,10 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         passwd = form.find_element_by_id('password')
         passwd.send_keys(self.password)
         form.find_element_by_id('allow').submit()
-        WebDriverWait(browser, 10).until(
-            lambda driver: driver.find_element_by_id('result'))
+        result = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'result')))
         self.assertEqual(browser.title, 'Result Page')
-        result = browser.find_element_by_id('result').text
-        result = json.loads(result)
+        result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])

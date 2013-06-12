@@ -9,9 +9,10 @@ from pyramid.security import NO_PERMISSION_REQUIRED
 
 from ..api import register_provider
 from ..compat import parse_qsl
-from ..providers.oid_extensions import OAuthRequest
-from ..providers.oid_extensions import UIRequest
-from ..providers.openid import (
+
+from .oid_extensions import OAuthRequest
+from .oid_extensions import UIRequest
+from .openid import (
     attributes,
     OpenIDAuthenticationComplete,
     OpenIDConsumer,

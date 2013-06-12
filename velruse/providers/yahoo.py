@@ -6,12 +6,13 @@ from openid.extensions import ax
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from ..api import register_provider
-from ..providers.oid_extensions import OAuthRequest
-from ..providers.openid import (
+from ..compat import parse_qs
+
+from .oid_extensions import OAuthRequest
+from .openid import (
     OpenIDAuthenticationComplete,
     OpenIDConsumer,
 )
-from ..compat import parse_qs
 
 
 log = __import__('logging').getLogger(__name__)
