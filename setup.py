@@ -8,6 +8,7 @@ requires = [
     'oauth2',
     'pyramid',
     'requests',
+    'requests-oauthlib',
     'anykeystore',
 ]
 

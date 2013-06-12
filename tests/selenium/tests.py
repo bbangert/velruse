@@ -204,7 +204,7 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
 #        self.assertTrue(self.app in content.text)
 #        form = content.find_element_by_tag_name('form')
 #        form.submit()
-        WebDriverWait(browser, 10).until(
+        WebDriverWait(browser, 2).until(
             lambda driver: driver.find_element_by_id('result'))
         self.assertEqual(browser.title, 'Result Page')
         result = browser.find_element_by_id('result').text

@@ -2,12 +2,11 @@
 
 http://confluence.atlassian.com/display/BITBUCKET/OAuth+on+Bitbucket
 """
-import json
-
-import oauth2 as oauth
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
 import requests
+from requests_oauthlib import OAuth1
 
 from ..api import (
     AuthenticationComplete,
@@ -16,13 +15,14 @@ from ..api import (
 )
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
-from .._compat import parse_qs
+from ..utils import flat_url
+from .._compat import parse_qsl
 
 
 REQUEST_URL = 'https://bitbucket.org/api/1.0/oauth/request_token/'
+AUTHENTICATE_URL = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
 ACCESS_URL = 'https://bitbucket.org/api/1.0/oauth/access_token/'
 USER_URL = 'https://bitbucket.org/api/1.0/user'
-SIGMETHOD = oauth.SignatureMethod_HMAC_SHA1()
 
 
 class BitbucketAuthenticationComplete(AuthenticationComplete):
@@ -79,27 +79,22 @@ class BitbucketProvider(object):
 
     def login(self, request):
         """Initiate a bitbucket login"""
-        # Create the consumer and client, make the request
-        consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
-        params = {'oauth_callback': request.route_url(self.callback_route)}
-
-        # We go through some shennanigans here to specify a callback url
-        oauth_request = oauth.Request.from_consumer_and_token(consumer,
-            http_url=REQUEST_URL, parameters=params)
-        oauth_request.sign_request(SIGMETHOD, consumer, None)
-        r = requests.get(REQUEST_URL, headers=oauth_request.to_header())
-
-        if r.status_code != 200:
+        # grab the initial request token
+        oauth = OAuth1(self.consumer_key,
+                       client_secret=self.consumer_secret,
+                       callback_uri=request.route_url(self.callback_route),
+                       signature_type='query')
+        resp = requests.post(REQUEST_URL, auth=oauth)
+        if resp.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
-                r.status_code, r.content))
-        request_token = oauth.Token.from_string(r.content)
+                resp.status_code, resp.content))
+        request_token = dict(parse_qsl(resp.content))
+        request.session['token'] = request_token
 
-        request.session['token'] = r.content
-
-        req_url = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
-        oauth_request = oauth.Request.from_token_and_callback(
-            token=request_token, http_url=req_url)
-        return HTTPFound(location=oauth_request.to_url())
+        # redirect the user to authorize the app
+        auth_url = flat_url(AUTHENTICATE_URL,
+                            oauth_token=request_token['oauth_token'])
+        return HTTPFound(location=auth_url)
 
     def callback(self, request):
         """Process the bitbucket redirect"""
@@ -108,46 +103,65 @@ class BitbucketProvider(object):
                                         provider_name=self.name,
                                         provider_type=self.type)
 
-        request_token = oauth.Token.from_string(request.session['token'])
         verifier = request.GET.get('oauth_verifier')
         if not verifier:
             raise ThirdPartyFailure("No oauth_verifier returned")
-        request_token.set_verifier(verifier)
 
-        # Create the consumer and client, make the request
-        consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
+        token = request.session['token']
 
-        client = oauth.Client(consumer, request_token)
-        resp, content = client.request(ACCESS_URL, "POST")
-        if resp['status'] != '200':
-            raise ThirdPartyFailure("Status %s: %s" % (resp['status'], content))
-        access_token = dict(parse_qs(content))
+        # turn our request token into an access token
+        oauth = OAuth1(self.consumer_key,
+                       client_secret=self.consumer_secret,
+                       resource_owner_key=token['oauth_token'],
+                       resource_owner_secret=token['oauth_token_secret'],
+                       verifier=verifier,
+                       signature_type='query')
+        resp = requests.post(ACCESS_URL, auth=oauth)
+        if resp.status_code != 200:
+            raise ThirdPartyFailure("Status %s: %s" % (
+                resp.status_code, resp.content))
+        access_token = dict(parse_qsl(resp.content))
+        creds = {
+            'oauthAccessToken': access_token['oauth_token'],
+            'oauthAccessTokenSecret': access_token['oauth_token_secret'],
+        }
 
-        cred = {'oauthAccessToken': access_token['oauth_token'][0],
-                'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
+        oauth = OAuth1(self.consumer_key,
+                       client_secret=self.consumer_secret,
+                       resource_owner_key=creds['oauthAccessToken'],
+                       resource_owner_secret=creds['oauthAccessTokenSecret'],
+                       signature_type='query')
 
-        # Make a request with the data for more user info
-        token = oauth.Token(key=cred['oauthAccessToken'],
-                            secret=cred['oauthAccessTokenSecret'])
+        resp = requests.get(USER_URL, auth=oauth)
+        if resp.status_code != 200:
+            raise ThirdPartyFailure("Status %s: %s" % (
+                resp.status_code, resp.content))
+        user_data = resp.json()
 
-        client = oauth.Client(consumer, token)
-        resp, content = client.request(USER_URL)
-        user_data = json.loads(content)
         data = user_data['user']
         # Setup the normalized contact info
         profile = {}
         profile['accounts'] = [{
-            'domain':'bitbucket.com',
-            'username':data['username']
+            'domain': 'bitbucket.com',
+            'username': data['username']
         }]
         profile['preferredUsername'] = data['username']
-        profile['name'] = {
-            'formatted': '%s %s' % (data['first_name'], data['last_name']),
-            'givenName': data['first_name'],
-            'familyName': data['last_name'],
-            }
-        profile['displayName'] = profile['name']['formatted']
+        name = {}
+        first_name = data.get('first_name', '')
+        last_name = data.get('last_name', '')
+        if first_name or last_name:
+            name['formatted'] = '{0} {1}'.format(first_name, last_name).strip()
+        if first_name:
+            name['givenName'] = first_name
+        if last_name:
+            name['familyName'] = last_name
+        if name:
+            profile['name'] = name
+        display_name = name.get('formatted')
+        if not display_name:
+            display_name = data.get('display_name')
+        profile['displayName'] = display_name
         return BitbucketAuthenticationComplete(profile=profile,
-                                               credentials=cred,
+                                               credentials=creds,
                                                provider_name=self.name,
                                                provider_type=self.type)
