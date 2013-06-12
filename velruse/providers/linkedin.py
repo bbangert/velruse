@@ -14,7 +14,7 @@ from ..api import (
 )
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
-from .._compat import parse_qs
+from ..compat import parse_qs
 
 
 REQUEST_URL = 'https://api.linkedin.com/uas/oauth/requestToken'

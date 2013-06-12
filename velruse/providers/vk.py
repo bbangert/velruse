@@ -19,7 +19,7 @@ from ..api import (
 from ..exceptions import CSRFError, ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
-from .._compat import u
+from ..compat import u
 
 
 PROVIDER_NAME = 'vk'

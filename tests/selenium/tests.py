@@ -7,11 +7,13 @@ from nose.plugins.skip import SkipTest
 from pyramid.paster import get_app
 
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 from webtest.http import StopableWSGIServer
 
-from velruse._compat import ConfigParser
+from velruse.compat import ConfigParser
 
 config = {}
 browser = None  # populated in setUpModule
@@ -97,11 +99,10 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         passwd.send_keys(self.password)
         self.assertTrue(self.app in form.text)
         form.submit()
-        WebDriverWait(browser, 10).until(
-            lambda driver: driver.find_element_by_id('result'))
+        result = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'result')))
         self.assertEqual(browser.title, 'Result Page')
-        result = browser.find_element_by_id('result').text
-        result = json.loads(result)
+        result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
@@ -130,13 +131,18 @@ class TestGithub(ProviderTests, unittest.TestCase):
         passwd = form.find_element_by_name('password')
         passwd.send_keys(self.password)
         form.find_element_by_name('commit').submit()
+        find_title = EC.title_is('Authorize access to your account')
+        find_result = EC.presence_of_element_located((By.ID, 'result'))
+        WebDriverWait(browser, 2).until(
+            lambda driver: find_title(driver) or find_result(driver))
         if browser.title == 'Authorize access to your account':
-            WebDriverWait(browser, 10).until(
-                lambda driver: driver.find_element_by_name('authorize'))
-            btn = browser.find_element_by_name('authorize')
+            btn = WebDriverWait(browser, 2).until(
+                EC.presence_of_element_located((By.NAME, 'authorize')))
             btn.click()
-        WebDriverWait(browser, 10).until(
-            lambda driver: driver.find_element_by_id('result'))
+            result = WebDriverWait(browser, 2).until(
+                EC.presence_of_element_located((By.ID, 'result')))
+        else:
+            result = browser.find_element_by_id('result')
         self.assertEqual(browser.title, 'Result Page')
         result = browser.find_element_by_id('result').text
         result = json.loads(result)
@@ -199,16 +205,10 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         passwd = browser.find_element_by_id('id_password')
         passwd.send_keys(self.password)
         passwd.submit()
-#        self.assertEqual(browser.title, 'Bitbucket')
-#        content = browser.find_element_by_id('content')
-#        self.assertTrue(self.app in content.text)
-#        form = content.find_element_by_tag_name('form')
-#        form.submit()
-        WebDriverWait(browser, 2).until(
-            lambda driver: driver.find_element_by_id('result'))
+        result = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'result')))
         self.assertEqual(browser.title, 'Result Page')
-        result = browser.find_element_by_id('result').text
-        result = json.loads(result)
+        result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
@@ -235,11 +235,10 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         passwd = browser.find_element_by_id('Passwd')
         passwd.send_keys(self.password)
         passwd.submit()
-        WebDriverWait(browser, 10).until(
-            lambda driver: driver.find_element_by_id('result'))
+        result = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'result')))
         self.assertEqual(browser.title, 'Result Page')
-        result = browser.find_element_by_id('result').text
-        result = json.loads(result)
+        result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
@@ -295,19 +294,29 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('live').submit()
-        WebDriverWait(browser, 10).until(
-            lambda driver: driver.find_element_by_name('login'))
-        self.assertEqual(browser.title, 'Welcome to Windows Live')
+        WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.NAME, 'login')))
+        self.assertEqual(browser.title,
+                         'Sign in to your Microsoft account')
         login = browser.find_element_by_name('login')
         login.send_keys(self.login)
         passwd = browser.find_element_by_name('passwd')
         passwd.send_keys(self.password)
         passwd.submit()
-        WebDriverWait(browser, 10).until(
-            lambda driver: driver.find_element_by_id('result'))
+        find_title = EC.title_is('Allow access?')
+        find_result = EC.presence_of_element_located((By.ID, 'result'))
+        WebDriverWait(browser, 2).until(
+            lambda driver: find_title(driver) or find_result(driver))
+        if browser.title == 'Allow access?':
+            btn = WebDriverWait(browser, 2).until(
+                EC.presence_of_element_located((By.NAME, 'submitYes')))
+            btn.click()
+            result = WebDriverWait(browser, 2).until(
+                EC.presence_of_element_located((By.ID, 'result')))
+        else:
+            result = browser.find_element_by_id('result')
         self.assertEqual(browser.title, 'Result Page')
-        result = browser.find_element_by_id('result').text
-        result = json.loads(result)
+        result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])

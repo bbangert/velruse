@@ -11,7 +11,7 @@ from ..providers.openid import (
     OpenIDAuthenticationComplete,
     OpenIDConsumer,
 )
-from .._compat import parse_qs
+from ..compat import parse_qs
 
 
 log = __import__('logging').getLogger(__name__)
