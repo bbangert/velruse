@@ -13,14 +13,14 @@ from ..api import (
     AuthenticationDenied,
     register_provider,
 )
+from ..compat import parse_qsl
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
-from .._compat import parse_qsl
 
 
 REQUEST_URL = 'https://bitbucket.org/api/1.0/oauth/request_token/'
-AUTHENTICATE_URL = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
+AUTH_URL = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
 ACCESS_URL = 'https://bitbucket.org/api/1.0/oauth/access_token/'
 USER_URL = 'https://bitbucket.org/api/1.0/user'
 
@@ -80,20 +80,21 @@ class BitbucketProvider(object):
     def login(self, request):
         """Initiate a bitbucket login"""
         # grab the initial request token
-        oauth = OAuth1(self.consumer_key,
-                       client_secret=self.consumer_secret,
-                       callback_uri=request.route_url(self.callback_route),
-                       signature_type='query')
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            callback_uri=request.route_url(self.callback_route))
         resp = requests.post(REQUEST_URL, auth=oauth)
         if resp.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 resp.status_code, resp.content))
         request_token = dict(parse_qsl(resp.content))
+
+        # store the token for later
         request.session['token'] = request_token
 
         # redirect the user to authorize the app
-        auth_url = flat_url(AUTHENTICATE_URL,
-                            oauth_token=request_token['oauth_token'])
+        auth_url = flat_url(AUTH_URL, oauth_token=request_token['oauth_token'])
         return HTTPFound(location=auth_url)
 
     def callback(self, request):
@@ -107,15 +108,15 @@ class BitbucketProvider(object):
         if not verifier:
             raise ThirdPartyFailure("No oauth_verifier returned")
 
-        token = request.session['token']
+        request_token = request.session['token']
 
         # turn our request token into an access token
-        oauth = OAuth1(self.consumer_key,
-                       client_secret=self.consumer_secret,
-                       resource_owner_key=token['oauth_token'],
-                       resource_owner_secret=token['oauth_token_secret'],
-                       verifier=verifier,
-                       signature_type='query')
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            resource_owner_key=request_token['oauth_token'],
+            resource_owner_secret=request_token['oauth_token_secret'],
+            verifier=verifier)
         resp = requests.post(ACCESS_URL, auth=oauth)
         if resp.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
@@ -126,12 +127,14 @@ class BitbucketProvider(object):
             'oauthAccessTokenSecret': access_token['oauth_token_secret'],
         }
 
-        oauth = OAuth1(self.consumer_key,
-                       client_secret=self.consumer_secret,
-                       resource_owner_key=creds['oauthAccessToken'],
-                       resource_owner_secret=creds['oauthAccessTokenSecret'],
-                       signature_type='query')
+        # setup oauth for general api calls
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            resource_owner_key=creds['oauthAccessToken'],
+            resource_owner_secret=creds['oauthAccessTokenSecret'])
 
+        # request user profile
         resp = requests.get(USER_URL, auth=oauth)
         if resp.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
@@ -139,6 +142,7 @@ class BitbucketProvider(object):
         user_data = resp.json()
 
         data = user_data['user']
+
         # Setup the normalized contact info
         profile = {}
         profile['accounts'] = [{
@@ -161,6 +165,7 @@ class BitbucketProvider(object):
         if not display_name:
             display_name = data.get('display_name')
         profile['displayName'] = display_name
+
         return BitbucketAuthenticationComplete(profile=profile,
                                                credentials=creds,
                                                provider_name=self.name,

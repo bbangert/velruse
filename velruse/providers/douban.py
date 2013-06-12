@@ -1,25 +1,25 @@
 """Douban Authentication Views"""
-import json
-
-import oauth2 as oauth
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
+
 import requests
+from requests_oauthlib import OAuth1
 
 from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
+from ..compat import parse_qsl
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
-from .._compat import parse_qs
+from ..utils import flat_url
 
 
 REQUEST_URL = 'http://www.douban.com/service/auth/request_token'
+AUTH_URL = 'http://www.douban.com/service/auth/authorize'
 ACCESS_URL = 'http://www.douban.com/service/auth/access_token'
 USER_URL = 'http://api.douban.com/people/%40me?alt=json'
-SIGMETHOD = oauth.SignatureMethod_HMAC_SHA1()
 
 
 class DoubanAuthenticationComplete(AuthenticationComplete):
@@ -76,27 +76,23 @@ class DoubanProvider(object):
 
     def login(self, request):
         """Initiate a douban login"""
-        consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
-
-        oauth_request = oauth.Request.from_consumer_and_token(consumer,
-            http_url=REQUEST_URL)
-        oauth_request.sign_request(SIGMETHOD, consumer, None)
-        r = requests.get(REQUEST_URL, headers=oauth_request.to_header())
-
-        if r.status_code != 200:
+        # grab the initial request token
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            callback_uri=request.route_url(self.callback_route))
+        resp = requests.post(REQUEST_URL, auth=oauth)
+        if resp.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
-                r.status_code, r.content))
-        request_token = oauth.Token.from_string(r.content)
+                resp.status_code, resp.content))
+        request_token = dict(parse_qsl(resp.content))
 
-        request.session['token'] = r.content
+        # store the token for later
+        request.session['token'] = request_token
 
-        # Send the user to douban now for authorization
-        req_url = 'http://www.douban.com/service/auth/authorize'
-        oauth_request = oauth.Request.from_token_and_callback(
-            token=request_token,
-            callback=request.route_url(self.callback_route),
-            http_url=req_url)
-        return HTTPFound(location=oauth_request.to_url())
+        # redirect the user to authorize the app
+        auth_url = flat_url(AUTH_URL, oauth_token=request_token['oauth_token'])
+        return HTTPFound(location=auth_url)
 
     def callback(self, request):
         """Process the douban redirect"""
@@ -105,34 +101,52 @@ class DoubanProvider(object):
                                         provider_name=self.name,
                                         provider_type=self.type)
 
-        request_token = oauth.Token.from_string(request.session['token'])
+        request_token = request.session['token']
 
-        # Create the consumer and client, make the request
-        consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
-        client = oauth.Client(consumer, request_token)
-        resp, content = client.request(ACCESS_URL)
-        if resp['status'] != '200':
-            raise ThirdPartyFailure("Status %s: %s" % (resp['status'], content))
-
-        access_token = dict(parse_qs(content))
-        cred = {'oauthAccessToken': access_token['oauth_token'][0],
-                'oauthAccessTokenSecret': access_token['oauth_token_secret'][0]}
-
-        douban_user_id = access_token['douban_user_id'][0]
-        token = oauth.Token(key=cred['oauthAccessToken'],
-                            secret=cred['oauthAccessTokenSecret'])
-
-        client = oauth.Client(consumer, token)
-        resp, content = client.request(USER_URL)
-
-        user_data = json.loads(content)
-        # Setup the normalized contact info
-        profile = {
-            'accounts': [{'domain':'douban.com', 'userid':douban_user_id}],
-            'displayName': user_data['title']['$t'],
-            'preferredUsername': user_data['title']['$t'],
+        # turn our request token into an access token
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            resource_owner_key=request_token['oauth_token'],
+            resource_owner_secret=request_token['oauth_token_secret'])
+        resp = requests.post(ACCESS_URL, auth=oauth)
+        if resp.status_code != 200:
+            raise ThirdPartyFailure("Status %s: %s" % (
+                resp.status_code, resp.content))
+        access_token = dict(parse_qsl(resp.content))
+        creds = {
+            'oauthAccessToken': access_token['oauth_token'],
+            'oauthAccessTokenSecret': access_token['oauth_token_secret'],
         }
+
+        # setup oauth for general api calls
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            resource_owner_key=creds['oauthAccessToken'],
+            resource_owner_secret=creds['oauthAccessTokenSecret'])
+
+        # request user profile
+        resp = requests.get(USER_URL, auth=oauth)
+        if resp.status_code != 200:
+            raise ThirdPartyFailure("Status %s: %s" % (
+                resp.status_code, resp.content))
+
+        user_data = resp.json()
+
+        douban_user_id = access_token['douban_user_id']
+
+        # Setup the normalized contact info
+        profile = {}
+        profile['id'] = douban_user_id
+        profile['accounts'] = [{
+            'domain': 'douban.com',
+            'userid': douban_user_id,
+        }]
+        profile['displayName'] = user_data['title']['$t']
+        profile['preferredUsername'] = user_data['title']['$t']
+
         return DoubanAuthenticationComplete(profile=profile,
-                                            credentials=cred,
+                                            credentials=creds,
                                             provider_name=self.name,
                                             provider_type=self.type)
