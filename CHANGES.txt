@@ -1,11 +1,17 @@
 Unreleased
 ==========
 
+- Switch to using oauthlib instead of python-oauth2 for
+  OAuth1-based providers.
+
+- Standardize birthdays to YYYY-MM-DD format as specified by Portable
+  Contacts instead of using Python date objects. This was done to follow
+  the spec more closely and keep the standalone app's serialized profile
+  the same as the plugin's profile.
+
 - Minimal Py3k compatibility;
 
   - Switch dependency to 'python3-openid' for Py3k.
-
-  - Use my 'py3' branch of 'python-oauth2'.
 
 1.0.3 (2012-10-11)
 ==================
