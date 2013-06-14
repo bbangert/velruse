@@ -210,22 +210,26 @@ class TestBitbucket(ProviderTests, unittest.TestCase):
         result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
-        self.assertTrue('displayName' in result['profile'])
-        self.assertTrue('accounts' in result['profile'])
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
+        self.assertTrue('oauthAccessTokenSecret' in creds)
 
-class TestGoogle(ProviderTests, unittest.TestCase):
+class TestGoogleHybrid(ProviderTests, unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        cls.require_provider('google')
-        cls.login = config['google.login']
-        cls.password = config['google.password']
-        cls.login_url = find_login_url(config, 'google.login_url')
+        cls.require_provider('google_hybrid')
+        cls.login = config['google_hybrid.login']
+        cls.password = config['google_hybrid.password']
+        cls.login_url = find_login_url(config, 'google_hybrid.login_url')
 
     def test_it(self):
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
-        browser.find_element_by_id('google').submit()
+        browser.find_element_by_id('google_hybrid').submit()
         login = WebDriverWait(browser, 2).until(
             EC.presence_of_element_located((By.ID, 'Email')))
         self.assertEqual(browser.title, 'Google Accounts')
@@ -250,9 +254,13 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
-        self.assertTrue('displayName' in result['profile'])
-        self.assertTrue('accounts' in result['profile'])
-        self.assertTrue('emails' in result['profile'])
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        self.assertTrue('emails' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
+        self.assertTrue('oauthAccessTokenSecret' in creds)
 
 class TestYahoo(ProviderTests, unittest.TestCase):
 

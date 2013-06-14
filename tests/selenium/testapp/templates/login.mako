@@ -26,7 +26,7 @@ ${form('facebook', 'Login with Facebook',
 ${form('github', 'Login with Github')}
 ${form('twitter', 'Login with Twitter')}
 ${form('bitbucket', 'Login with Bitbucket')}
-${form('google', 'Login with Google',
+${form('google_hybrid', 'Login with Google OpenID+OAuth',
        use_popup='false',
        openid_identifier='google.com')}
 ${form('yahoo', 'Login with Yahoo',

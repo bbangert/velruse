@@ -91,13 +91,14 @@ def main(global_conf, **settings):
             settings['velruse.bitbucket.consumer_secret'],
         )
 
-    if 'google' in providers:
-        config.include('velruse.providers.google')
-        config.add_google_login(
-            realm=settings['velruse.google.realm'],
-            consumer_key=settings['velruse.google.consumer_key'],
-            consumer_secret=settings['velruse.google.consumer_secret'],
-            scope=settings.get('velruse.google.scope'),
+    if 'google_hybrid' in providers:
+        config.include('velruse.providers.google_hybrid')
+        config.add_google_hybrid_login(
+            realm=settings['velruse.google_hybrid.realm'],
+            consumer_key=settings['velruse.google_hybrid.consumer_key'],
+            consumer_secret=settings['velruse.google_hybrid.consumer_secret'],
+            scope=settings.get('velruse.google_hybrid.scope'),
+            name='google_hybrid',
         )
 
     if 'yahoo' in providers:
