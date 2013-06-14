@@ -105,9 +105,12 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
-        self.assertTrue('displayName' in result['profile'])
-        self.assertTrue('verifiedEmail' in result['profile'])
-        self.assertTrue('accounts' in result['profile'])
+        profile = result['profile']
+        self.assertTrue('verifiedEmail' in profile)
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
 
 class TestGithub(ProviderTests, unittest.TestCase):
 
@@ -148,8 +151,11 @@ class TestGithub(ProviderTests, unittest.TestCase):
         result = json.loads(result)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
-        self.assertTrue('displayName' in result['profile'])
-        self.assertTrue('accounts' in result['profile'])
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
 
 class TestTwitter(ProviderTests, unittest.TestCase):
 
@@ -180,8 +186,12 @@ class TestTwitter(ProviderTests, unittest.TestCase):
         result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
-        self.assertTrue('displayName' in result['profile'])
-        self.assertTrue('accounts' in result['profile'])
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
+        self.assertTrue('oauthAccessTokenSecret' in creds)
 
 class TestBitbucket(ProviderTests, unittest.TestCase):
 
@@ -337,5 +347,9 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
-        self.assertTrue('displayName' in result['profile'])
-        self.assertTrue('accounts' in result['profile'])
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
+        self.assertTrue('oauthAccessTokenSecret' in creds)
