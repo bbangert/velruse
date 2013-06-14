@@ -285,29 +285,39 @@ class TestYahoo(ProviderTests, unittest.TestCase):
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('yahoo').submit()
-        WebDriverWait(browser, 10).until(
-            lambda driver: driver.find_element_by_id('username'))
+        WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'username')))
         self.assertEqual(browser.title, 'Sign in to Yahoo!')
         login = browser.find_element_by_id('username')
         login.send_keys(self.login)
         passwd = browser.find_element_by_id('passwd')
         passwd.send_keys(self.password)
         passwd.submit()
-        def _wait_for_alert(driver):
+        # there may be a captcha here, possibly wait for user input???
+        find_alert = EC.alert_is_present()
+        find_auth_agree = EC.presence_of_element_located((By.ID, 'agree'))
+        WebDriverWait(browser, 2).until(
+            lambda driver: find_alert(driver) or find_auth_agree(driver))
+        auth_agree = browser.find_element_by_id('agree')
+        if auth_agree:
+            auth_agree.click()
+            alert = WebDriverWait(browser, 2).until(EC.alert_is_present())
+        else:
             alert = browser.switch_to_alert()
-            try:
-                alert.accept()
-            except:
-                pass
-            return driver.find_element_by_id('result')
-        WebDriverWait(browser, 10).until(_wait_for_alert)
+        alert.accept()
+        result = WebDriverWait(browser, 5).until(
+            EC.presence_of_element_located((By.ID, 'result')))
         self.assertEqual(browser.title, 'Result Page')
-        result = browser.find_element_by_id('result').text
-        result = json.loads(result)
+        result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
-        self.assertTrue('displayName' in result['profile'])
-        self.assertTrue('accounts' in result['profile'])
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        self.assertTrue('emails' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
+        self.assertTrue('oauthAccessTokenSecret' in creds)
 
 class TestWindowsLive(ProviderTests, unittest.TestCase):
 

@@ -1,12 +1,14 @@
 from __future__ import absolute_import
 
-import oauth2 as oauth
 from openid.extensions import ax
+
+import requests
+from requests_oauthlib import OAuth1
 
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 from ..api import register_provider
-from ..compat import parse_qs
+from ..compat import parse_qsl
 
 from .oid_extensions import OAuthRequest
 from .openid import (
@@ -94,16 +96,19 @@ class YahooConsumer(OpenIDConsumer):
             authrequest.addExtension(oauth_request)
 
     def _get_access_token(self, request_token):
-        consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
-        token = oauth.Token(key=request_token, secret='')
-        client = oauth.Client(consumer, token)
-        resp, content = client.request(YAHOO_OAUTH, "POST")
-        if resp['status'] != '200':
-            log.error("OAuth token validation failed. Status: %s, Content: %s",
-                resp['status'], content)
-            return
+        oauth = OAuth1(
+            self.oauth_key,
+            client_secret=self.oauth_secret,
+            resource_owner_key=request_token)
 
-        access_token = dict(parse_qs(content))
-
-        return {'oauthAccessToken': access_token['oauth_token'],
-                'oauthAccessTokenSecret': access_token['oauth_token_secret']}
+        resp = requests.post(YAHOO_OAUTH, auth=oauth)
+        if resp.status_code != 200:
+            log.error(
+                'OAuth token validation failed. Status: %d, Content: %s',
+                resp.status_code, resp.content)
+        else:
+            access_token = dict(parse_qsl(resp.content))
+            return {
+                'oauthAccessToken': access_token['oauth_token'],
+                'oauthAccessTokenSecret': access_token['oauth_token_secret'],
+            }
