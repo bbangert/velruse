@@ -28,12 +28,12 @@ def setUpModule():
     global browser, server
 
     inipath = os.path.abspath(
-        os.environ.get('TEST_INI', 'testing.ini'))
+        os.environ.get('TEST_INI', 'test.ini'))
     if not os.path.isfile(inipath):
         raise RuntimeError(
             'Cannot find INI file to setup selenium tests. '
             'Please specify the path via the TEST_INI environment variable '
-            'or by adding a testing.ini file to the current directory.')
+            'or by adding a test.ini file to the current directory.')
 
     parser = ConfigParser()
     parser.read(inipath)
