@@ -5,7 +5,6 @@ from setuptools import setup, find_packages
 PY3 = sys.version_info[0] >= 3
 
 requires = [
-    'oauth2',
     'pyramid',
     'requests',
     'requests-oauthlib',
