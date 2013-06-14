@@ -226,22 +226,33 @@ class TestGoogle(ProviderTests, unittest.TestCase):
         browser.get(self.login_url)
         self.assertEqual(browser.title, 'Auth Page')
         browser.find_element_by_id('google').submit()
-        WebDriverWait(browser, 10).until(
-            lambda driver: driver.find_element_by_id('Email'))
+        login = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'Email')))
         self.assertEqual(browser.title, 'Google Accounts')
-        login = browser.find_element_by_id('Email')
         login.send_keys(self.login)
         passwd = browser.find_element_by_id('Passwd')
         passwd.send_keys(self.password)
         passwd.submit()
-        result = WebDriverWait(browser, 2).until(
-            EC.presence_of_element_located((By.ID, 'result')))
+        find_title = EC.title_is('Request for Permission')
+        find_result = EC.presence_of_element_located((By.ID, 'result'))
+        WebDriverWait(browser, 2).until(
+            lambda driver: find_title(driver) or find_result(driver))
+        if browser.title == 'Request for Permission':
+            btn = WebDriverWait(browser, 2).until(
+                EC.element_to_be_clickable(
+                    (By.ID, 'submit_approve_access')))
+            btn.click()
+            result = WebDriverWait(browser, 2).until(
+                EC.presence_of_element_located((By.ID, 'result')))
+        else:
+            result = browser.find_element_by_id('result')
         self.assertEqual(browser.title, 'Result Page')
         result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
         self.assertTrue('displayName' in result['profile'])
         self.assertTrue('accounts' in result['profile'])
+        self.assertTrue('emails' in result['profile'])
 
 class TestYahoo(ProviderTests, unittest.TestCase):
 
