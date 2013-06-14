@@ -1,9 +1,9 @@
 from __future__ import absolute_import
 
-from json import loads
-
-import oauth2 as oauth
 from openid.extensions import ax
+
+import requests
+from requests_oauthlib import OAuth1
 
 from pyramid.security import NO_PERMISSION_REQUIRED
 
@@ -75,7 +75,6 @@ def add_google_login(config,
         consumer_secret,
         scope)
 
-
     config.add_route(provider.login_route, login_path)
     config.add_view(provider, attr='login', route_name=provider.login_route,
                     permission=NO_PERMISSION_REQUIRED)
@@ -139,7 +138,6 @@ class GoogleConsumer(OpenIDConsumer):
                 kw_args['icon'] = request.POST['popup_icon']
             ui_request = UIRequest(**kw_args)
             authrequest.addExtension(ui_request)
-        return None
 
     def _update_profile_data(self, request, profile, credentials):
         """Update the user data with profile information from Google Contacts
@@ -153,19 +151,19 @@ class GoogleConsumer(OpenIDConsumer):
         if self.oauth_key is None:
             return
 
-        # Create the consumer and client, make the request
-        consumer = oauth.Consumer(self.oauth_key, self.oauth_secret)
+        # setup oauth for general api calls
+        oauth = OAuth1(
+            self.oauth_key,
+            client_secret=self.oauth_secret,
+            resource_owner_key=credentials['oauthAccessToken'],
+            resource_owner_secret=credentials['oauthAccessTokenSecret'])
 
-        # Make a request with the data for more user info
-        token = oauth.Token(key=credentials['oauthAccessToken'],
-                            secret=credentials['oauthAccessTokenSecret'])
-        client = oauth.Client(consumer, token)
         profile_url = \
             'https://www-opensocial.googleusercontent.com/api/people/@me/@self'
-        resp, content = client.request(profile_url)
-        if resp['status'] != '200':
+        resp = requests.get(profile_url, auth=oauth)
+        if resp.status_code != 200:
             return
-        data = loads(content)
+        data = resp.json()
         if 'entry' in data:
             profile.update(data['entry'])
 
@@ -174,18 +172,19 @@ class GoogleConsumer(OpenIDConsumer):
 
     def _get_access_token(self, request_token):
         """Retrieve the access token if OAuth hybrid was used"""
-        consumer = oauth.Consumer(key=self.oauth_key, secret=self.oauth_secret)
-        token = oauth.Token(key=request_token, secret='')
-        client = oauth.Client(consumer, token)
-        resp, content = client.request(GOOGLE_OAUTH, "POST")
-        if resp['status'] != '200':
-            log.error("OAuth token validation failed. Status: %s, Content: %s",
-                resp['status'], content)
-            return
+        oauth = OAuth1(
+            self.oauth_key,
+            client_secret=self.oauth_secret,
+            resource_owner_key=request_token)
 
-        access_token = dict(parse_qsl(content))
-
-        return {
-            'oauthAccessToken': access_token['oauth_token'],
-            'oauthAccessTokenSecret': access_token['oauth_token_secret'],
-        }
+        resp = requests.post(GOOGLE_OAUTH, auth=oauth)
+        if resp.status_code != 200:
+            log.error(
+                'OAuth token validation failed. Status: %d, Content: %s',
+                resp.status_code, resp.content)
+        else:
+            access_token = dict(parse_qsl(resp.content))
+            return {
+                'oauthAccessToken': access_token['oauth_token'],
+                'oauthAccessTokenSecret': access_token['oauth_token_secret'],
+            }

@@ -97,6 +97,7 @@ def main(global_conf, **settings):
             realm=settings['velruse.google.realm'],
             consumer_key=settings['velruse.google.consumer_key'],
             consumer_secret=settings['velruse.google.consumer_secret'],
+            scope=settings.get('velruse.google.scope'),
         )
 
     if 'yahoo' in providers:
