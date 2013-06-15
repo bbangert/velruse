@@ -34,6 +34,8 @@ ${form('yahoo', 'Login with Yahoo',
        oauth='true',
        openid_identifier='yahoo.com')}
 ${form('live', 'Login with Windows Live')}
+${form('openid', 'Login with OpenID',
+       openid_identifier='myopenid.com')}
 
 </body>
 </html>

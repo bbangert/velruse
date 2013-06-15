@@ -114,6 +114,12 @@ def main(global_conf, **settings):
             name='google_oauth2',
         )
 
+    if 'openid' in providers:
+        config.include('velruse.providers.openid')
+        config.add_openid_login(
+            realm=settings['velruse.openid.realm'],
+        )
+
     if 'yahoo' in providers:
         config.include('velruse.providers.yahoo')
         config.add_yahoo_login(

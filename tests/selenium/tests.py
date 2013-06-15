@@ -408,3 +408,45 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         creds = result['credentials']
         self.assertTrue('oauthAccessToken' in creds)
         self.assertTrue('oauthAccessTokenSecret' in creds)
+
+class TestOpenID(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('openid')
+        cls.login = config['openid.login']
+        cls.password = config['openid.password']
+        cls.login_url = find_login_url(config, 'openid.login_url')
+
+    def test_it(self):
+        browser.get(self.login_url)
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('openid').submit()
+        login = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.NAME, 'user_name')))
+        self.assertEqual(browser.title, 'Sign In')
+        login.send_keys(self.login)
+        passwd = browser.find_element_by_name('password')
+        passwd.send_keys(self.password)
+        passwd.submit()
+        find_alert = EC.alert_is_present()
+        find_continue = EC.presence_of_element_located(
+            (By.ID, 'continue-button'))
+        WebDriverWait(browser, 2).until(
+            lambda driver: find_alert(driver) or find_continue(driver))
+        continue_btn = browser.find_element_by_id('continue-button')
+        if continue_btn:
+            continue_btn.click()
+            alert = WebDriverWait(browser, 2).until(EC.alert_is_present())
+        else:
+            alert = browser.switch_to_alert()
+        alert.accept()
+        result = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'result')))
+        self.assertEqual(browser.title, 'Result Page')
+        result = json.loads(result.text)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        profile = result['profile']
+        self.assertTrue('name' in profile)
+        self.assertTrue('accounts' in profile)
