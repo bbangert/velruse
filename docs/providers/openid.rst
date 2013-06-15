@@ -22,7 +22,10 @@ Settings
 ``realm``
     Domain for your website, e.g. ``http://yourdomain.com/``
 ``store``
-    A class from which the OpenID store will be instantiated.
+    An instance of an OpenID store. (default
+    :class:`openid.stores.memstore.MemoryStore`). You may also use :const:`velruse.openid.STATELESS` to
+    run openid in `stateless
+    mode <http://openid.net/specs/openid-authentication-2_0.html#check_auth>`_.
 
 .. note::
 
