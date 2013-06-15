@@ -13,6 +13,11 @@ Unreleased
 
   - Switch dependency to 'python3-openid' for Py3k.
 
+- [openid, google_hybrid, yahoo] The default OpenID store is now stateless,
+  changed from the previous default
+  :class:`openid.store.memstore.MemoryStore`. The provider can be updated
+  by specifying the `store` opention when creating creating each provider.
+
 1.0.3 (2012-10-11)
 ==================
 
