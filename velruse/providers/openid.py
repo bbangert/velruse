@@ -21,7 +21,6 @@ from ..exceptions import (
     ThirdPartyFailure,
 )
 
-
 log = __import__('logging').getLogger(__name__)
 
 # Setup our attribute objects that we'll be requesting
@@ -88,11 +87,11 @@ def add_openid_login(config,
                      callback_path='/login/openid/callback',
                      name='openid'):
     """
-    Add a OpenID login provider to the application.
+    Add an OpenID login provider to the application.
 
     `storage` should be an object conforming to the
-    `openid.store.interface.OpenIDStore` protocol. This will default
-    to `openid.store.memstore.MemoryStore`.
+    `openid.store.interface.OpenIDStore` protocol. If left as `None` then
+    the provider will run in a stateless mode.
     """
     provider = OpenIDConsumer(name, 'openid', realm=realm, storage=storage)
 
@@ -127,19 +126,6 @@ class OpenIDConsumer(object):
 
         self.login_route = 'velruse.%s-url' % name
         self.callback_route = 'velruse.%s-callback' % name
-
-    _openid_store = None
-
-    def _get_openid_store(self):
-        if self._openid_store is None:
-            from openid.store.memstore import MemoryStore
-            self._openid_store = MemoryStore()
-        return self._openid_store
-
-    def _set_openid_store(self, val):
-        self._openid_store = val
-
-    openid_store = property(_get_openid_store, _set_openid_store)
 
     def _get_realm(self, request):
         if self.realm_override is not None:

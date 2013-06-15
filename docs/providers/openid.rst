@@ -22,7 +22,11 @@ Settings
 ``realm``
     Domain for your website, e.g. ``http://yourdomain.com/``
 ``store``
-    A class from which the OpenID store will be instantiated.
+    An instance of an OpenID store. The default (`None`) is to run in
+    `stateless mode
+    <http://openid.net/specs/openid-authentication-2_0.html#check_auth>`_.
+    It is recommended to use a conforming OpenID store if possible as
+    stateless mode can be more chatty.
 
 .. note::
 

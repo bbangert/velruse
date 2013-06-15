@@ -1,23 +1,37 @@
 Unreleased
 ==========
 
-- Switch to using oauthlib instead of python-oauth2 for
-  OAuth1-based providers.
+New Features
+------------
 
-- Standardize birthdays to YYYY-MM-DD format as specified by Portable
-  Contacts instead of using Python date objects. This was done to follow
-  the spec more closely and keep the standalone app's serialized profile
-  the same as the plugin's profile.
-
-- Minimal Py3k compatibility;
+- Minimal Py3k compatibility.
 
   - Switch dependency to 'python3-openid' for Py3k.
 
 - [bitbucket] Add an extra query to populate the `emails` and `verifiedEmail`
   keys in the profile.
 
+Backward Incompatibilities
+--------------------------
+
+- Standardize birthdays to YYYY-MM-DD format as specified by Portable
+  Contacts instead of using Python date objects. This was done to follow
+  the spec more closely and keep the standalone app's serialized profile
+  the same as the plugin's profile.
+
 - [facebook] Profile keys `gender`, `emails` and `verifiedEmail` will not be
   present in the profile if they are not available.
+
+- [openid, google_hybrid, yahoo] The default OpenID store is now stateless,
+  changed from the previous default
+  :class:`openid.store.memstore.MemoryStore`. The provider can be updated
+  by specifying the `store` opention when creating creating each provider.
+
+Dependencies
+------------
+
+- Switch to using oauthlib instead of python-oauth2 for
+  OAuth1-based providers.
 
 1.0.3 (2012-10-11)
 ==================
