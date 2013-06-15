@@ -272,6 +272,51 @@ class TestGoogleHybrid(ProviderTests, unittest.TestCase):
         self.assertTrue('oauthAccessToken' in creds)
         self.assertTrue('oauthAccessTokenSecret' in creds)
 
+class TestGoogleOAuth2(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('google_oauth2')
+        cls.login = config['google_oauth2.login']
+        cls.password = config['google_oauth2.password']
+        cls.login_url = find_login_url(config, 'google_oauth2.login_url')
+
+    def test_it(self):
+        browser.get(self.login_url)
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('google_oauth2').submit()
+        login = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'Email')))
+        self.assertEqual(browser.title, 'Google Accounts')
+        login.send_keys(self.login)
+        passwd = browser.find_element_by_id('Passwd')
+        passwd.send_keys(self.password)
+        passwd.submit()
+        find_title = EC.title_is('Request for Permission')
+        find_result = EC.presence_of_element_located((By.ID, 'result'))
+        WebDriverWait(browser, 2).until(
+            lambda driver: find_title(driver) or find_result(driver))
+        if browser.title == 'Request for Permission':
+            btn = WebDriverWait(browser, 2).until(
+                EC.element_to_be_clickable(
+                    (By.ID, 'submit_approve_access')))
+            btn.click()
+            result = WebDriverWait(browser, 2).until(
+                EC.presence_of_element_located((By.ID, 'result')))
+        else:
+            result = browser.find_element_by_id('result')
+        self.assertEqual(browser.title, 'Result Page')
+        result = json.loads(result.text)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        self.assertTrue('emails' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
+        self.assertTrue('oauthRefreshToken' in creds)
+
 class TestYahoo(ProviderTests, unittest.TestCase):
 
     @classmethod

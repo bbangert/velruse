@@ -29,6 +29,7 @@ ${form('bitbucket', 'Login with Bitbucket')}
 ${form('google_hybrid', 'Login with Google OpenID+OAuth',
        use_popup='false',
        openid_identifier='google.com')}
+${form('google_oauth2', 'Login with Google OAuth2')}
 ${form('yahoo', 'Login with Yahoo',
        oauth='true',
        openid_identifier='yahoo.com')}

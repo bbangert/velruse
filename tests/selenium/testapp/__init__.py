@@ -98,7 +98,20 @@ def main(global_conf, **settings):
             consumer_key=settings['velruse.google_hybrid.consumer_key'],
             consumer_secret=settings['velruse.google_hybrid.consumer_secret'],
             scope=settings.get('velruse.google_hybrid.scope'),
+            login_path='/login/google_hybrid',
+            callback_path='/login/google_hybrid/callback',
             name='google_hybrid',
+        )
+
+    if 'google_oauth2' in providers:
+        config.include('velruse.providers.google_oauth2')
+        config.add_google_oauth2_login(
+            consumer_key=settings['velruse.google_oauth2.consumer_key'],
+            consumer_secret=settings['velruse.google_oauth2.consumer_secret'],
+            scope=settings.get('velruse.google_oauth2.scope'),
+            login_path='/login/google_oauth2',
+            callback_path='/login/google_oauth2/callback',
+            name='google_oauth2',
         )
 
     if 'yahoo' in providers:
