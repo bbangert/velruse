@@ -150,12 +150,16 @@ def extract_fb_data(data):
     profile = {
         'accounts': [{'domain': 'facebook.com', 'userid': data['id']}],
         'displayName': data['name'],
-        'verifiedEmail': data.get('email') if data.get('verified') else False,
-        'gender': data.get('gender'),
         'preferredUsername': nick or data['name'],
     }
-    if data.get('email'):
-        profile['emails'] = [{'value': data.get('email')}]
+    gender = data.get('gender')
+    if gender:
+        profile['gender'] = gender
+    email = data.get('email')
+    if email:
+        profile['emails'] = [{'value': email, 'primary': True}]
+        if data.get('verified') and email:
+            profile['verifiedEmail'] = email
 
     tz = data.get('timezone')
     if tz:
@@ -178,7 +182,7 @@ def extract_fb_data(data):
         part = data.get(key)
         if part:
             name[val] = part
-    name['formatted'] = data.get('name')
+    name['formatted'] = data['name']
 
     profile['name'] = name
 
