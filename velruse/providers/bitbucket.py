@@ -23,6 +23,7 @@ REQUEST_URL = 'https://bitbucket.org/api/1.0/oauth/request_token/'
 AUTH_URL = 'https://bitbucket.org/api/1.0/oauth/authenticate/'
 ACCESS_URL = 'https://bitbucket.org/api/1.0/oauth/access_token/'
 USER_URL = 'https://bitbucket.org/api/1.0/user'
+EMAIL_URL = 'https://bitbucket.org/api/1.0/users/{username}/emails'
 
 
 class BitbucketAuthenticationComplete(AuthenticationComplete):
@@ -143,13 +144,15 @@ class BitbucketProvider(object):
 
         data = user_data['user']
 
+        username = data['username']
+
         # Setup the normalized contact info
         profile = {}
         profile['accounts'] = [{
             'domain': 'bitbucket.com',
-            'username': data['username']
+            'username': username,
         }]
-        profile['preferredUsername'] = data['username']
+        profile['preferredUsername'] = username
         name = {}
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
@@ -165,6 +168,20 @@ class BitbucketProvider(object):
         if not display_name:
             display_name = data.get('display_name')
         profile['displayName'] = display_name
+
+        # request user emails
+        resp = requests.get(EMAIL_URL.format(username=username), auth=oauth)
+        if resp.status_code == 200:
+            data = resp.json()
+            emails = []
+            for item in data:
+                email = {'value': item['email']}
+                if item.get('primary'):
+                    email['primary'] = True
+                emails.append(email)
+                if item.get('active'):
+                    profile['verifiedEmail'] = item['email']
+            profile['emails'] = emails
 
         return BitbucketAuthenticationComplete(profile=profile,
                                                credentials=creds,
