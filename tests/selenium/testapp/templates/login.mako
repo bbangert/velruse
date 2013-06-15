@@ -33,6 +33,7 @@ ${form('yahoo', 'Login with Yahoo',
        oauth='true',
        openid_identifier='yahoo.com')}
 ${form('live', 'Login with Windows Live')}
+${form('linkedin', 'Login with Linkedin')}
 
 </body>
 </html>
