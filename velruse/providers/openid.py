@@ -89,7 +89,7 @@ def add_openid_login(config,
                      callback_path='/login/openid/callback',
                      name='openid'):
     """
-    Add a OpenID login provider to the application.
+    Add an OpenID login provider to the application.
 
     `storage` should be an object conforming to the
     `openid.store.interface.OpenIDStore` protocol or :const:`.STATELESS`.
@@ -135,9 +135,8 @@ class OpenIDConsumer(object):
         if self._openid_store is None:
             from openid.store.memstore import MemoryStore
             self._openid_store = MemoryStore()
-        elif self._openid_store is STATELESS:
-            return None
-        return self._openid_store
+        elif self._openid_store is not STATELESS:
+            return self._openid_store
 
     def _set_openid_store(self, val):
         self._openid_store = val
