@@ -48,8 +48,8 @@ def add_twitter_login_from_settings(config, prefix='velruse.twitter.'):
 def add_twitter_login(config,
                       consumer_key,
                       consumer_secret,
-                      access_token,
-                      access_token_secret,
+                      access_token=None,
+                      access_token_secret=None,
                       login_path='/login/twitter',
                       callback_path='/login/twitter/callback',
                       name='twitter'):
