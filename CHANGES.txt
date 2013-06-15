@@ -13,6 +13,12 @@ Unreleased
 
   - Switch dependency to 'python3-openid' for Py3k.
 
+- [bitbucket] Add an extra query to populate the `emails` and `verifiedEmail`
+  keys in the profile.
+
+- [facebook] Profile keys `gender`, `emails` and `verifiedEmail` will not be
+  present in the profile if they are not available.
+
 1.0.3 (2012-10-11)
 ==================
 
