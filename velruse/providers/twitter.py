@@ -3,7 +3,6 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 import requests
-import json
 
 from requests_oauthlib import OAuth1
 
@@ -137,12 +136,11 @@ class TwitterProvider(object):
             self.consumer_key,
             client_secret=self.consumer_secret,
             resource_owner_key=access_token['oauth_token'],
-            resource_owner_secret=access_token['oauth_token_secret'],
-            verifier=verifier)
+            resource_owner_secret=access_token['oauth_token_secret'])
         resp = requests.get(DATA_URL % access_token['screen_name'], auth=oauth)
         if resp.status_code == 200:
             # replace display name with the full name, and take additional data
-            profile_data = json.loads(resp.content)
+            profile_data = resp.json()
             profile['preferredUsername'] = profile['displayName']
             profile['displayName'] = profile_data.get('name') or profile['displayName']
             profile['name'] = {'formatted': profile['displayName']}
