@@ -38,8 +38,6 @@ def add_twitter_login_from_settings(config, prefix='velruse.twitter.'):
     p = ProviderSettings(settings, prefix)
     p.update('consumer_key', required=True)
     p.update('consumer_secret', required=True)
-    p.update('access_token', required=False)
-    p.update('access_token_secret', required=False)
     p.update('login_path')
     p.update('callback_path')
     config.add_twitter_login(**p.kwargs)
@@ -48,16 +46,13 @@ def add_twitter_login_from_settings(config, prefix='velruse.twitter.'):
 def add_twitter_login(config,
                       consumer_key,
                       consumer_secret,
-                      access_token=None,
-                      access_token_secret=None,
                       login_path='/login/twitter',
                       callback_path='/login/twitter/callback',
                       name='twitter'):
     """
     Add a Twitter login provider to the application.
     """
-    provider = TwitterProvider(name, consumer_key, consumer_secret,
-                               access_token, access_token_secret)
+    provider = TwitterProvider(name, consumer_key, consumer_secret)
 
     config.add_route(provider.login_route, login_path)
     config.add_view(provider, attr='login',
@@ -72,14 +67,11 @@ def add_twitter_login(config,
 
 
 class TwitterProvider(object):
-    def __init__(self, name, consumer_key, consumer_secret,
-                 access_token=None, access_token_secret=None):
+    def __init__(self, name, consumer_key, consumer_secret):
         self.name = name
         self.type = 'twitter'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
-        self.access_token = access_token
-        self.access_token_secret = access_token_secret
 
         self.login_route = 'velruse.%s-login' % name
         self.callback_route = 'velruse.%s-callback' % name
@@ -141,27 +133,25 @@ class TwitterProvider(object):
         }]
         profile['displayName'] = access_token['screen_name']
 
-        # if optional access_token info has been provided, get more data
-        if self.access_token and self.access_token_secret:
-            oauth = OAuth1(
-                self.consumer_key,
-                client_secret=self.consumer_secret,
-                resource_owner_key=self.access_token,
-                resource_owner_secret=self.access_token_secret,
-                verifier=verifier)
-            resp = requests.get(DATA_URL % access_token['screen_name'], auth=oauth)
-            if resp.status_code == 200:
-                # replace display name with the full name, and take additional data
-                profile_data = json.loads(resp.content)
-                profile['preferredUsername'] = profile['displayName']
-                profile['displayName'] = profile_data.get('name') or profile['displayName']
-                profile['name'] = {'formatted': profile['displayName']}
-                if profile_data.get('url'):
-                    profile['urls'] = [{'value': profile_data.get('url')}]
-                if profile_data.get('location'):
-                    profile['addresses'] = [{'formatted': profile_data.get('location')}]
-                if profile_data.get('profile_image_url'):
-                    profile['photos'] = [{'value': profile_data.get('profile_image_url')}]
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            resource_owner_key=access_token['oauth_token'],
+            resource_owner_secret=access_token['oauth_token_secret'],
+            verifier=verifier)
+        resp = requests.get(DATA_URL % access_token['screen_name'], auth=oauth)
+        if resp.status_code == 200:
+            # replace display name with the full name, and take additional data
+            profile_data = json.loads(resp.content)
+            profile['preferredUsername'] = profile['displayName']
+            profile['displayName'] = profile_data.get('name') or profile['displayName']
+            profile['name'] = {'formatted': profile['displayName']}
+            if profile_data.get('url'):
+                profile['urls'] = [{'value': profile_data.get('url')}]
+            if profile_data.get('location'):
+                profile['addresses'] = [{'formatted': profile_data.get('location')}]
+            if profile_data.get('profile_image_url'):
+                profile['photos'] = [{'value': profile_data.get('profile_image_url')}]
 
         return TwitterAuthenticationComplete(profile=profile,
                                              credentials=creds,
