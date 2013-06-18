@@ -1,14 +1,18 @@
 """Sina Microblogging weibo.com Authentication Views"""
+import uuid
+
+import requests
+
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
-import requests
 
 from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
     register_provider,
 )
+from ..exceptions import CSRFError
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
@@ -72,15 +76,27 @@ class WeiboProvider(object):
     def login(self, request):
         """Initiate a weibo login"""
         scope = request.POST.get('scope', self.scope)
+        request.session['state'] = state = uuid.uuid4().hex
         url = flat_url('https://api.weibo.com/oauth2/authorize',
                        scope=scope,
                        client_id=self.consumer_key,
                        response_type='code',
-                       redirect_uri=request.route_url(self.callback_route))
+                       redirect_uri=request.route_url(self.callback_route),
+                       state=state)
         return HTTPFound(url)
 
     def callback(self, request):
         """Process the weibo redirect"""
+        sess_state = request.session.get('state')
+        req_state = request.GET.get('state')
+        if not sess_state or sess_state != req_state:
+            raise CSRFError(
+                'CSRF Validation check failed. Request state {req_state} is '
+                'not the same as session state {sess_state}'.format(
+                    req_state=req_state,
+                    sess_state=sess_state
+                )
+            )
         code = request.GET.get('code')
         if not code:
             reason = request.GET.get('error_reason', 'No reason provided.')
