@@ -130,6 +130,7 @@ class QQProvider(object):
             'accounts': [{'domain': 'qq.com', 'userid': openid}],
             'displayName': data['nickname'],
             'preferredUsername': data['nickname'],
+            'data': data
         }
 
         cred = {'oauthAccessToken': access_token}
