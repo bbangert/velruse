@@ -14,7 +14,7 @@ consumer key and a consumer secret specific to VK.
 VK Developer Links:
 
 * `Developer Page (View apps, create app)
-  <http://vk.com/developers.php>`_
+  <http://vk.com/developers.php>`__
 
 
 
@@ -28,7 +28,7 @@ Settings
 ``scope``
     Comma-separated list of permissions. The scope is used
     to request access to VK properties known as
-    `Application Access Rights <http://vk.com/developers.php?oid=-17680044&p=Application_Access_Rights>`_.
+    `Application Access Rights <http://vk.com/developers.php?oid=-17680044&p=Application_Access_Rights>`__.
     It should be either a comma-separated or space-separated list.
 
 

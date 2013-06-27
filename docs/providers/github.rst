@@ -7,8 +7,8 @@ It requires a Github Application to have been created to use.
 Github Links:
 
 * `Register a New Github Application
-  <https://github.com/settings/applications/new>`_
-* `Github OAuth API <http://developer.github.com/v3/oauth/>`_
+  <https://github.com/settings/applications/new>`__
+* `Github OAuth API <http://developer.github.com/v3/oauth/>`__
 
 
 Settings

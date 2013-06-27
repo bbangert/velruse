@@ -6,15 +6,15 @@ It requires a Yandex Application to have been created to use.
 
 Yandex Links (English):
 
-* `Yandex Services OAuth API <http://api.yandex.com/oauth/doc/dg/concepts/authorization-scheme.xml>`_
+* `Yandex Services OAuth API <http://api.yandex.com/oauth/doc/dg/concepts/authorization-scheme.xml>`__
 
 
 Yandex Links (Russian):
 
 * `Register a New Yandex Application
-  <https://oauth.yandex.ru/client/new>`_
-* `Yandex Services OAuth API <http://api.yandex.ru/oauth/doc/dg/concepts/authorization-scheme.xml>`_
-* `Yandex Login + OAuth API <http://api.yandex.ru/login/doc/dg/concepts/about.xml>`_
+  <https://oauth.yandex.ru/client/new>`__
+* `Yandex Services OAuth API <http://api.yandex.ru/oauth/doc/dg/concepts/authorization-scheme.xml>`__
+* `Yandex Login + OAuth API <http://api.yandex.ru/login/doc/dg/concepts/about.xml>`__
 
 
 Settings

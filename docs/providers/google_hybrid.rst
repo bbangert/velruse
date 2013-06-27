@@ -12,11 +12,11 @@ services.
 Google Developer Links:
 
 * `Google Application Management
-  <https://www.google.com/accounts/ManageDomains>`_
+  <https://www.google.com/accounts/ManageDomains>`__
 * `Google OpenID Documentation
-  <http://code.google.com/apis/accounts/docs/OpenID.html>`_
+  <http://code.google.com/apis/accounts/docs/OpenID.html>`__
 * `Google OAuth scope parameters
-  <http://code.google.com/apis/gdata/faq.html#AuthScopes>`_
+  <http://code.google.com/apis/gdata/faq.html#AuthScopes>`__
 
 
 Settings
@@ -45,7 +45,7 @@ POST Parameters
 The Google provider accepts an oauth_scope argument, which is used in
 the authenticating request to access additional Google API's. Each API
 has an authentication scope, defined on the
-`Google Auth Scopes <http://code.google.com/apis/gdata/faq.html#AuthScopes>`_
+`Google Auth Scopes <http://code.google.com/apis/gdata/faq.html#AuthScopes>`__
 page. These should be a *space* separated string, for example to request
 access to Google Contacts:
 

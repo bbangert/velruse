@@ -8,8 +8,8 @@ access token.
 
 Twitter Developer Links:
 
-* `Register a New Twitter Application <http://dev.twitter.com/apps/new>`_
-* `Twitter OAuth API <http://dev.twitter.com/doc>`_
+* `Register a New Twitter Application <http://dev.twitter.com/apps/new>`__
+* `Twitter OAuth API <http://dev.twitter.com/doc>`__
 
 
 Settings

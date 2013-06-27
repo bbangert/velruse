@@ -10,9 +10,9 @@ issue. Using the Yahoo OAuth requires registration of a Yahoo application.
 Yahoo Developer Links:
 
 * `Yahoo Developer Projects Page (Create new apps here)
-  <https://developer.apps.yahoo.com/projects>`_
+  <https://developer.apps.yahoo.com/projects>`__
 * `Yahoo OpenID + OAuth Guide
-  <http://developer.yahoo.com/oauth/guide/openid-oauth-guide.html>`_
+  <http://developer.yahoo.com/oauth/guide/openid-oauth-guide.html>`__
 
 
 Settings

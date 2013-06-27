@@ -4,9 +4,9 @@ Google OAuth2.0 - :mod:`velruse.providers.google_oauth2`
 Google Developer Links:
 
 * `Google Application Management
-  <https://www.google.com/accounts/ManageDomains>`_
+  <https://www.google.com/accounts/ManageDomains>`__
 * `Configuring OAuth2.0 in Your Application
-  <https://developers.google.com/accounts/docs/OAuth2>`_
+  <https://developers.google.com/accounts/docs/OAuth2>`__
 
 
 Settings

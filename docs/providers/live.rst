@@ -15,9 +15,9 @@ The Windows Live Provider supports the Windows Live OAuth 2.0 API.
 
 Windows Live Developer Links:
 
-* `Windows Live <http://msdn.microsoft.com/en-us/windowslive/default.aspx>`_
+* `Windows Live <http://msdn.microsoft.com/en-us/windowslive/default.aspx>`__
 * `Windows Live OAuth 2.0 SDK
-  <http://msdn.microsoft.com/en-us/library/hh243647.aspx>`_
+  <http://msdn.microsoft.com/en-us/library/hh243647.aspx>`__
 
 
 Settings

@@ -3,17 +3,17 @@ OpenID - :mod:`velruse.providers.openid`
 
 The OpenID provider does standard OpenID authentication, using both the
 `Simple Registration Extension
-<http://openid.net/specs/openid-simple-registration-extension-1_0.html>`_
-and many of the `Attribute Exchange <http://www.axschema.org/types/>`_
+<http://openid.net/specs/openid-simple-registration-extension-1_0.html>`__
+and many of the `Attribute Exchange <http://www.axschema.org/types/>`__
 attributes to acquire as much user information to assist in the
 authentication process as possible.
 
 OpenID Developer Links:
 
 * `OpenID Authentication 2.0
-  <http://openid.net/specs/openid-authentication-2_0.html>`_
+  <http://openid.net/specs/openid-authentication-2_0.html>`__
 * `Attribute Exchange 1.0
-  <http://openid.net/specs/openid-attribute-exchange-1_0.html>`_
+  <http://openid.net/specs/openid-attribute-exchange-1_0.html>`__
 
 
 Settings
@@ -24,7 +24,7 @@ Settings
 ``store``
     An instance of an OpenID store. The default (`None`) is to run in
     `stateless mode
-    <http://openid.net/specs/openid-authentication-2_0.html#check_auth>`_.
+    <http://openid.net/specs/openid-authentication-2_0.html#check_auth>`__.
     It is recommended to use a conforming OpenID store if possible as
     stateless mode can be more chatty.
 

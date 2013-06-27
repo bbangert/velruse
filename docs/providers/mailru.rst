@@ -1,5 +1,5 @@
 Mail.ru - :mod:`velruse.providers.mailru`
-========================================
+=========================================
 
 The Mail.ru provider combines authentication with OAuth 2.0 authorization.
 It requires either a Mail.ru Site or a Mail.ru Application
@@ -9,11 +9,11 @@ to have been created to use.
 Mail.ru Links (Russian):
 
 * `Register a new Mail.ru Site
-  <http://api.mail.ru/sites/my/add>`_
+  <http://api.mail.ru/sites/my/add>`__
 * `Register a new Mail.ru Application
-  <http://api.mail.ru/apps/my/add/>`_
-* `Mail.ru OAuth Developer Guide <http://api.mail.ru/docs/guides/oauth/>`_
-* `Mail.ru API Guide <http://api.mail.ru/docs/>`_
+  <http://api.mail.ru/apps/my/add/>`__
+* `Mail.ru OAuth Developer Guide <http://api.mail.ru/docs/guides/oauth/>`__
+* `Mail.ru API Guide <http://api.mail.ru/docs/>`__
 
 
 Settings
@@ -23,7 +23,6 @@ Settings
     Mail.ru Site/Application ID
 ``consumer_secret``
     Mail.ru Secret Key
-
 
 
 POST Parameters
