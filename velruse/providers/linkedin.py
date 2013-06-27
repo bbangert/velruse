@@ -150,7 +150,7 @@ class LinkedInProvider(object):
             'formatted': '%s %s' % (data['firstName'], data['lastName'])
         }
         if data.get('emailAddress'):
-            profile['emails'] = [{'value':data.get('emailAddress')}]
+            profile['emails'] = [{'value': data.get('emailAddress')}]
         if data.get('pictureUrl'):
             profile['photos'] = [{'value': data.get('pictureUrl')}]
 
