@@ -124,32 +124,41 @@ class TwitterProvider(object):
             'oauthAccessTokenSecret': access_token['oauth_token_secret'],
         }
 
+        username = access_token['screen_name']
+
         # Setup the normalized contact info
         profile = {}
         profile['accounts'] = [{
             'domain': 'twitter.com',
-            'userid': access_token['user_id']
+            'userid': access_token['user_id'],
+            'username': username,
         }]
-        profile['displayName'] = access_token['screen_name']
+        profile['displayName'] = username
+        profile['preferredUsername'] = username
 
         oauth = OAuth1(
             self.consumer_key,
             client_secret=self.consumer_secret,
             resource_owner_key=access_token['oauth_token'],
             resource_owner_secret=access_token['oauth_token_secret'])
-        resp = requests.get(DATA_URL % access_token['screen_name'], auth=oauth)
+        resp = requests.get(DATA_URL % username, auth=oauth)
         if resp.status_code == 200:
-            # replace display name with the full name, and take additional data
-            profile_data = resp.json()
-            profile['preferredUsername'] = profile['displayName']
-            profile['displayName'] = profile_data.get('name') or profile['displayName']
-            profile['name'] = {'formatted': profile['displayName']}
-            if profile_data.get('url'):
-                profile['urls'] = [{'value': profile_data.get('url')}]
-            if profile_data.get('location'):
-                profile['addresses'] = [{'formatted': profile_data.get('location')}]
-            if profile_data.get('profile_image_url'):
-                profile['photos'] = [{'value': profile_data.get('profile_image_url')}]
+            data = resp.json()
+            if 'name' in data:
+                # replace display name with the full name
+                profile['displayName'] = data['name']
+                profile['name'] = {'formatted': profile['displayName']}
+            if 'url' in data:
+                profile['urls'] = [{'value': data['url']}]
+            if 'location' in data:
+                profile['addresses'] = [{'formatted': data['location']}]
+            if 'profile_image_url' in data:
+                profile['photos'] = [{'value': data['profile_image_url']}]
+            if 'utc_offset' in data:
+                offset = float(data['utc_offset']) / 3600
+                h = int(offset)
+                m = int(abs(offset - h) * 60)
+                profile['utcOffset'] = '{h:+03d}:{m:02d}'.format(h=h, m=m)
 
         return TwitterAuthenticationComplete(profile=profile,
                                              credentials=creds,
