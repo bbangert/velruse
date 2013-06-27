@@ -131,7 +131,8 @@ class LinkedInProvider(object):
             resource_owner_secret=creds['oauthAccessTokenSecret'])
 
         profile_url = 'http://api.linkedin.com/v1/people/~'
-        profile_url += ':(first-name,last-name,id,date-of-birth,picture-url)'
+        profile_url += (':(first-name,last-name,id,date-of-birth,picture-url,'
+                        'email-address)')
         profile_url += '?format=json'
 
         resp = requests.get(profile_url, auth=oauth)
@@ -148,6 +149,11 @@ class LinkedInProvider(object):
             'familyName': data['lastName'],
             'formatted': '%s %s' % (data['firstName'], data['lastName'])
         }
+        if data.get('emailAddress'):
+            profile['emails'] = [{'value':data.get('emailAddress')}]
+        if data.get('pictureUrl'):
+            profile['photos'] = [{'value': data.get('pictureUrl')}]
+
         profile['accounts'] = [{
             'domain': 'linkedin.com',
             'userid': data['id']

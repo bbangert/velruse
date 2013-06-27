@@ -24,18 +24,19 @@
 ${form('facebook', 'Login with Facebook',
        scope='email,publish_stream,read_stream,create_event,offline_access')}
 ${form('github', 'Login with Github')}
-${form('twitter', 'Login with Twitter')}
 ${form('bitbucket', 'Login with Bitbucket')}
 ${form('google_hybrid', 'Login with Google OpenID+OAuth',
        use_popup='false',
        openid_identifier='google.com')}
 ${form('google_oauth2', 'Login with Google OAuth2')}
-${form('yahoo', 'Login with Yahoo',
-       oauth='true',
-       openid_identifier='yahoo.com')}
+${form('linkedin', 'Login with Linkedin')}
 ${form('live', 'Login with Windows Live')}
 ${form('openid', 'Login with OpenID',
        openid_identifier='myopenid.com')}
+${form('twitter', 'Login with Twitter')}
+${form('yahoo', 'Login with Yahoo',
+       oauth='true',
+       openid_identifier='yahoo.com')}
 
 </body>
 </html>
