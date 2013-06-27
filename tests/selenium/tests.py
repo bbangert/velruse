@@ -450,3 +450,38 @@ class TestOpenID(ProviderTests, unittest.TestCase):
         profile = result['profile']
         self.assertTrue('name' in profile)
         self.assertTrue('accounts' in profile)
+
+class TestLinkedin(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('linkedin')
+        cls.login = config['linkedin.login']
+        cls.password = config['linkedin.password']
+        cls.login_url = find_login_url(config, 'linkedin.login_url')
+
+    def test_it(self):
+        browser.get(self.login_url)
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('linkedin').submit()
+        self.assertEqual(browser.title, 'Authorize | LinkedIn')
+        form = browser.find_element_by_name('oauthAuthorizeForm')
+        login = form.find_element_by_id('session_key-oauthAuthorizeForm')
+        login.send_keys(self.login)
+        passwd = form.find_element_by_id('session_password-oauthAuthorizeForm')
+        passwd.send_keys(self.password)
+        form.find_element_by_name('authorize').submit()
+        result = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'result')))
+        self.assertEqual(browser.title, 'Result Page')
+        result = json.loads(result.text)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('accounts' in profile)
+        # BBB: Linkedin app must be enabled toshare e-mail
+        self.assertTrue('emails' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)
+        self.assertTrue('oauthAccessTokenSecret' in creds)

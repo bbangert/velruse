@@ -128,5 +128,12 @@ def main(global_conf, **settings):
             consumer_secret=settings['velruse.yahoo.consumer_secret'],
         )
 
+    if 'linkedin' in providers:
+        config.include('velruse.providers.linkedin')
+        config.add_linkedin_login(
+            settings['velruse.linkedin.consumer_key'],
+            settings['velruse.linkedin.consumer_secret'],
+        )
+
     config.scan(__name__)
     return config.make_wsgi_app()
