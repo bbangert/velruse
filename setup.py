@@ -28,7 +28,7 @@ docs_extras = [
 ]
 
 setup(name='velruse',
-      version='1.0.3',
+      version='1.1',
       description=(
           'Simplifying third-party authentication for web applications.'),
       long_description='',
@@ -40,9 +40,9 @@ setup(name='velruse',
           'Programming Language :: Python :: 2',
           'Programming Language :: Python :: 2.6',
           'Programming Language :: Python :: 2.7',
-          'Programming Language :: Python :: 3',
-          'Programming Language :: Python :: 3.2',
-          'Programming Language :: Python :: 3.3',
+#          'Programming Language :: Python :: 3',
+#          'Programming Language :: Python :: 3.2',
+#          'Programming Language :: Python :: 3.3',
           'Topic :: Internet :: WWW/HTTP :: WSGI :: Application',
           'Framework :: Pyramid',
       ],
