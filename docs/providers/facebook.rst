@@ -55,6 +55,12 @@ Complete Example:
         <input type="submit" value="Login with Facebook" />
     </form>
 
+Facebook also accepts a display argument, which will indicate the UI for Facebook
+to use. For more information, see `OAuth Dialog <https://developers.facebook.com/docs/reference/dialogs/oauth/`_. For instance, if you would like to use the "popup" interface:
+
+.. code-block:: html
+
+    <input type="hidden" name="display" value="popup" />
 
 Pyramid API
 -----------
