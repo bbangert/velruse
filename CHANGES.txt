@@ -17,6 +17,9 @@ New Features
 
 - [linkedin] Add support for email address.
 
+- [linkedin] Standardize the default login and callback urls to be similar
+  to all of the other providers by using the `/login/{provider}` prefix.
+
 - [twitter] Support more portable contacts keys including `preferredUsername`.
 
 - [weibo] Add support for the `scope` parameter.

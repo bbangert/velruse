@@ -44,8 +44,8 @@ def add_linkedin_login_from_settings(config, prefix='velruse.linkedin.'):
 def add_linkedin_login(config,
                        consumer_key,
                        consumer_secret,
-                       login_path='/linkedin/login',
-                       callback_path='/linkedin/login/callback',
+                       login_path='/login/linkedin',
+                       callback_path='/login/linkedin/callback',
                        name='linkedin'):
     """
     Add a Last.fm login provider to the application.
