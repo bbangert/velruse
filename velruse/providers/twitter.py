@@ -3,6 +3,7 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 import requests
+
 from requests_oauthlib import OAuth1
 
 from ..api import (
@@ -19,7 +20,7 @@ from ..utils import flat_url
 REQUEST_URL = 'https://api.twitter.com/oauth/request_token'
 AUTH_URL = 'https://api.twitter.com/oauth/authenticate'
 ACCESS_URL = 'https://api.twitter.com/oauth/access_token'
-
+DATA_URL = 'https://api.twitter.com/1.1/users/show.json?screen_name=%s'
 
 class TwitterAuthenticationComplete(AuthenticationComplete):
     """Twitter auth complete"""
@@ -100,7 +101,6 @@ class TwitterProvider(object):
             return AuthenticationDenied("User denied authentication",
                                         provider_name=self.name,
                                         provider_type=self.type)
-
         verifier = request.GET.get('oauth_verifier')
         if not verifier:
             raise ThirdPartyFailure("No oauth_verifier returned")
@@ -124,13 +124,41 @@ class TwitterProvider(object):
             'oauthAccessTokenSecret': access_token['oauth_token_secret'],
         }
 
+        username = access_token['screen_name']
+
         # Setup the normalized contact info
         profile = {}
         profile['accounts'] = [{
             'domain': 'twitter.com',
-            'userid': access_token['user_id']
+            'userid': access_token['user_id'],
+            'username': username,
         }]
-        profile['displayName'] = access_token['screen_name']
+        profile['displayName'] = username
+        profile['preferredUsername'] = username
+
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            resource_owner_key=access_token['oauth_token'],
+            resource_owner_secret=access_token['oauth_token_secret'])
+        resp = requests.get(DATA_URL % username, auth=oauth)
+        if resp.status_code == 200:
+            data = resp.json()
+            if 'name' in data:
+                # replace display name with the full name
+                profile['displayName'] = data['name']
+                profile['name'] = {'formatted': profile['displayName']}
+            if 'url' in data:
+                profile['urls'] = [{'value': data['url']}]
+            if 'location' in data:
+                profile['addresses'] = [{'formatted': data['location']}]
+            if 'profile_image_url' in data:
+                profile['photos'] = [{'value': data['profile_image_url']}]
+            if 'utc_offset' in data:
+                offset = float(data['utc_offset']) / 3600
+                h = int(offset)
+                m = int(abs(offset - h) * 60)
+                profile['utcOffset'] = '{h:+03d}:{m:02d}'.format(h=h, m=m)
 
         return TwitterAuthenticationComplete(profile=profile,
                                              credentials=creds,
