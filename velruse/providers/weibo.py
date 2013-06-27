@@ -6,6 +6,7 @@ import requests
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
+
 from ..api import (
     AuthenticationComplete,
     AuthenticationDenied,
@@ -32,6 +33,7 @@ def add_weibo_login_from_settings(config, prefix='velruse.weibo.'):
     p = ProviderSettings(settings, prefix)
     p.update('consumer_key', required=True)
     p.update('consumer_secret', required=True)
+    p.update('scope')
     p.update('login_path')
     p.update('callback_path')
     config.add_weibo_login(**p.kwargs)
@@ -40,13 +42,14 @@ def add_weibo_login_from_settings(config, prefix='velruse.weibo.'):
 def add_weibo_login(config,
                     consumer_key,
                     consumer_secret,
+                    scope=None,
                     login_path='/login/weibo',
                     callback_path='/login/weibo/callback',
                     name='weibo'):
     """
     Add a Weibo login provider to the application.
     """
-    provider = WeiboProvider(name, consumer_key, consumer_secret)
+    provider = WeiboProvider(name, consumer_key, consumer_secret, scope)
 
     config.add_route(provider.login_route, login_path)
     config.add_view(provider, attr='login', route_name=provider.login_route,
@@ -60,23 +63,27 @@ def add_weibo_login(config,
 
 
 class WeiboProvider(object):
-    def __init__(self, name, consumer_key, consumer_secret):
+    def __init__(self, name, consumer_key, consumer_secret, scope):
         self.name = name
         self.type = 'weibo'
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
+        self.scope = scope
 
         self.login_route = 'velruse.%s-login' % name
         self.callback_route = 'velruse.%s-callback' % name
 
     def login(self, request):
         """Initiate a weibo login"""
+        scope = request.POST.get('scope', self.scope)
         request.session['state'] = state = uuid.uuid4().hex
-        fb_url = flat_url('https://api.weibo.com/oauth2/authorize',
-                          client_id=self.consumer_key,
-                          redirect_uri=request.route_url(self.callback_route),
-                          state=state)
-        return HTTPFound(location=fb_url)
+        url = flat_url('https://api.weibo.com/oauth2/authorize',
+                       scope=scope,
+                       client_id=self.consumer_key,
+                       response_type='code',
+                       redirect_uri=request.route_url(self.callback_route),
+                       state=state)
+        return HTTPFound(url)
 
     def callback(self, request):
         """Process the weibo redirect"""
@@ -111,14 +118,14 @@ class WeiboProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = r.json()
-        access_token = data['access_token']
-        uid = data['uid']
+        token_data = r.json()
+        access_token = token_data['access_token']
+        user_id = token_data['uid']
 
         # Retrieve profile data
         graph_url = flat_url('https://api.weibo.com/2/users/show.json',
                              access_token=access_token,
-                             uid=uid)
+                             uid=user_id)
         r = requests.get(graph_url)
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
@@ -130,6 +137,8 @@ class WeiboProvider(object):
             'gender': data.get('gender'),
             'displayName': data['screen_name'],
             'preferredUsername': data['name'],
+            'avatar': data['avatar_large'],
+            'data': data
         }
 
         cred = {'oauthAccessToken': access_token}
