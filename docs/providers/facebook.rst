@@ -14,9 +14,9 @@ consumer key and a consumer secret specific to Facebook.
 Facebook Developer Links:
 
 * `Developer Group (View apps, create app)
-  <http://www.facebook.com/#!/developers/>`_
+  <http://www.facebook.com/#!/developers/>`__
 * `Facebook Application Management
-  <https://developers.facebook.com/apps>`_
+  <https://developers.facebook.com/apps>`__
 
 
 Settings
@@ -29,7 +29,7 @@ Settings
 ``scope``
     Optional comma-separated list of extended permissions. The scope is used
     to request access to additional Facebook properties known as
-    `Extended Permissions <http://developers.facebook.com/docs/authentication/permissions>`_.
+    `Extended Permissions <http://developers.facebook.com/docs/authentication/permissions>`__.
     It should be a comma-separated list.
 
 
@@ -39,7 +39,7 @@ POST parameters
 The Facebook provider accepts a scope argument, which is used in the
 authenticating request to access additional Facebook properties known
 as `Extended Permissions
-<http://developers.facebook.com/docs/authentication/permissions>`_.
+<http://developers.facebook.com/docs/authentication/permissions>`__.
 These should be a comma separated string, for example:
 
 .. code-block:: html
@@ -55,6 +55,14 @@ Complete Example:
         <input type="submit" value="Login with Facebook" />
     </form>
 
+Facebook also accepts a `display` argument, which will indicate the UI for
+Facebook to use. For more information, see
+`OAuth Dialog <https://developers.facebook.com/docs/reference/dialogs/oauth/`__.
+For instance, if you would like to use the "popup" interface:
+
+.. code-block:: html
+
+    <input type="hidden" name="display" value="popup" />
 
 Pyramid API
 -----------
