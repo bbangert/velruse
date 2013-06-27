@@ -13,6 +13,8 @@ New Features
 
 - [douban] The douban provider now uses their OAuth2 API instead of OAuth1.0.
 
+- [twitter] Support more portable contacts keys including `preferredUsername`.
+
 - [weibo] Add support for the `scope` parameter.
 
 Backward Incompatibilities
