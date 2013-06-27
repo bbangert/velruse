@@ -69,6 +69,7 @@ class FacebookProvider(object):
         self.consumer_key = consumer_key
         self.consumer_secret = consumer_secret
         self.scope = scope
+        self.display = 'page'
 
         self.login_route = 'velruse.%s-login' % name
         self.callback_route = 'velruse.%s-callback' % name
@@ -76,10 +77,12 @@ class FacebookProvider(object):
     def login(self, request):
         """Initiate a facebook login"""
         scope = request.POST.get('scope', self.scope)
+        display = request.POST.get('display', self.display)
         request.session['state'] = state = uuid.uuid4().hex
         fb_url = flat_url(
             'https://www.facebook.com/dialog/oauth/',
             scope=scope,
+            display=display,
             client_id=self.consumer_key,
             redirect_uri=request.route_url(self.callback_route),
             state=state)
