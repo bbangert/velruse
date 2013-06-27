@@ -3,6 +3,7 @@ from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
 
 import requests
+
 from requests_oauthlib import OAuth1
 
 from ..api import (
@@ -19,7 +20,7 @@ from ..utils import flat_url
 REQUEST_URL = 'https://api.twitter.com/oauth/request_token'
 AUTH_URL = 'https://api.twitter.com/oauth/authenticate'
 ACCESS_URL = 'https://api.twitter.com/oauth/access_token'
-
+DATA_URL = 'https://api.twitter.com/1.1/users/show.json?screen_name=%s'
 
 class TwitterAuthenticationComplete(AuthenticationComplete):
     """Twitter auth complete"""
@@ -100,7 +101,6 @@ class TwitterProvider(object):
             return AuthenticationDenied("User denied authentication",
                                         provider_name=self.name,
                                         provider_type=self.type)
-
         verifier = request.GET.get('oauth_verifier')
         if not verifier:
             raise ThirdPartyFailure("No oauth_verifier returned")
@@ -131,6 +131,25 @@ class TwitterProvider(object):
             'userid': access_token['user_id']
         }]
         profile['displayName'] = access_token['screen_name']
+
+        oauth = OAuth1(
+            self.consumer_key,
+            client_secret=self.consumer_secret,
+            resource_owner_key=access_token['oauth_token'],
+            resource_owner_secret=access_token['oauth_token_secret'])
+        resp = requests.get(DATA_URL % access_token['screen_name'], auth=oauth)
+        if resp.status_code == 200:
+            # replace display name with the full name, and take additional data
+            profile_data = resp.json()
+            profile['preferredUsername'] = profile['displayName']
+            profile['displayName'] = profile_data.get('name') or profile['displayName']
+            profile['name'] = {'formatted': profile['displayName']}
+            if profile_data.get('url'):
+                profile['urls'] = [{'value': profile_data.get('url')}]
+            if profile_data.get('location'):
+                profile['addresses'] = [{'formatted': profile_data.get('location')}]
+            if profile_data.get('profile_image_url'):
+                profile['photos'] = [{'value': profile_data.get('profile_image_url')}]
 
         return TwitterAuthenticationComplete(profile=profile,
                                              credentials=creds,
