@@ -1,7 +1,6 @@
 """Utilities for the auth functionality"""
-import urllib
+from .compat import urlencode
 
 def flat_url(url, **kw):
     """Creates a URL with the query param encoded"""
-    url += '?' + urllib.urlencode(kw)
-    return url
+    return url + '?' + urlencode(kw)
