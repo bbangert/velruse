@@ -103,7 +103,7 @@ class QQProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        access_token = dict(parse_qsl(r.content))['access_token']
+        access_token = dict(parse_qsl(r.text))['access_token']
 
         # Retrieve profile data
         graph_url = flat_url('https://graph.qq.com/oauth2.0/me',
@@ -112,7 +112,7 @@ class QQProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        data = json.loads(r.content[10:-3])
+        data = json.loads(r.text[10:-3])
         openid = data.get('openid', '')
 
         user_info_url = flat_url(
