@@ -93,7 +93,7 @@ class GithubProvider(object):
     def login(self, request):
         """Initiate a github login"""
         scope = request.POST.get('scope', self.scope)
-        request.session['state'] = state = uuid.uuid4().hex
+        request.session['velruse.github.state'] = state = uuid.uuid4().hex
         gh_url = flat_url(
             '%s://%s/login/oauth/authorize' % (self.protocol, self.domain),
             scope=scope,
@@ -104,7 +104,7 @@ class GithubProvider(object):
 
     def callback(self, request):
         """Process the github redirect"""
-        sess_state = request.session.get('state')
+        sess_state = request.session.pop('velruse.github.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(

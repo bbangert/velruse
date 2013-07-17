@@ -87,7 +87,7 @@ class LinkedInProvider(object):
         request_token = dict(parse_qsl(resp.content))
 
         # store the token for later
-        request.session['token'] = request_token
+        request.session['velruse.linkedin.token'] = request_token
 
         # redirect the user to authorize the app
         auth_url = flat_url(AUTH_URL, oauth_token=request_token['oauth_token'])
@@ -104,7 +104,7 @@ class LinkedInProvider(object):
         if not verifier:
             raise ThirdPartyFailure("No oauth_verifier returned")
 
-        request_token = request.session['token']
+        request_token = request.session.pop('velruse.linkedin.token')
 
         # turn our request token into an access token
         oauth = OAuth1(

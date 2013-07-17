@@ -88,7 +88,7 @@ class YandexProvider(object):
 
     def login(self, request):
         """Initiate a Yandex login"""
-        request.session['state'] = state = uuid.uuid4().hex
+        request.session['velruse.yandex.state'] = state = uuid.uuid4().hex
         auth_url = flat_url(
             PROVIDER_AUTH_URL,
             client_id=self.consumer_key,
@@ -99,7 +99,7 @@ class YandexProvider(object):
 
     def callback(self, request):
         """Process the Yandex redirect"""
-        sess_state = request.session.get('state')
+        sess_state = request.session.pop('velruse.yandex.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(

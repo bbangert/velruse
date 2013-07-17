@@ -202,7 +202,7 @@ class OpenIDConsumer(object):
         realm = self._get_realm(request)
         # TODO: add a csrf check to the return_to URL
         return_to = request.route_url(self.callback_route)
-        request.session['openid_session'] = openid_session
+        request.session['velruse.openid.session'] = openid_session
 
         # OpenID 2.0 lets Providers request POST instead of redirect, this
         # checks for such a request.
@@ -228,12 +228,9 @@ class OpenIDConsumer(object):
         """Handle incoming redirect from OpenID Provider"""
         log.debug('Handling processing of response from server')
 
-        openid_session = request.session.get('openid_session', None)
+        openid_session = request.session.pop('velruse.openid.session', None)
         if not openid_session:
             raise ThirdPartyFailure("No OpenID Session has begun.")
-
-        # Delete the temporary token data used for the OpenID auth
-        del request.session['openid_session']
 
         # Setup the consumer and parse the information coming back
         oidconsumer = consumer.Consumer(openid_session, self.openid_store)

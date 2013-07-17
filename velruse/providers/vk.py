@@ -94,7 +94,7 @@ class VKProvider(object):
 
     def login(self, request):
         """Initiate a VK login"""
-        request.session['state'] = state = uuid.uuid4().hex
+        request.session['velruse.vk.state'] = state = uuid.uuid4().hex
         fb_url = flat_url(
             PROVIDER_AUTH_URL,
             scope=self.scope,
@@ -106,7 +106,7 @@ class VKProvider(object):
 
     def callback(self, request):
         """Process the VK redirect"""
-        sess_state = request.session.get('state')
+        sess_state = request.session.pop('velruse.vk.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(

@@ -76,7 +76,7 @@ class WeiboProvider(object):
     def login(self, request):
         """Initiate a weibo login"""
         scope = request.POST.get('scope', self.scope)
-        request.session['state'] = state = uuid.uuid4().hex
+        request.session['velruse.weibo.state'] = state = uuid.uuid4().hex
         url = flat_url('https://api.weibo.com/oauth2/authorize',
                        scope=scope,
                        client_id=self.consumer_key,
@@ -87,7 +87,7 @@ class WeiboProvider(object):
 
     def callback(self, request):
         """Process the weibo redirect"""
-        sess_state = request.session.get('state')
+        sess_state = request.session.pop('velruse.weibo.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(

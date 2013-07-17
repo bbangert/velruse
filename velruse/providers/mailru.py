@@ -100,7 +100,7 @@ class MailRuProvider(object):
 
     def login(self, request):
         """Initiate a MailRu login"""
-        request.session['state'] = state = uuid.uuid4().hex
+        request.session['velruse.mailru.state'] = state = uuid.uuid4().hex
         auth_url = flat_url(
             PROVIDER_AUTH_URL,
             scope=self.scope,
@@ -112,13 +112,14 @@ class MailRuProvider(object):
 
     def callback(self, request):
         """Process the MailRu redirect"""
-        state = request.session.get('state')
-        if not state or state != request.GET.get('state'):
+        sess_state = request.session.pop('velruse.mailru.state', None)
+        req_state = request.GET.get('state')
+        if not sess_state or sess_state != req_state:
             raise CSRFError(
                 'CSRF Validation check failed. Request state {req_state} is '
                 'not the same as session state {sess_state}'.format(
-                    req_state=request.GET.get('state'),
-                    sess_state=request.session.get('state')
+                    req_state=req_state,
+                    sess_state=sess_state
                 )
             )
         code = request.GET.get('code')
