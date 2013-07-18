@@ -10,6 +10,7 @@ from ..api import (
     AuthenticationDenied,
     register_provider,
 )
+from ..events import with_events, AuthenticationStarted
 from ..exceptions import CSRFError
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
@@ -99,6 +100,7 @@ class GoogleOAuth2Provider(object):
         if not self.scope:
             self.scope = ' '.join((self.profile_scope, self.email_scope))
 
+    @with_events(AuthenticationStarted)
     def login(self, request):
         """Initiate a google login"""
         scope = ' '.join(request.POST.getall('scope')) or self.scope

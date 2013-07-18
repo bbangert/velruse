@@ -11,6 +11,7 @@ from ..api import (
     AuthenticationDenied,
     register_provider,
 )
+from ..events import with_events, AuthenticationStarted
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
@@ -71,6 +72,7 @@ class LiveProvider(object):
         self.login_route = 'velruse.%s-login' % name
         self.callback_route = 'velruse.%s-callback' % name
 
+    @with_events(AuthenticationStarted)
     def login(self, request):
         """Initiate a Live login"""
         scope = request.POST.get('scope', self.scope or

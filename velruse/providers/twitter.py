@@ -12,6 +12,7 @@ from ..api import (
     register_provider,
 )
 from ..compat import parse_qsl
+from ..events import with_events, AuthenticationStarted
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
@@ -75,6 +76,7 @@ class TwitterProvider(object):
         self.login_route = 'velruse.%s-login' % name
         self.callback_route = 'velruse.%s-callback' % name
 
+    @with_events(AuthenticationStarted)
     def login(self, request):
         """Initiate a Twitter login"""
         # grab the initial request token

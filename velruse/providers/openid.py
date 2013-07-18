@@ -16,6 +16,10 @@ from ..api import (
     AuthenticationDenied,
     register_provider,
 )
+from ..events import (
+    AuthenticationStarted,
+    with_events
+)
 from ..exceptions import (
     MissingParameter,
     ThirdPartyFailure,
@@ -167,6 +171,7 @@ class OpenIDConsumer(object):
 
         """
 
+    @with_events(AuthenticationStarted)
     def login(self, request):
         log.debug('Handling OpenID login')
 

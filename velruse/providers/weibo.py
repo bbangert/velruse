@@ -12,6 +12,7 @@ from ..api import (
     AuthenticationDenied,
     register_provider,
 )
+from ..events import with_events, AuthenticationStarted
 from ..exceptions import CSRFError
 from ..exceptions import ThirdPartyFailure
 from ..settings import ProviderSettings
@@ -73,6 +74,7 @@ class WeiboProvider(object):
         self.login_route = 'velruse.%s-login' % name
         self.callback_route = 'velruse.%s-callback' % name
 
+    @with_events(AuthenticationStarted)
     def login(self, request):
         """Initiate a weibo login"""
         scope = request.POST.get('scope', self.scope)

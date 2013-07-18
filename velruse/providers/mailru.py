@@ -16,6 +16,7 @@ from ..api import (
     AuthenticationDenied,
     register_provider,
 )
+from ..events import with_events, AuthenticationStarted
 from ..exceptions import CSRFError, ThirdPartyFailure
 from ..settings import ProviderSettings
 from ..utils import flat_url
@@ -98,6 +99,7 @@ class MailRuProvider(object):
         self.login_route = 'velruse.{name}-login'.format(name=name)
         self.callback_route = 'velruse.{name}-callback'.format(name=name)
 
+    @with_events(AuthenticationStarted)
     def login(self, request):
         """Initiate a MailRu login"""
         request.session['state'] = state = uuid.uuid4().hex
