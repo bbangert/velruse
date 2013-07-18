@@ -100,7 +100,7 @@ class MailRuProvider(object):
 
     def login(self, request):
         """Initiate a MailRu login"""
-        request.session['velruse.mailru.state'] = state = uuid.uuid4().hex
+        request.session['velruse.state'] = state = uuid.uuid4().hex
         auth_url = flat_url(
             PROVIDER_AUTH_URL,
             scope=self.scope,
@@ -112,7 +112,7 @@ class MailRuProvider(object):
 
     def callback(self, request):
         """Process the MailRu redirect"""
-        sess_state = request.session.pop('velruse.mailru.state', None)
+        sess_state = request.session.pop('velruse.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
