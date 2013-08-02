@@ -147,7 +147,7 @@ class LinkedInProvider(object):
         profile['name'] = {
             'givenName': data['firstName'],
             'familyName': data['lastName'],
-            'formatted': '%s %s' % (data['firstName'], data['lastName'])
+            'formatted': u'%s %s' % (data['firstName'], data['lastName'])
         }
         if data.get('emailAddress'):
             profile['emails'] = [{'value': data.get('emailAddress')}]
