@@ -186,7 +186,7 @@ def extract_normalize_yandex_data(data):
     profile['displayName'] = (
         real_name
         or display_name
-        or 'Yandex user #{id}'.format(id=data['id'])
+        or u'Yandex user #{id}'.format(id=data['id'])
     )
 
     # Now strip out empty values
