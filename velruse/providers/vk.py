@@ -192,7 +192,7 @@ def extract_normalize_vk_data(data):
         profile['name']['givenName'] = data['first_name']
     if data['last_name']:
         profile['name']['familyName'] = data['last_name']
-    profile['displayName'] = u('{} {}').format(
+    profile['displayName'] = u'{} {}'.format(
         data['first_name'], data['last_name']).strip()
 
     # Gender

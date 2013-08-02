@@ -157,7 +157,7 @@ class BitbucketProvider(object):
         first_name = data.get('first_name', '')
         last_name = data.get('last_name', '')
         if first_name or last_name:
-            name['formatted'] = '{0} {1}'.format(first_name, last_name).strip()
+            name['formatted'] = u'{0} {1}'.format(first_name, last_name).strip()
         if first_name:
             name['givenName'] = first_name
         if last_name:
