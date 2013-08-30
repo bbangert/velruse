@@ -7,6 +7,7 @@ from nose.plugins.skip import SkipTest
 from pyramid.paster import get_app
 
 from selenium import webdriver
+from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -97,16 +98,24 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         login.send_keys(self.login)
         passwd = form.find_element_by_name('pass')
         passwd.send_keys(self.password)
-        self.assertTrue(self.app in form.text)
         form.submit()
-        result = WebDriverWait(browser, 2).until(
-            EC.presence_of_element_located((By.ID, 'result')))
+        find_title = EC.title_is('Facebook')
+        find_result = EC.presence_of_element_located((By.ID, 'result'))
+        WebDriverWait(browser, 2).until(
+            lambda driver: find_title(driver) or find_result(driver))
+        while browser.title == 'Facebook':
+            btn = WebDriverWait(browser, 2).until(
+                EC.presence_of_element_located((By.NAME, '__CONFIRM__')))
+            btn.click()
+            WebDriverWait(browser, 2).until(
+                lambda driver: find_title(driver) or find_result(driver))
+        result = browser.find_element_by_id('result')
         self.assertEqual(browser.title, 'Result Page')
         result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
         profile = result['profile']
-        self.assertTrue('verifiedEmail' in profile)
+        self.assertTrue('emails' in profile)
         self.assertTrue('displayName' in profile)
         self.assertTrue('accounts' in profile)
         creds = result['credentials']
@@ -407,7 +416,6 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         self.assertTrue('accounts' in profile)
         creds = result['credentials']
         self.assertTrue('oauthAccessToken' in creds)
-        self.assertTrue('oauthAccessTokenSecret' in creds)
 
 class TestOpenID(ProviderTests, unittest.TestCase):
 
@@ -432,14 +440,13 @@ class TestOpenID(ProviderTests, unittest.TestCase):
         find_alert = EC.alert_is_present()
         find_continue = EC.presence_of_element_located(
             (By.ID, 'continue-button'))
-        WebDriverWait(browser, 2).until(
+        result = WebDriverWait(browser, 2).until(
             lambda driver: find_alert(driver) or find_continue(driver))
-        continue_btn = browser.find_element_by_id('continue-button')
-        if continue_btn:
-            continue_btn.click()
-            alert = WebDriverWait(browser, 2).until(EC.alert_is_present())
-        else:
+        if isinstance(result, Alert):
             alert = browser.switch_to_alert()
+        else:
+            result.click()
+            alert = WebDriverWait(browser, 2).until(EC.alert_is_present())
         alert.accept()
         result = WebDriverWait(browser, 2).until(
             EC.presence_of_element_located((By.ID, 'result')))

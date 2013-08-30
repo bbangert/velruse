@@ -31,3 +31,8 @@ try:
     from urlparse import parse_qsl
 except ImportError:
     from urllib.parse import parse_qsl
+
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode

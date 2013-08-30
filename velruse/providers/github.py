@@ -132,7 +132,7 @@ class GithubProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        access_token = dict(parse_qsl(r.content))['access_token']
+        access_token = dict(parse_qsl(r.text))['access_token']
 
         # Retrieve profile data
         graph_url = flat_url('%s://api.%s/user' % (self.protocol, self.domain),
