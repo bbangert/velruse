@@ -1,3 +1,14 @@
+1.1.1 (2013-08-29)
+==================
+
+This release primarily includes various unicode improvements as we approach
+py3k support.
+
+Bug Fixes
+---------
+
+- [twitter] Fix bug when twitter sends a `null` value for `utc_offset`.
+
 1.1 (2013-06-27)
 ================
 
