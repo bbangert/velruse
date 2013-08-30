@@ -97,16 +97,24 @@ class TestFacebook(ProviderTests, unittest.TestCase):
         login.send_keys(self.login)
         passwd = form.find_element_by_name('pass')
         passwd.send_keys(self.password)
-        self.assertTrue(self.app in form.text)
         form.submit()
-        result = WebDriverWait(browser, 2).until(
-            EC.presence_of_element_located((By.ID, 'result')))
+        find_title = EC.title_is('Facebook')
+        find_result = EC.presence_of_element_located((By.ID, 'result'))
+        WebDriverWait(browser, 2).until(
+            lambda driver: find_title(driver) or find_result(driver))
+        while browser.title == 'Facebook':
+            btn = WebDriverWait(browser, 2).until(
+                EC.presence_of_element_located((By.NAME, '__CONFIRM__')))
+            btn.click()
+            WebDriverWait(browser, 2).until(
+                lambda driver: find_title(driver) or find_result(driver))
+        result = browser.find_element_by_id('result')
         self.assertEqual(browser.title, 'Result Page')
         result = json.loads(result.text)
         self.assertTrue('profile' in result)
         self.assertTrue('credentials' in result)
         profile = result['profile']
-        self.assertTrue('verifiedEmail' in profile)
+        self.assertTrue('emails' in profile)
         self.assertTrue('displayName' in profile)
         self.assertTrue('accounts' in profile)
         creds = result['credentials']
