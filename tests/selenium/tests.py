@@ -7,6 +7,7 @@ from nose.plugins.skip import SkipTest
 from pyramid.paster import get_app
 
 from selenium import webdriver
+from selenium.webdriver.common.alert import Alert
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -439,14 +440,13 @@ class TestOpenID(ProviderTests, unittest.TestCase):
         find_alert = EC.alert_is_present()
         find_continue = EC.presence_of_element_located(
             (By.ID, 'continue-button'))
-        WebDriverWait(browser, 2).until(
+        result = WebDriverWait(browser, 2).until(
             lambda driver: find_alert(driver) or find_continue(driver))
-        continue_btn = browser.find_element_by_id('continue-button')
-        if continue_btn:
-            continue_btn.click()
-            alert = WebDriverWait(browser, 2).until(EC.alert_is_present())
-        else:
+        if isinstance(result, Alert):
             alert = browser.switch_to_alert()
+        else:
+            result.click()
+            alert = WebDriverWait(browser, 2).until(EC.alert_is_present())
         alert.accept()
         result = WebDriverWait(browser, 2).until(
             EC.presence_of_element_located((By.ID, 'result')))
