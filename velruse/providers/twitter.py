@@ -154,7 +154,7 @@ class TwitterProvider(object):
                 profile['addresses'] = [{'formatted': data['location']}]
             if 'profile_image_url' in data:
                 profile['photos'] = [{'value': data['profile_image_url']}]
-            if 'utc_offset' in data:
+            if data.get('utc_offset'):
                 offset = float(data['utc_offset']) / 3600
                 h = int(offset)
                 m = int(abs(offset - h) * 60)
