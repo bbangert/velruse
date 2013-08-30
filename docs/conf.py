@@ -12,6 +12,7 @@
 # serve to show the default.
 
 import sys, os
+import pkg_resources
 
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
@@ -56,7 +57,7 @@ copyright = u'2010, Ben Bangert'
 # built documents.
 #
 # The short X.Y version.
-version = '1.1'
+version = pkg_resources.get_distribution('velruse').version
 # The full version, including alpha/beta/rc tags.
 release = version
 
