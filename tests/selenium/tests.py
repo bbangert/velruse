@@ -415,7 +415,6 @@ class TestWindowsLive(ProviderTests, unittest.TestCase):
         self.assertTrue('accounts' in profile)
         creds = result['credentials']
         self.assertTrue('oauthAccessToken' in creds)
-        self.assertTrue('oauthAccessTokenSecret' in creds)
 
 class TestOpenID(ProviderTests, unittest.TestCase):
 
