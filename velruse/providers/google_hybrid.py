@@ -183,7 +183,7 @@ class GoogleConsumer(OpenIDConsumer):
                 'OAuth token validation failed. Status: %d, Content: %s',
                 resp.status_code, resp.content)
         else:
-            access_token = dict(parse_qsl(resp.content))
+            access_token = dict(parse_qsl(resp.text))
             return {
                 'oauthAccessToken': access_token['oauth_token'],
                 'oauthAccessTokenSecret': access_token['oauth_token_secret'],

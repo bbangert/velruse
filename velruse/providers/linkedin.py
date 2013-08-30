@@ -84,7 +84,7 @@ class LinkedInProvider(object):
         if resp.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 resp.status_code, resp.content))
-        request_token = dict(parse_qsl(resp.content))
+        request_token = dict(parse_qsl(resp.text))
 
         # store the token for later
         request.session['token'] = request_token
@@ -117,7 +117,7 @@ class LinkedInProvider(object):
         if resp.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 resp.status_code, resp.content))
-        access_token = dict(parse_qsl(resp.content))
+        access_token = dict(parse_qsl(resp.text))
         creds = {
             'oauthAccessToken': access_token['oauth_token'],
             'oauthAccessTokenSecret': access_token['oauth_token_secret'],
