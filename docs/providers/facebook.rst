@@ -29,9 +29,7 @@ Settings
 ``scope``
     Optional comma-separated list of extended permissions. The scope is used
     to request access to additional Facebook properties known as
-    `Extended Permissions
-    <http://developers.facebook.com/docs/authentication/permissions>`__.
-    It should be a comma-separated list.
+    `Extended Permissions`_. It should be a comma-separated list.
 
 
 POST parameters
@@ -39,9 +37,8 @@ POST parameters
 
 The Facebook provider accepts a scope argument, which is used in the
 authenticating request to access additional Facebook properties known
-as `Extended Permissions
-<http://developers.facebook.com/docs/authentication/permissions>`__.
-These should be a comma separated string, for example:
+as `Extended Permissions`_. These should be a comma separated string,
+for example:
 
 .. code-block:: html
 
@@ -57,9 +54,7 @@ Complete Example:
     </form>
 
 Facebook also accepts a `display` argument, which will indicate the UI for
-Facebook to use. For more information, see
-`OAuth Dialog
-<https://developers.facebook.com/docs/reference/dialogs/oauth/`__.
+Facebook to use. For more information, see `OAuth Dialog`_.
 For instance, if you would like to use the "popup" interface:
 
 .. code-block:: html
@@ -79,3 +74,9 @@ Pyramid API
    .. autofunction:: add_facebook_login
 
    .. autofunction:: add_facebook_login_from_settings
+
+.. _Extended Permissions:
+    http://developers.facebook.com/docs/authentication/permissions
+
+.. _OAuth Dialog:
+    https://developers.facebook.com/docs/reference/dialogs/oauth/
