@@ -1,3 +1,4 @@
+import os.path
 import sys
 
 from setuptools import setup, find_packages
@@ -27,14 +28,22 @@ docs_extras = [
     'docutils',
 ]
 
+here = os.path.abspath(os.path.dirname(__file__))
+try:
+    with open(os.path.join(here, 'README.rst')) as f:
+        README = f.read()
+    with open(os.path.join(here, 'CHANGES.rst')) as f:
+        CHANGES = f.read()
+except IOError:
+    README = CHANGES = ''
+
 setup(name='velruse',
       version='1.1.1',
       description=(
           'Simplifying third-party authentication for web applications.'),
-      long_description='',
+      long_description=README + '\n\n' + CHANGES,
       # Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
-          'Development Status :: 4 - Beta',
           'Intended Audience :: Developers',
           'License :: OSI Approved :: MIT License',
           'Programming Language :: Python :: 2',

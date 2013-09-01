@@ -22,9 +22,6 @@ Velruse can:
 * Integrate with most web applications regardless of the language used
   to write the website.
 
-Warning: It's early yet for Velruse, so only those interested in
-developing Velruse should be taking a look into this now.
-
 ----
 
 Overview
