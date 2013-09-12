@@ -102,7 +102,7 @@ class GoogleOAuth2Provider(object):
     def login(self, request):
         """Initiate a google login"""
         scope = ' '.join(request.POST.getall('scope')) or self.scope
-        request.session['state'] = state = uuid.uuid4().hex
+        request.session['velruse.state'] = state = uuid.uuid4().hex
 
         approval_prompt = request.POST.get('approval_prompt', 'auto')
 
@@ -119,7 +119,7 @@ class GoogleOAuth2Provider(object):
 
     def callback(self, request):
         """Process the google redirect"""
-        sess_state = request.session.get('state')
+        sess_state = request.session.pop('velruse.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
