@@ -5,7 +5,7 @@ from flask import (
     request
 )
 
-from velruse.app import make_velruse_app
+import velruse.app
 
 from werkzeug.wsgi import DispatcherMiddleware
 
@@ -26,7 +26,7 @@ def login_callback():
     response = requests.get(request.host_url + 'velruse/auth_info', params=payload)
     return render_template('result.html', result=response.json)
 
-velruse = make_velruse_app({}, **app.config['VELRUSE'])
+velruse = velruse.app.make_app({}, **app.config['VELRUSE'])
 
 application = DispatcherMiddleware(app, {
     '/velruse': velruse,
