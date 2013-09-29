@@ -165,9 +165,6 @@ class RedditProvider(object):
             )
 
         profile_data = r.json()
-        import logging
-        LOG = logging.getLogger(__name__)
-        LOG.debug(profile_data)
         profile = {}
         profile['accounts'] = [{
             'domain': self.domain,
