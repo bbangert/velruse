@@ -42,7 +42,7 @@ def add_reddit_login_from_settings(config, prefix='velruse.reddit.'):
 def add_reddit_login(config,
                      consumer_key,
                      consumer_secret,
-                     scope=None,
+                     scope='identity',
                      login_path='/login/reddit',
                      callback_path='/login/reddit/callback',
                      domain='reddit.com',
