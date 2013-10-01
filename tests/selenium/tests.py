@@ -21,9 +21,9 @@ browser = None  # populated in setUpModule
 server = None  # populated in setUpModule
 
 def splitlines(s):
-    return filter(None, [c.strip()
+    return list(filter(None, [c.strip()
                          for x in s.splitlines()
-                         for c in x.split(', ')])
+                         for c in x.split(', ')]))
 
 def setUpModule():
     global browser, server
@@ -492,3 +492,42 @@ class TestLinkedin(ProviderTests, unittest.TestCase):
         creds = result['credentials']
         self.assertTrue('oauthAccessToken' in creds)
         self.assertTrue('oauthAccessTokenSecret' in creds)
+
+class TestReddit(ProviderTests, unittest.TestCase):
+
+    @classmethod
+    def setUpClass(cls):
+        cls.require_provider('reddit')
+        cls.login = config['reddit.login']
+        cls.password = config['reddit.password']
+        cls.login_url = find_login_url(config, 'reddit.login_url')
+
+    def test_it(self):
+        browser.get(self.login_url)
+        self.assertEqual(browser.title, 'Auth Page')
+        browser.find_element_by_id('reddit').submit()
+        login = WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.ID, 'user_login')))
+        self.assertEqual(browser.title, 'reddit.com: login or register')
+        passwd = browser.find_element_by_id('user_login')
+        login.send_keys(self.login)
+        passwd = browser.find_element_by_id('passwd_login')
+        passwd.send_keys(self.password)
+        passwd.submit()
+        WebDriverWait(browser, 2).until(
+            EC.presence_of_element_located((By.NAME, 'authorize')))
+        allow_button = browser.find_elements_by_class_name('allow')[0]
+        allow_button.click()
+        # Reddit takes its sweet time
+        result = WebDriverWait(browser, 30).until(
+            EC.presence_of_element_located((By.ID, 'result')))
+        self.assertEqual(browser.title, 'Result Page')
+        result = json.loads(result.text)
+        self.assertTrue('profile' in result)
+        self.assertTrue('credentials' in result)
+        profile = result['profile']
+        self.assertTrue('displayName' in profile)
+        self.assertTrue('preferredUsername' in profile)
+        self.assertTrue('accounts' in profile)
+        creds = result['credentials']
+        self.assertTrue('oauthAccessToken' in creds)

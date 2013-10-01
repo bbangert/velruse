@@ -48,13 +48,14 @@ def main(global_conf, **settings):
     session_factory = UnencryptedCookieSessionFactoryConfig('seekrit')
 
     providers = settings.get('login_providers', '')
-    providers = filter(None, [p.strip()
+    providers = list(filter(None, [p.strip()
                               for line in providers.splitlines()
-                              for p in line.split(', ')])
+                              for p in line.split(', ')]))
     settings['login_providers'] = providers
 
     config = Configurator(settings=settings)
     config.set_session_factory(session_factory)
+    config.include('pyramid_mako')
 
     if 'facebook' in providers:
         config.include('velruse.providers.facebook')
@@ -133,6 +134,13 @@ def main(global_conf, **settings):
         config.add_linkedin_login(
             settings['velruse.linkedin.consumer_key'],
             settings['velruse.linkedin.consumer_secret'],
+        )
+
+    if 'reddit' in providers:
+        config.include('velruse.providers.reddit')
+        config.add_reddit_login(
+            settings['velruse.reddit.consumer_key'],
+            settings['velruse.reddit.consumer_secret'],
         )
 
     config.scan(__name__)

@@ -3,12 +3,11 @@ import sys
 
 from setuptools import setup, find_packages
 
-import velruse
-
 PY3 = sys.version_info[0] >= 3
 
 requires = [
     'pyramid',
+    'pyramid_mako',
     'requests',
     'requests-oauthlib',
     'anykeystore',
@@ -40,7 +39,7 @@ except IOError:
     README = CHANGES = ''
 
 setup(name='velruse',
-      version=velruse.__version__,
+      version='1.1.1',
       description=(
           'Simplifying third-party authentication for web applications.'),
       long_description=README + '\n\n' + CHANGES,

@@ -37,6 +37,7 @@ ${form('twitter', 'Login with Twitter')}
 ${form('yahoo', 'Login with Yahoo',
        oauth='true',
        openid_identifier='yahoo.com')}
+${form('reddit', 'Login with Reddit')}
 
 </body>
 </html>
