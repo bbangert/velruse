@@ -1,3 +1,5 @@
+__version__ = '1.1.1'
+
 class AuthenticationComplete(object):
     """ An AuthenticationComplete context object"""
 

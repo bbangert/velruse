@@ -3,6 +3,8 @@ import sys
 
 from setuptools import setup, find_packages
 
+import velruse
+
 PY3 = sys.version_info[0] >= 3
 
 requires = [
@@ -38,7 +40,7 @@ except IOError:
     README = CHANGES = ''
 
 setup(name='velruse',
-      version='1.1.1',
+      version=velruse.__version__,
       description=(
           'Simplifying third-party authentication for web applications.'),
       long_description=README + '\n\n' + CHANGES,
