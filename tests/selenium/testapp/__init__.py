@@ -141,6 +141,7 @@ def main(global_conf, **settings):
         config.add_reddit_login(
             settings['velruse.reddit.consumer_key'],
             settings['velruse.reddit.consumer_secret'],
+            user_agent=settings['velruse.reddit.user_agent'],
         )
 
     config.scan(__name__)

@@ -32,6 +32,7 @@ def add_reddit_login_from_settings(config, prefix='velruse.reddit.'):
     p = ProviderSettings(settings, prefix)
     p.update('consumer_key', required=True)
     p.update('consumer_secret', required=True)
+    p.update('user_agent')
     p.update('scope')
     p.update('login_path')
     p.update('callback_path')
@@ -46,7 +47,8 @@ def add_reddit_login(config,
                      login_path='/login/reddit',
                      callback_path='/login/reddit/callback',
                      domain='reddit.com',
-                     name='reddit'):
+                     name='reddit',
+                     user_agent='velruse/1.1.1'):
     """
     Add a Reddit login provider to the application.
     """
@@ -54,7 +56,8 @@ def add_reddit_login(config,
                               consumer_key,
                               consumer_secret,
                               scope,
-                              domain)
+                              domain,
+                              user_agent)
 
     config.add_route(provider.login_route, login_path)
     config.add_view(provider, attr='login', route_name=provider.login_route,
@@ -73,7 +76,8 @@ class RedditProvider(object):
                  consumer_key,
                  consumer_secret,
                  scope,
-                 domain):
+                 domain,
+                 user_agent):
         self.name = name
         self.type = 'reddit'
         self.consumer_key = consumer_key
@@ -81,6 +85,7 @@ class RedditProvider(object):
         self.scope = scope
         self.protocol = 'https'
         self.domain = domain
+        self.user_agent = user_agent
 
         self.login_route = 'velruse.{name}-login'.format(name=name)
         self.callback_route = 'velruse.{name}-callback'.format(name=name)
@@ -129,8 +134,9 @@ class RedditProvider(object):
         post_data = dict(redirect_uri=request.route_url(self.callback_route),
                          grant_type='authorization_code',
                          code=code)
+        headers = {'User-Agent': self.user_agent}
         r = requests.post(access_url, data=post_data, auth=(self.consumer_key,
-                          self.consumer_secret))
+                          self.consumer_secret), headers=headers)
         if r.status_code != 200:
             raise ThirdPartyFailure(
                 "Status {code}: {content}".format(
@@ -141,9 +147,9 @@ class RedditProvider(object):
 
         token_data = r.json()
         access_token = token_data['access_token']
-        headers = {
+        headers.update({
             'Authorization': 'Bearer {token}'.format(token=access_token)
-        }
+        })
         api_url = '{protocol}://oauth.{domain}/api/v1/'.format(
             protocol=self.protocol,
             domain=self.domain

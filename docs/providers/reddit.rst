@@ -9,6 +9,7 @@ Reddit Links:
 * `Register a New Reddit Application
   <https://ssl.reddit.com/prefs/apps/>`__
 * `Reddit OAuth 2.0 API <https://github.com/reddit/reddit/wiki/OAuth2>`__
+* `Reddit API Rules <https://github.com/reddit/reddit/wiki/API>`__
 
 
 Settings
@@ -19,7 +20,9 @@ Settings
 ``consumer_secret``
     reddit application secret
 ``scope``
-    reddit application scope - defaults to identity
+    scope - defaults to identity
+``user_agent``
+    User-Agent header requests should use: Reddit asks for a unique and descriptive user-agent string. (e.g. User-Agent: flairbot/1.0 by spladug)
 
 
 POST Parameters
