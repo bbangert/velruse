@@ -95,8 +95,9 @@ class LinkedInProvider(object):
 
     def callback(self, request):
         """Process the LinkedIn redirect"""
-        if 'denied' in request.GET:
-            return AuthenticationDenied("User denied authentication",
+        if 'oauth_problem' in request.GET:
+            oauth_problems = ','.join(request.GET.getall('oauth_problem'))
+            return AuthenticationDenied("ProblemReporting: %s" % oauth_problems,
                                         provider_name=self.name,
                                         provider_type=self.type)
 
