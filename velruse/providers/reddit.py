@@ -48,7 +48,7 @@ def add_reddit_login(config,
                      callback_path='/login/reddit/callback',
                      domain='reddit.com',
                      name='reddit',
-                     user_agent='velruse/1.1.1'):
+                     user_agent='velruse'):
     """
     Add a Reddit login provider to the application.
     """
