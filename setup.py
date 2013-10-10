@@ -7,6 +7,7 @@ PY3 = sys.version_info[0] >= 3
 
 requires = [
     'pyramid',
+    'pyramid_mako',
     'requests',
     'requests-oauthlib',
     'anykeystore',

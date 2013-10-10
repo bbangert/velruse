@@ -20,3 +20,4 @@ as a part of the velruse standalone application.
    providers/vk
    providers/yahoo
    providers/yandex
+   providers/reddit
