@@ -10,6 +10,7 @@ requires = [
     'requests',
     'requests-oauthlib',
     'anykeystore',
+    'python-openid-teams',
 ]
 
 if PY3:
