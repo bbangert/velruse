@@ -253,6 +253,7 @@ class OpenIDConsumer(object):
                 sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
                 ax_resp=ax.FetchResponse.fromSuccessResponse(info)
             )
+            self._extract_extra_data(info, user_data)
             # Did we get any OAuth info?
             oauth = info.extensionResponse(
                 'http://specs.openid.net/extensions/oauth/1.0', False
@@ -272,6 +273,13 @@ class OpenIDConsumer(object):
                                 provider_type=self.type)
         else:
             raise ThirdPartyFailure("OpenID failed.")
+
+    def _extract_extra_data(self, info, user_data):
+        """
+        This function does nothing, but can be used in subclasses
+        to extract extra information from the OpenIDResponse object
+        """
+        pass
 
 
 class AttribAccess(object):
