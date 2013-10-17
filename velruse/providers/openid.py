@@ -7,6 +7,8 @@ from openid.consumer import consumer
 from openid.extensions import ax
 from openid.extensions import sreg
 
+from openid_teams import teams
+
 from pyramid.request import Response
 from pyramid.httpexceptions import HTTPFound
 from pyramid.security import NO_PERMISSION_REQUIRED
@@ -83,6 +85,7 @@ def includeme(config):
 def add_openid_login(config,
                      realm=None,
                      storage=None,
+                     teams=None,
                      login_path='/login/openid',
                      callback_path='/login/openid/callback',
                      name='openid'):
@@ -93,7 +96,7 @@ def add_openid_login(config,
     `openid.store.interface.OpenIDStore` protocol. If left as `None` then
     the provider will run in a stateless mode.
     """
-    provider = OpenIDConsumer(name, 'openid', realm=realm, storage=storage)
+    provider = OpenIDConsumer(name, 'openid', realm=realm, storage=storage, teams=teams)
 
     config.add_route(provider.login_route, login_path)
     config.add_view(provider, attr='login', route_name=provider.login_route,
@@ -117,12 +120,14 @@ class OpenIDConsumer(object):
                  _type,
                  realm=None,
                  storage=None,
+                 teams=None,
                  context=OpenIDAuthenticationComplete):
         self.openid_store = storage
         self.name = name
         self.type = _type
         self.context = context
         self.realm_override = realm
+        self.requested_teams = teams
 
         self.login_route = 'velruse.%s-url' % name
         self.callback_route = 'velruse.%s-callback' % name
@@ -157,6 +162,11 @@ class OpenIDConsumer(object):
                       'postcode', 'country', 'language', 'timezone'],
         )
         authrequest.addExtension(sreg_request)
+
+        # Add the Teams extension request
+        if self.requested_teams:
+            teams_request = teams.TeamsRequest(requested=self.requested_teams)
+            authrequest.addExtension(teams_request)
 
     def _get_access_token(self, request_token):
         """Called to exchange a request token for the access token
@@ -251,7 +261,8 @@ class OpenIDConsumer(object):
             user_data = extract_openid_data(
                 identifier=openid_identity,
                 sreg_resp=sreg.SRegResponse.fromSuccessResponse(info),
-                ax_resp=ax.FetchResponse.fromSuccessResponse(info)
+                ax_resp=ax.FetchResponse.fromSuccessResponse(info),
+                teams=teams.TeamsResponse.fromSuccessResponse(info)
             )
             # Did we get any OAuth info?
             oauth = info.extensionResponse(
@@ -301,7 +312,7 @@ class AttribAccess(object):
         return self.sreg_resp.get(key)
 
 
-def extract_openid_data(identifier, sreg_resp, ax_resp):
+def extract_openid_data(identifier, sreg_resp, ax_resp, teams_resp):
     """Extract the OpenID Data from Simple Reg and AX data
 
     This normalizes the data to the appropriate format.
@@ -322,6 +333,10 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
     else:
         account['domain'] = 'openid.net'
     account['username'] = identifier
+
+    # Extract the teams the user is a member of
+    if teams_resp:
+        ud['teams'] = teams_resp.teams
 
     # Sort out the display name and preferred username
     if account['domain'] == 'google.com':
