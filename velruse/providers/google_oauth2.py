@@ -153,7 +153,6 @@ class GoogleOAuth2Provider(object):
         refresh_token = token_data.get('refresh_token')
 
         # Retrieve profile data if scopes allow
-        profile = {}
         user_url = flat_url(
             '%s://www.googleapis.com/oauth2/v1/userinfo' % self.protocol,
             access_token=access_token)
@@ -161,22 +160,50 @@ class GoogleOAuth2Provider(object):
 
         if r.status_code == 200:
             data = r.json()
-            profile['accounts'] = [{
-                'domain': self.domain,
-                'username': data['email'],
-                'userid': data['id']
-            }]
-            if 'name' in data:
-                profile['displayName'] = data['name']
-            else:
-                profile['displayName'] = data['email']
-            profile['preferredUsername'] = data['email']
-            profile['verifiedEmail'] = data['email']
-            profile['emails'] = [{'value': data['email']}]
-
+            profile = extract_google_data(data)
+            
         cred = {'oauthAccessToken': access_token,
                 'oauthRefreshToken': refresh_token}
         return GoogleAuthenticationComplete(profile=profile,
                                             credentials=cred,
                                             provider_name=self.name,
                                             provider_type=self.type)
+def extract_google_data(data):
+    """Extact and normalize google data as parsed from the JSON"""
+    link = data.get('link')
+    
+    profile = {
+        'accounts': [{'domain': GOOGLE_OAUTH2_DOMAIN, 'username': data['email'], 'userid': data['id']}],
+        'displayName': data['name'] if 'name' in data else data['email'],
+        'preferredUsername': data['name'] if 'name' in data else data['email'],
+    }
+    
+    gender = data.get('gender')
+    if gender:
+        profile['gender'] = gender
+        
+    email = data.get('email')
+    if email:
+        profile['emails'] = [{'value': email, 'primary': True}]
+        if data.get('verified_email') and email:
+            profile['verifiedEmail'] = email
+
+    name = {}
+    pcard_map = {'given_name': 'givenName', 'family_name': 'familyName'}
+    for key, val in pcard_map.items():
+        part = data.get(key)
+        if part:
+            name[val] = part
+    name['formatted'] = data['name']
+
+    profile['name'] = name
+    profile['link'] = link
+    if 'picture' in data:  
+        profile['photos'] = [{'value': data['picture']}]
+
+    # Now strip out empty values
+    for k, v in profile.items():
+        if not v or (isinstance(v, list) and not v[0]):
+            del profile[k]
+
+    return profile
