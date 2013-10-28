@@ -28,7 +28,8 @@
 	<h2>Login to ${project}</h2>
 	<!-- Simple OpenID Selector -->
 	<form action="${login_url}" method="get" id="openid_form">
-		<input type="hidden" name="action" value="verify" />
+		<input type="hidden" id="action" name="action" value="verify" />
+		<input type="hidden" id="method" name="method" value="unknown" />
 		<fieldset>
 			<legend>Sign-in</legend>
 			<div id="openid_choice">
@@ -42,8 +43,8 @@
 		</fieldset>
 	</form>
 	<!-- /Simple OpenID Selector -->
-	<p>OpenID allows you to log-on to many different websites using a single identity.<br/>
+	<p><small>OpenID allows you to log-on to many different websites using a single identity.<br/>
            Find out <a href="http://openid.net/what/">more about OpenID</a> and
-           <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</p>
+           <a href="http://openid.net/get/">how to get an OpenID enabled account</a>.</small></p>
 </body>
 </html>

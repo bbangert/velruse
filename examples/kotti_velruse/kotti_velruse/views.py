@@ -1,77 +1,107 @@
-from pyramid.view import view_config
-from pyramid.httpexceptions import HTTPFound
+from pyramid.httpexceptions import HTTPFound, HTTPNotFound
+from pyramid.request import Request
+
+from velruse.api import login_url
+from velruse.app import find_providers
 
 
 log = __import__('logging').getLogger(__name__)
 
 
 def includeme(config):
-    config.add_route('login',      '/login')
-    config.add_route('logging_in', '/logging_in')
-    config.add_route('logged_in',  '/logged_in')
-    config.add_route('logout',     '/logout')
+    config.add_view(login,
+                    route_name='login',
+                    request_method='GET',
+                    renderer='kotti_velruse:templates/login.mako')
+    config.add_view(login_,
+                    route_name='login_',
+                    renderer='json')
+    config.add_view(logged_in,
+                    route_name='logged_in',
+                    renderer='json')
+    config.add_view(logout,
+                    route_name='logout',
+                    permission='view')
+
+    config.add_route('login',     '/login')
+    config.add_route('login_',    '/login_')
+    config.add_route('logged_in', '/logged_in')
+    config.add_route('logout',    '/logout')
 
     config.add_static_view(name='static', path='kotti_velruse:static')
+
+    ####################################################################################
+    # This route named '' MUST BE THE LAST ONE in the global list of routes.
+    # It means that plugin kotti_velruse MUST BE THE LAST ONE in the list of includes.
+    #
+    # It's definitely a bad idea to employ a route named ''.
+    # But, in order to avoid this, we would have to change openid-selector too much :(
+    # ... which is outside of our requirements for this demo.
+    ####################################################################################
     config.add_static_view(name='',       path='kotti_velruse:openid-selector')
 
 
-@view_config(route_name='login',
-             request_method='GET',
-             renderer='kotti_velruse:templates/login.mako')
-def login_view(request):
+def login(request):
     settings = request.registry.settings
     project = settings['kotti.site_title']
-    login_url = request.route_url('logging_in')
-    from velruse.app import find_providers
-    providers = find_providers(settings)
     return {
         'project' : project,
-        'login_url': login_url,
-        'providers': providers,
+        'login_url': request.route_url('login_'),
     }
 
 
-@view_config(route_name='logging_in',
-             renderer='json')
-def logging_in(request):
-    provider=request.cookies['openid_provider']
-    print('--------------------------------------------------------')
-    print(provider)
-    #print('+++++++++++++++')
-    #print(request.params)
-    #print('+++++++++++++++')
-    #print('{}'.format(request))
+def login_(request):
+    ####################################################################################
+    # Let's clarify the difference between "provider" and "method":
+    #
+    # * Conceptually, methods can be understood pretty much like protocols or transports.
+    #   So, methods would be for example: OpenID, OAuth2, CAS, LDAP.
+    # * A provider is simply an entity, like Verisign, Google, Yahoo, Launchpad and
+    #   hundreds of other entities which employ popular methods like OpenID and OAuth2.
+    # * In particular, certain entities implement their own methods (or protocols) or
+    #   they eventually offer several authentication methods. For this reason, there are
+    #   specific methods for "yahoo", "tweeter", "google_hybrid", "google_oauth2", etc.
+    #
+    # For the SAKE OF SIMPLICITY we arbitrarity consider providers and methods simply
+    # as entities in this function in particular.
+    ####################################################################################
+    provider=request.params['method']
 
-    from velruse.api import login_url
-    if provider in [ 'yahoo', 'twitter' ]:
-        url = login_url(request, provider)
-    elif 'facebook' == provider:
-        request.params['scope'] = 'email,publish_stream,read_stream,create_event,offline_access'
-    elif 'google' == provider:
-        url = login_url(request, 'google_oauth2')
-    elif 'winliveid' == provider:
-        url = login_url(request, 'live')
-    else:
-        url = login_url(request, 'openid')
-    print(url)
-    print('--------------------------------------------------------')
-    return HTTPFound(location=url)
+    settings = request.registry.settings
+    if not provider in find_providers(settings):
+        raise HTTPNotFound('Provider "{}" is not configured'.format(provider)).exception
 
-@view_config(route_name='logged_in',
-             renderer='json')
+    velruse_url = login_url(request, provider)
+
+    payload = dict(request.params)
+    if 'yahoo'    == provider: payload['oauth'] = 'true'
+    if 'facebook' == provider: payload['scope'] = 'email,publish_stream,read_stream,create_event,offline_access'
+    if 'openid'   == provider: payload['use_popup'] = 'false'
+    payload['format'] = 'json'
+
+    redirect = Request.blank(velruse_url, POST=payload)
+    try:
+        response = request.invoke_subrequest( redirect )
+        return response
+    except:
+        message = 'Provider "{}" is probably misconfigured'.format(provider)
+        raise HTTPNotFound(message).exception
+
+
 def logged_in(request):
-    import requests
-    token = request.POST['token']
-    payload = { 'format': 'json', 'token': token }
-    response = requests.get(request.host_url + '/auth_info', params=payload)
-    return { 'result': response.json() }
+    token = request.params['token']
+    storage = request.registry.velruse_store
+    try:
+        return storage.retrieve(token)
+    except KeyError:
+        message = 'invalid token "{}"'.format(token)
+        log.error(message)
+        return { 'error' : message }
 
 
-@view_config(route_name='logout',
-             permission='view')
 def logout(request):
     from pyramid.security import forget
     request.session.invalidate()
     request.session.flash('Session logoff.')
     headers = forget(request)
-    return HTTPFound(location=request.route_url('home'), headers=headers)
+    return HTTPFound(location=request.route_url('login'), headers=headers)
