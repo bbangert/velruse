@@ -129,6 +129,9 @@ settings_adapter = {
     'weibo': 'add_weibo_login_from_settings',
     'openid': 'add_openid_login_from_settings',
     'yahoo': 'add_yahoo_login_from_settings',
+    'mailru': 'add_mailru_login_from_settings',
+    'yandex': 'add_yandex_login_from_settings',
+    'vk': 'add_vk_login_from_settings',
 }
 
 
