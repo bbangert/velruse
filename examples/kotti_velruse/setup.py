@@ -8,6 +8,7 @@ version = '0.1'
 
 requires = [
     'Kotti',
+    'kotti_velruse',
     ]
 
 setup(name='kotti_velruse',
@@ -29,7 +30,4 @@ setup(name='kotti_velruse',
       include_package_data=True,
       zip_safe=False,
       install_requires=requires,
-      entry_points="""
-      # -*- Entry points: -*-
-      """,
       )

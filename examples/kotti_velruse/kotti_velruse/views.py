@@ -4,8 +4,7 @@ from pyramid.request import Request
 from velruse.api import login_url
 from velruse.app import find_providers
 
-
-log = __import__('logging').getLogger(__name__)
+from kotti_velruse import log, _
 
 
 def includeme(config):
@@ -28,80 +27,95 @@ def includeme(config):
     config.add_route('logged_in', '/logged_in')
     config.add_route('logout',    '/logout')
 
-    config.add_static_view(name='static', path='kotti_velruse:static')
-
-    ####################################################################################
-    # This route named '' MUST BE THE LAST ONE in the global list of routes.
-    # It means that plugin kotti_velruse MUST BE THE LAST ONE in the list of includes.
-    #
-    # It's definitely a bad idea to employ a route named ''.
-    # But, in order to avoid this, we would have to change openid-selector too much :(
-    # ... which is outside of our requirements for this demo.
-    ####################################################################################
-    config.add_static_view(name='',       path='kotti_velruse:openid-selector')
-
+    try:
+        import openid_selector
+        log.info('openid_selector loaded successfully')
+        config.add_static_view(name='js',     path='openid_selector:/js')
+        config.add_static_view(name='css',    path='openid_selector:/css')
+        config.add_static_view(name='images', path='openid_selector:/images')
+    except Exception as e:
+        log.error(e)
+        raise e
+    log.info('kotti_velruse views are configured.')
+    
 
 def login(request):
     settings = request.registry.settings
-    project = settings['kotti.site_title']
-    return {
-        'project' : project,
-        'login_url': request.route_url('login_'),
-    }
+    try:
+        #TODO:: before_kotti_velruse_loggedin(request)
+        return {
+            'project' : settings['kotti.site_title'],
+            'login_url': request.route_url('login_'),
+        }
+    except Exception as e:
+        log.error(e.message)
+        raise HTTPNotFound(e.message).exception
 
 
 def login_(request):
-    ####################################################################################
-    # Let's clarify the difference between "provider" and "method":
-    #
-    # * Conceptually, methods can be understood pretty much like protocols or transports.
-    #   So, methods would be for example: OpenID, OAuth2, CAS, LDAP.
-    # * A provider is simply an entity, like Verisign, Google, Yahoo, Launchpad and
-    #   hundreds of other entities which employ popular methods like OpenID and OAuth2.
-    # * In particular, certain entities implement their own methods (or protocols) or
-    #   they eventually offer several authentication methods. For this reason, there are
-    #   specific methods for "yahoo", "tweeter", "google_hybrid", "google_oauth2", etc.
-    #
-    # For the SAKE OF SIMPLICITY we arbitrarity consider providers and methods simply
-    # as entities in this function in particular.
-    ####################################################################################
-    provider=request.params['method']
+    ######################################################################################
+    #                                                                                    #
+    # Let's clarify the difference between "provider" and "method" in this function:     #
+    #                                                                                    #
+    # * Conceptually, [authentication] methods can be understood pretty much like        #
+    #   protocols or transports. So, methods would be for example: OpenID, OAuth2 and    #
+    #   other authentication protocols supported by Velruse.                             #
+    #                                                                                    #
+    # * A provider is simply an entity, like Google, Yahoo, Twitter, Facebook, Verisign, #
+    #   Github, Launchpad and hundreds of other entities which employ authentication     #
+    #   methods like OpenID, OAuth2 and others supported by Velruse.                     #
+    #                                                                                    #
+    # * In particular, certain entities implement their own authentication methods or    #
+    #   they eventually offer several authentication methods. For this reason, there are #
+    #   specific methods for "yahoo", "tweeter", "google_hybrid", "google_oauth2", etc.  #
+    #                                                                                    #
+    ######################################################################################
+
+    provider = request.params['provider']
+    method = request.params['method']
 
     settings = request.registry.settings
-    if not provider in find_providers(settings):
-        raise HTTPNotFound('Provider "{}" is not configured'.format(provider)).exception
+    if not method in find_providers(settings):
+        raise HTTPNotFound('Provider/method {}/{} is not configured'.format(provider, method)).exception
 
-    velruse_url = login_url(request, provider)
+    velruse_url = login_url(request, method)
 
     payload = dict(request.params)
-    if 'yahoo'    == provider: payload['oauth'] = 'true'
-    if 'facebook' == provider: payload['scope'] = 'email,publish_stream,read_stream,create_event,offline_access'
-    if 'openid'   == provider: payload['use_popup'] = 'false'
+    if 'yahoo'    == method: payload['oauth'] = 'true'
+    if 'openid'   == method: payload['use_popup'] = 'false'
     payload['format'] = 'json'
+    del payload['provider']
+    del payload['method']
 
     redirect = Request.blank(velruse_url, POST=payload)
     try:
         response = request.invoke_subrequest( redirect )
         return response
-    except:
-        message = 'Provider "{}" is probably misconfigured'.format(provider)
+    except Exception as e:
+        log.error(e.message)
+        message = _(u'Provider/method: {}/{} :: {}').format(provider, method, e.message)
         raise HTTPNotFound(message).exception
+
 
 
 def logged_in(request):
     token = request.params['token']
     storage = request.registry.velruse_store
     try:
-        return storage.retrieve(token)
-    except KeyError:
-        message = 'invalid token "{}"'.format(token)
-        log.error(message)
-        return { 'error' : message }
+        json = storage.retrieve(token)
+        return json
+    except Exception as e:
+        log.error(e.message)
+        raise HTTPNotFound(e.message).exception
 
 
 def logout(request):
     from pyramid.security import forget
-    request.session.invalidate()
-    request.session.flash('Session logoff.')
-    headers = forget(request)
-    return HTTPFound(location=request.route_url('login'), headers=headers)
+    try:
+        request.session.invalidate()
+        request.session.flash( _(u'Session logged out.') )
+        headers = forget(request)
+        return HTTPFound(location=request.application_url, headers=headers)
+    except Exception as e:
+        log.error(e.message)
+        raise HTTPNotFound(e.message).exception

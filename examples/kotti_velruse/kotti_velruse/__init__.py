@@ -1,12 +1,12 @@
-from pyramid.config import Configurator
-
-import velruse.app
-import views
+from pyramid.i18n import TranslationStringFactory
 
 
 log = __import__('logging').getLogger(__name__)
 
 
-def includeme(config):
-    velruse.app.includeme(config)
-    views.includeme(config)
+_ = TranslationStringFactory('kotti_velruse')
+
+
+def kotti_configure(settings):
+    settings['pyramid.includes'] += ' velruse.app'
+    settings['pyramid.includes'] += ' kotti_velruse.views'
