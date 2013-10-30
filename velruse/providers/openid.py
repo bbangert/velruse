@@ -21,6 +21,8 @@ from ..exceptions import (
     ThirdPartyFailure,
 )
 
+from ..settings import ProviderSettings
+
 log = __import__('logging').getLogger(__name__)
 
 # Setup our attribute objects that we'll be requesting
@@ -78,6 +80,16 @@ class OpenIDAuthenticationComplete(AuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_openid_login', add_openid_login)
+    config.add_directive('add_openid_login_from_settings',
+                         add_openid_login_from_settings)
+
+
+def add_openid_login_from_settings(config, prefix='velruse.openid.'):
+    settings = config.registry.settings
+    p = ProviderSettings(settings, prefix)
+    p.update('login_path')
+    p.update('callback_path')
+    config.add_openid_login(**p.kwargs)
 
 
 def add_openid_login(config,

@@ -118,6 +118,7 @@ settings_adapter = {
     'github': 'add_github_login_from_settings',
     'google': 'add_google_login_from_settings',
     'google_oauth2': 'add_google_oauth2_login_from_settings',
+    'google_hybrid': 'add_google_hybrid_login_from_settings',
     'lastfm': 'add_lastfm_login_from_settings',
     'linkedin': 'add_linkedin_login_from_settings',
     'live': 'add_live_login_from_settings',
@@ -126,6 +127,11 @@ settings_adapter = {
     'taobao': 'add_taobao_login_from_settings',
     'twitter': 'add_twitter_login_from_settings',
     'weibo': 'add_weibo_login_from_settings',
+    'openid': 'add_openid_login_from_settings',
+    'yahoo': 'add_yahoo_login_from_settings',
+    'mailru': 'add_mailru_login_from_settings',
+    'yandex': 'add_yandex_login_from_settings',
+    'vk': 'add_vk_login_from_settings',
 }
 
 

@@ -18,6 +18,7 @@ from .openid import (
     OpenIDConsumer,
 )
 
+from ..settings import ProviderSettings
 
 log = __import__('logging').getLogger(__name__)
 
@@ -38,18 +39,31 @@ def includeme(config):
         for the supported options.
 
     """
-    config.add_directive('add_google_hybrid_login', add_google_login)
+    config.add_directive('add_google_hybrid_login', add_google_hybrid_login)
+    config.add_directive('add_google_hybrid_login_from_settings',
+                         add_google_hybrid_login_from_settings)
 
-def add_google_login(config,
-                     attrs=None,
-                     realm=None,
-                     storage=None,
-                     consumer_key=None,
-                     consumer_secret=None,
-                     scope=None,
-                     login_path='/login/google',
-                     callback_path='/login/google/callback',
-                     name='google'):
+
+def add_google_hybrid_login_from_settings(config, prefix='velruse.google_hybrid.'):
+    settings = config.registry.settings
+    p = ProviderSettings(settings, prefix)
+    p.update('consumer_key', required=True)
+    p.update('consumer_secret', required=True)
+    p.update('login_path')
+    p.update('callback_path')
+    config.add_google_hybrid_login(**p.kwargs)
+
+
+def add_google_hybrid_login(config,
+                            attrs=None,
+                            realm=None,
+                            storage=None,
+                            consumer_key=None,
+                            consumer_secret=None,
+                            scope=None,
+                            login_path='/login/google_hybrid',
+                            callback_path='/login/google_hybrid/callback',
+                            name='google_hybrid'):
     """
     Add a Google login provider to the application using the OpenID+OAuth
     hybrid protocol.  This protocol can be configured for purely

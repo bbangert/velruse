@@ -16,6 +16,7 @@ from .openid import (
     OpenIDConsumer,
 )
 
+from ..settings import ProviderSettings
 
 log = __import__('logging').getLogger(__name__)
 
@@ -29,6 +30,18 @@ class YahooAuthenticationComplete(OpenIDAuthenticationComplete):
 
 def includeme(config):
     config.add_directive('add_yahoo_login', add_yahoo_login)
+    config.add_directive('add_yahoo_login_from_settings',
+                         add_yahoo_login_from_settings)
+
+
+def add_yahoo_login_from_settings(config, prefix='velruse.yahoo.'):
+    settings = config.registry.settings
+    p = ProviderSettings(settings, prefix)
+    p.update('consumer_key', required=True)
+    p.update('consumer_secret', required=True)
+    p.update('login_path')
+    p.update('callback_path')
+    config.add_yahoo_login(**p.kwargs)
 
 
 def add_yahoo_login(config,
