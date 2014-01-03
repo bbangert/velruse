@@ -16,6 +16,11 @@ from ..settings import ProviderSettings
 from ..utils import flat_url
 
 
+AUTH_URL = 'https://open.weixin.qq.com/connect/oauth2/authorize'
+ACCESS_URL = 'https://api.weixin.qq.com/sns/oauth2/access_token'
+USER_URL = 'https://api.weixin.qq.com/sns/userinfo'
+
+
 class WeChatAuthenticationComplete(AuthenticationComplete):
     """WeChat auth complete"""
 
@@ -40,7 +45,7 @@ def add_wechat_login_from_settings(config, prefix='velruse.wechat.'):
 def add_wechat_login(config,
                      consumer_key,
                      consumer_secret,
-                     scope='snsapi_base',
+                     scope='snsapi_userinfo',
                      login_path='/login/wechat',
                      callback_path='/login/wechat/callback',
                      name='wechat'):
@@ -75,13 +80,9 @@ class WeChatProvider(object):
         """Initiate a qq login"""
         scope = request.POST.get('scope', self.scope)
         request.session['velruse.state'] = state = uuid.uuid4().hex
-        url = flat_url('https://open.weixin.qq.com/connect/oauth2/authorize',
-                       scope=scope,
-                       appid=self.consumer_key,
-                       response_type='code',
-                       redirect_uri=request.route_url(self.callback_route),
-                       state=state)
-        url += '#wechat_redirect'
+        url = '%s?appid=%s&redirect_uri=%s&response_type=%s&scope=%s&state=%s#wechat_redirect' % (
+            AUTH_URL, self.consumer_key,
+            request.route_url(self.callback_route), 'code', scope, state)
         return HTTPFound(location=url)
 
     def callback(self, request):
@@ -104,22 +105,36 @@ class WeChatProvider(object):
                                         provider_type=self.type)
 
         # Now retrieve the access token with the code
-        access_url = flat_url(
-            'https://api.weixin.qq.com/sns/oauth2/access_token',
-            appid=self.consumer_key,
-            secret=self.consumer_secret,
-            grant_type='authorization_code',
-            code=code)
+        access_url = flat_url(ACCESS_URL,
+                              appid=self.consumer_key,
+                              secret=self.consumer_secret,
+                              grant_type='authorization_code',
+                              code=code)
         r = requests.get(access_url)
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
         token_data = r.json()
         access_token = token_data['access_token']
+        refresh_token = token_data['refresh_token']
         openid = token_data['openid']
 
+        cred = {'oauthAccessToken': access_token,
+                'oauthRefreshToken': refresh_token}
+
+        if self.scope == 'snsapi_base':
+            profile = {
+                'accounts': [{'domain': 'wexin.qq.com', 'userid': openid}],
+                'displayName': openid,
+                'preferredUsername': openid
+            }
+            return WeChatAuthenticationComplete(profile=profile,
+                                                credentials=cred,
+                                                provider_name=self.name,
+                                                provider_type=self.type)
+
         # Retrieve profile data
-        graph_url = flat_url('https://api.weixin.qq.com/sns/userinfo',
+        graph_url = flat_url(USER_URL,
                              access_token=access_token,
                              openid=openid)
         r = requests.get(graph_url)
@@ -135,7 +150,6 @@ class WeChatProvider(object):
             'avatar': data['headimgurl'],
             'data': data
         }
-        cred = {'oauthAccessToken': access_token}
         return WeChatAuthenticationComplete(profile=profile,
                                             credentials=cred,
                                             provider_name=self.name,
