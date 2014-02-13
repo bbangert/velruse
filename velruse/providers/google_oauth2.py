@@ -77,8 +77,8 @@ def add_google_login(config,
 
 class GoogleOAuth2Provider(object):
 
-    profile_scope = 'https://www.googleapis.com/auth/userinfo.profile'
-    email_scope = 'https://www.googleapis.com/auth/userinfo.email'
+    profile_scope = 'profile'
+    email_scope = 'email'
 
     def __init__(self,
                  name,
@@ -155,7 +155,7 @@ class GoogleOAuth2Provider(object):
         # Retrieve profile data if scopes allow
         profile = {}
         user_url = flat_url(
-            '%s://www.googleapis.com/oauth2/v1/userinfo' % self.protocol,
+            '%s://www.googleapis.com/oauth2/v2/userinfo' % self.protocol,
             access_token=access_token)
         r = requests.get(user_url)
 
@@ -171,8 +171,24 @@ class GoogleOAuth2Provider(object):
             else:
                 profile['displayName'] = data['email']
             profile['preferredUsername'] = data['email']
-            profile['verifiedEmail'] = data['email']
-            profile['emails'] = [{'value': data['email']}]
+            profile['emails'] = [{'value': data['email'], 'primary': True}]
+            if data.get('verified_email'):
+                profile['verifiedEmail'] = data['email']
+            if 'given_name' in data and 'family_name' in data:
+                profile['name'] = {
+                    'familyName': data['family_name'],
+                    'givenName': data['given_name']
+                }
+            if 'gender' in data:
+                profile['gender'] = data['gender']
+            if 'picture' in data:
+                profile['photos'] = [{'value': data['picture']}]
+            if 'locale' in data:
+                profile['locale'] = data['locale']
+            if 'link' in data:
+                profile['urls'] = [{'value': data['link'], 'type': 'profile'}]
+            if 'hd' in data: # Hosted domain (e.g. if the user is Google apps)
+                profile['hostedDomain'] = data['hd']
 
         cred = {'oauthAccessToken': access_token,
                 'oauthRefreshToken': refresh_token}
