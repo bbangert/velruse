@@ -53,7 +53,7 @@ def add_linkedin_login(config,
                      scope='',
                      login_path='/login/linkedin',
                      callback_path='/login/linkedin/callback',
-                     name='linkedin'):
+                     name='linkedin_oauth2'):
     """
     Add a Linkedin login provider to the application supporting the new
     OAuth2 protocol.
