@@ -30,6 +30,7 @@ ${form('google_hybrid', 'Login with Google OpenID+OAuth',
        openid_identifier='google.com')}
 ${form('google_oauth2', 'Login with Google OAuth2')}
 ${form('linkedin', 'Login with Linkedin')}
+${form('linkedin_oauth2', 'Login with Linkedin OAuth2')}
 ${form('live', 'Login with Windows Live')}
 ${form('openid', 'Login with OpenID',
        openid_identifier='myopenid.com')}

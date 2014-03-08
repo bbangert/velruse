@@ -134,6 +134,13 @@ def main(global_conf, **settings):
             settings['velruse.linkedin.consumer_key'],
             settings['velruse.linkedin.consumer_secret'],
         )
+        
+    if 'linkedin_oauth2' in providers:
+        config.include('velruse.providers.linkedin_oauth2')
+        config.add_linkedin_oauth2_login(
+            settings['velruse.linkedin.consumer_key'],
+            settings['velruse.linkedin.consumer_secret'],
+        )
 
     config.scan(__name__)
     return config.make_wsgi_app()
