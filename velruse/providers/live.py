@@ -75,7 +75,7 @@ class LiveProvider(object):
         """Initiate a Live login"""
         scope = request.POST.get('scope', self.scope or
                                  'wl.basic wl.emails wl.signin')
-        fb_url = flat_url('https://oauth.live.com/authorize', scope=scope,
+        fb_url = flat_url('https://login.live.com/oauth20_authorize.srf', scope=scope,
                           client_id=self.consumer_key,
                           redirect_uri=request.route_url(self.callback_route),
                           response_type="code")
@@ -95,7 +95,7 @@ class LiveProvider(object):
 
         # Now retrieve the access token with the code
         access_url = flat_url(
-            'https://oauth.live.com/token',
+            'https://login.live.com/oauth20_token.srf',
             client_id=self.consumer_key,
             client_secret=self.consumer_secret,
             redirect_uri=request.route_url(self.callback_route),
