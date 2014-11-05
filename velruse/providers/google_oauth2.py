@@ -119,29 +119,40 @@ class GoogleOAuth2Provider(object):
 
     def callback(self, request):
         """Process the google redirect"""
-        sess_state = request.session.pop('velruse.state', None)
-        req_state = request.GET.get('state')
-        if not sess_state or sess_state != req_state:
-            raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is '
-                'not the same as session state {sess_state}'.format(
-                    req_state=req_state,
-                    sess_state=sess_state
+        # If the client already did login client-side, we can use a provided code for a one-step login
+        if request.method == 'POST':
+            code = request.POST.get('code')
+            if not code:
+                return AuthenticationDenied(reason='Missing authentication code',
+                                            provider_name=self.name,
+                                            provider_type=self.type)
+            redirect_uri = 'postmessage'
+        else:
+            sess_state = request.session.pop('velruse.state', None)
+            req_state = request.GET.get('state')
+            if not sess_state or sess_state != req_state:
+                raise CSRFError(
+                    'CSRF Validation check failed. Request state {req_state} is '
+                    'not the same as session state {sess_state}'.format(
+                        req_state=req_state,
+                        sess_state=sess_state
+                    )
                 )
-            )
-        code = request.GET.get('code')
-        if not code:
-            reason = request.GET.get('error', 'No reason provided.')
-            return AuthenticationDenied(reason=reason,
-                                        provider_name=self.name,
-                                        provider_type=self.type)
+
+            code = request.GET.get('code')
+            if not code:
+                reason = request.GET.get('error', 'No reason provided.')
+                return AuthenticationDenied(reason=reason,
+                                            provider_name=self.name,
+                                            provider_type=self.type)
+            redirect_uri = request.route_url(self.callback_route)
 
         # Now retrieve the access token with the code
         r = requests.post(
             '%s://%s/o/oauth2/token' % (self.protocol, self.domain),
             dict(client_id=self.consumer_key,
                  client_secret=self.consumer_secret,
-                 redirect_uri=request.route_url(self.callback_route),
+                 redirect_uri=redirect_uri,
                  code=code,
                  grant_type='authorization_code'),
         )
