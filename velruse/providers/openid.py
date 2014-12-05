@@ -172,6 +172,7 @@ class OpenIDConsumer(object):
 
         # Load default parameters that all Auth Responders take
         openid_url = request.params.get('openid_identifier')
+        openid_immediate = request.params.get('openid_immediate', False)
 
         # Let inherited consumers alter the openid identifier if desired
         openid_url = self._lookup_identifier(request, openid_url)
@@ -211,14 +212,14 @@ class OpenIDConsumer(object):
             redirect_url = authrequest.redirectURL(
                 realm=realm,
                 return_to=return_to,
-                immediate=False)
+                immediate=openid_immediate)
             return HTTPFound(location=redirect_url)
         else:
             log.debug('About to initiate OpenID POST')
             html = authrequest.htmlMarkup(
                 realm=realm,
                 return_to=return_to,
-                immediate=False)
+                immediate=openid_immediate)
             return Response(body=html)
 
     def _update_profile_data(self, request, user_data, credentials):
@@ -237,7 +238,8 @@ class OpenIDConsumer(object):
         return_to = request.route_url(self.callback_route)
         info = oidconsumer.complete(request.params, return_to)
 
-        if info.status in [consumer.FAILURE, consumer.CANCEL]:
+        if info.status in [consumer.FAILURE, consumer.CANCEL,
+                           consumer.SETUP_NEEDED]:
             return AuthenticationDenied("OpenID failure",
                                         provider_name=self.name,
                                         provider_type=self.type)
