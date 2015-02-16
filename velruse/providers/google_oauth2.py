@@ -163,17 +163,14 @@ class GoogleOAuth2Provider(object):
             data = r.json()
             profile['accounts'] = [{
                 'domain': self.domain,
-                'username': data['email'],
-                'userid': data['id']
+                'username': data.get('email'),
+                'userid': data.get('id')
             }]
-            if 'name' in data:
-                profile['displayName'] = data['name']
-            else:
-                profile['displayName'] = data['email']
-            profile['preferredUsername'] = data['email']
-            profile['verifiedEmail'] = data['email']
-            profile['emails'] = [{'value': data['email']}]
-
+            profile['displayName'] = data.get('name')
+            profile['preferredUsername'] = data.get('email')
+            profile['verifiedEmail'] = data.get('email')
+            profile['emails'] = [{'value': data.get('email')}]
+        
         cred = {'oauthAccessToken': access_token,
                 'oauthRefreshToken': refresh_token}
         return GoogleAuthenticationComplete(profile=profile,
