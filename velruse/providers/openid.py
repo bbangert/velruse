@@ -384,8 +384,9 @@ def extract_openid_data(identifier, sreg_resp, ax_resp):
         ud['thumbnailUrl'] = thumbnail
 
     # Now strip out empty values
+    stripped_ud = {}
     for k, v in ud.items():
-        if not v or (isinstance(v, list) and not v[0]):
-            del ud[k]
+        if v and not(isinstance(v, list) and not v[0]):
+            stripped_ud[k] = v
 
-    return ud
+    return stripped_ud
