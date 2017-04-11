@@ -78,7 +78,7 @@ class FacebookProvider(object):
         """Initiate a facebook login"""
         scope = request.POST.get('scope', self.scope)
         display = request.POST.get('display', self.display)
-        request.session['velruse.state'] = state = uuid.uuid4().hex
+        request.session['state'] = state = uuid.uuid4().hex
         fb_url = flat_url(
             'https://www.facebook.com/dialog/oauth/',
             scope=scope,
@@ -90,7 +90,7 @@ class FacebookProvider(object):
 
     def callback(self, request):
         """Process the facebook redirect"""
-        sess_state = request.session.pop('velruse.state', None)
+        sess_state = request.session.get('state')
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
@@ -118,7 +118,7 @@ class FacebookProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        access_token = dict(parse_qsl(r.text))['access_token']
+        access_token = r.json()['access_token']
 
         # Retrieve profile data
         graph_url = flat_url('https://graph.facebook.com/me',
