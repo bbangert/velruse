@@ -94,14 +94,15 @@ class LiveProvider(object):
                                         provider_type=self.type)
 
         # Now retrieve the access token with the code
-        access_url = flat_url(
-            'https://login.live.com/oauth20_token.srf',
-            client_id=self.consumer_key,
-            client_secret=self.consumer_secret,
-            redirect_uri=request.route_url(self.callback_route),
-            grant_type="authorization_code",
-            code=code)
-        r = requests.get(access_url)
+        access_url = 'https://login.live.com/oauth20_token.srf'
+        access_data = {
+            "client_id": self.consumer_key,
+            "client_secret": self.consumer_secret,
+            "redirect_uri": request.route_url(self.callback_route),
+            "grant_type": "authorization_code",
+            "code": code
+        }
+        r = requests.post(access_url, data=access_data)
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
