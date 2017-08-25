@@ -38,7 +38,7 @@ except IOError:
     README = CHANGES = ''
 
 setup(name='velruse',
-      version='1.1.1',
+      version='1.1.1a',
       description=(
           'Simplifying third-party authentication for web applications.'),
       long_description=README + '\n\n' + CHANGES,
