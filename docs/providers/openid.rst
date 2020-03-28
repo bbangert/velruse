@@ -38,7 +38,7 @@ POST Parameters
 ---------------
 
 The OpenID provider accepts `openid_identifier` which should designate
-the OpenID identifer being claimed to authenticate.
+the OpenID identifier being claimed to authenticate.
 
 Complete Example:
 
