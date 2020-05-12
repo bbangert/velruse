@@ -119,7 +119,7 @@ class GoogleOAuth2Provider(object):
 
     def callback(self, request):
         """Process the google redirect"""
-        sess_state = request.session.pop('velruse.state', None)
+        sess_state = request.session.get('velruse.state')
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
@@ -161,11 +161,18 @@ class GoogleOAuth2Provider(object):
 
         if r.status_code == 200:
             data = r.json()
+            
+            #import logging
+            #logging.info('Google Oauth2 Response JSON: %s', data)
+            # {u'name': u'John Smith', u'picture': u'https://lh3.googleusercontent.com/a-/oijf2UoVzoEvq1LyuR0u', u'id': u'8281828828827363', u'verified_email': True, u'locale': u'de', u'given_name': u'John', u'email': u'js@gmail.com', u'family_name': u'Smith'}
+            
             profile['accounts'] = [{
                 'domain': self.domain,
                 'username': data.get('email'),
-                'userid': data.get('id')
+                'userid': data.get('id'),
+                'data': data # someone might need the raw data (e.g. for locale)
             }]
+            
             profile['displayName'] = data.get('name')
             profile['preferredUsername'] = data.get('email')
             profile['verifiedEmail'] = data.get('email')
