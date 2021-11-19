@@ -119,7 +119,7 @@ class GoogleOAuth2Provider(object):
 
     def callback(self, request):
         """Process the google redirect"""
-        sess_state = request.session.get('velruse.state')
+        sess_state = request.session.pop('velruse.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(

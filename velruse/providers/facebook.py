@@ -78,7 +78,7 @@ class FacebookProvider(object):
         """Initiate a facebook login"""
         scope = request.POST.get('scope', self.scope)
         display = request.POST.get('display', self.display)
-        request.session['state'] = state = uuid.uuid4().hex
+        request.session['velruse.state'] = state = uuid.uuid4().hex
         fb_url = flat_url(
             'https://www.facebook.com/dialog/oauth/', 
             # We refer to an API call made without specifying a version as an unversioned call. An unversioned call will always point to the oldest available version. 
@@ -91,7 +91,7 @@ class FacebookProvider(object):
 
     def callback(self, request):
         """Process the facebook redirect"""
-        sess_state = request.session.get('state')
+        sess_state = request.session.pop('velruse.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
             raise CSRFError(
