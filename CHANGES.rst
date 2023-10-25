@@ -1,3 +1,8 @@
+1.3.9 beta (2023-10-25)
+==================
+
+Python 3.9 and Pyramid 1.10 support verified, moved most providers from lib to main directory as possibly outdated (openid), Google, Gitub and Facebook (unverified) remaining. Twitter kicked us out, so moved too. Simply copy a provider back if you need it.
+
 1.1.1 (2013-08-29)
 ==================
 
