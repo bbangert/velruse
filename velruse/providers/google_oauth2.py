@@ -161,19 +161,23 @@ class GoogleOAuth2Provider(object):
 
         if r.status_code == 200:
             data = r.json()
+            
+            #import logging
+            #logging.info('Google Oauth2 Response JSON: %s', data)
+            # {u'name': u'John Smith', u'picture': u'https://lh3.googleusercontent.com/a-/oijf2UoVzoEvq1LyuR0u', u'id': u'8281828828827363', u'verified_email': True, u'locale': u'de', u'given_name': u'John', u'email': u'js@gmail.com', u'family_name': u'Smith'}
+            
             profile['accounts'] = [{
                 'domain': self.domain,
-                'username': data['email'],
-                'userid': data['id']
+                'username': data.get('email'),
+                'userid': data.get('id'),
+                'data': data # someone might need the raw data (e.g. for locale)
             }]
-            if 'name' in data:
-                profile['displayName'] = data['name']
-            else:
-                profile['displayName'] = data['email']
-            profile['preferredUsername'] = data['email']
-            profile['verifiedEmail'] = data['email']
-            profile['emails'] = [{'value': data['email']}]
-
+            
+            profile['displayName'] = data.get('name')
+            profile['preferredUsername'] = data.get('email')
+            profile['verifiedEmail'] = data.get('email')
+            profile['emails'] = [{'value': data.get('email')}]
+        
         cred = {'oauthAccessToken': access_token,
                 'oauthRefreshToken': refresh_token}
         return GoogleAuthenticationComplete(profile=profile,

@@ -1,3 +1,7 @@
+I verified that velruse works with Pyramid 1.10 and Python 2.7 - 3.9 without additional changes.
+I removed most providers to the root directory, many are completely outdated.
+Google works with localhost. Apple provider is missing badly!
+
 Velruse is a set of authentication routines that provide a unified way
 to have a website user authenticate to a variety of different identity
 providers and/or a variety of different authentication schemes.

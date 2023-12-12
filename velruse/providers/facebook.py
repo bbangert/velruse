@@ -80,7 +80,8 @@ class FacebookProvider(object):
         display = request.POST.get('display', self.display)
         request.session['velruse.state'] = state = uuid.uuid4().hex
         fb_url = flat_url(
-            'https://www.facebook.com/dialog/oauth/',
+            'https://www.facebook.com/dialog/oauth/', 
+            # We refer to an API call made without specifying a version as an unversioned call. An unversioned call will always point to the oldest available version. 
             scope=scope,
             display=display,
             client_id=self.consumer_key,
@@ -118,9 +119,11 @@ class FacebookProvider(object):
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
-        access_token = dict(parse_qsl(r.text))['access_token']
+        rbody = r.json()
+        access_token = rbody['access_token']
 
         # Retrieve profile data
+        # We refer to an API call made without specifying a version as an unversioned call. An unversioned call will always point to the oldest available version. 
         graph_url = flat_url('https://graph.facebook.com/me',
                              access_token=access_token)
         r = requests.get(graph_url)

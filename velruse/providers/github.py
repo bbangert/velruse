@@ -122,22 +122,20 @@ class GithubProvider(object):
                                         provider_type=self.type)
 
         # Now retrieve the access token with the code
-        access_url = flat_url(
-            '%s://%s/login/oauth/access_token' % (self.protocol, self.domain),
-            client_id=self.consumer_key,
-            client_secret=self.consumer_secret,
-            redirect_uri=request.route_url(self.callback_route),
-            code=code)
-        r = requests.get(access_url)
+        access_url = flat_url('%s://%s/login/oauth/access_token' % (self.protocol, self.domain))
+        payload = { "client_id": self.consumer_key, 
+            "client_secret": self.consumer_secret,
+            "redirect_uri": request.route_url(self.callback_route),
+            "code": code}
+        r = requests.post(access_url, data=payload)
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
                 r.status_code, r.content))
         access_token = dict(parse_qsl(r.text))['access_token']
 
         # Retrieve profile data
-        graph_url = flat_url('%s://api.%s/user' % (self.protocol, self.domain),
-                             access_token=access_token)
-        graph_headers = dict(Accept='application/vnd.github.v3+json')
+        graph_url = flat_url('%s://api.%s/user' % (self.protocol, self.domain))
+        graph_headers = { "Accept":'application/vnd.github.v3+json', "Authorization": "token " + access_token}
         r = requests.get(graph_url, headers=graph_headers)
         if r.status_code != 200:
             raise ThirdPartyFailure("Status %s: %s" % (
