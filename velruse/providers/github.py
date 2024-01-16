@@ -107,9 +107,13 @@ class GithubProvider(object):
         sess_state = request.session.pop('velruse.state', None)
         req_state = request.GET.get('state')
         if not sess_state or sess_state != req_state:
+            err_id = request.GET.get('error', 'CSRF Validation check failed')
+            err_desc = request.GET.get('error_description', '')
             raise CSRFError(
-                'CSRF Validation check failed. Request state {req_state} is '
+                '{err_id}: {err_desc} Request state {req_state} is '
                 'not the same as session state {sess_state}'.format(
+                    err_id=err_id,
+                    err_desc=err_desc,
                     req_state=req_state,
                     sess_state=sess_state
                 )
